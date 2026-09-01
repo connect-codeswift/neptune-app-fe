@@ -150,7 +150,6 @@ export function ReportIncidentStepTwo(
               <div className="pb-4.5">
                 <ReportSelectWithAdd
                   label="Initial Treatment"
-                  required
                   value={form.initialTreatment}
                   onChange={(initialTreatment) =>
                     onChange({ initialTreatment })
@@ -172,7 +171,6 @@ export function ReportIncidentStepTwo(
             >
               <ReportSelectField
                 label="Was Secondary Treatment Sought"
-                required
                 value={form.secondaryTreatment}
                 onChange={(answer) =>
                   onChange({
@@ -223,7 +221,6 @@ export function ReportIncidentStepTwo(
               <div className="pb-4.5">
                 <ReportSelectField
                   label="What treatment was given?"
-                  required
                   value={form.whatTreatmentWasGiven}
                   onChange={(answer) =>
                     onChange({ whatTreatmentWasGiven: answer })
@@ -234,7 +231,6 @@ export function ReportIncidentStepTwo(
               <div className="pb-4.5">
                 <ReportSelectField
                   label="Treatment provided by?"
-                  required
                   value={form.treatmentProvidedBy}
                   onChange={(answer) =>
                     onChange({ treatmentProvidedBy: answer })
@@ -245,7 +241,6 @@ export function ReportIncidentStepTwo(
               <div className="pb-4.5">
                 <ReportSelectField
                   label="Treatment location?"
-                  required
                   value={form.treatmentLocation}
                   onChange={(answer) => onChange({ treatmentLocation: answer })}
                   options={[...TREATMENT_LOCATION_OPTIONS]}
@@ -254,7 +249,6 @@ export function ReportIncidentStepTwo(
               <div className="pb-4.5">
                 <ReportSelectField
                   label="Is employee able to return to full duty?"
-                  required
                   value={form.isFitForFullDuty}
                   onChange={(answer) => onChange({ isFitForFullDuty: answer })}
                   options={[...FIT_FOR_DUTY_OPTIONS]}
@@ -270,7 +264,6 @@ export function ReportIncidentStepTwo(
               >
                 <ReportSelectField
                   label="Case disposition?"
-                  required
                   value={form.caseDisposition}
                   onChange={(answer) =>
                     onChange({
@@ -304,7 +297,6 @@ export function ReportIncidentStepTwo(
             <div className={isFirstAid ? "sm:col-span-2" : ""}>
               <ReportTextField
                 label="Object Involved"
-                required
                 trailingHint="ⓘ What caused the injury"
                 value={form.objectInvolved}
                 onChange={(event) =>
@@ -336,7 +328,6 @@ export function ReportIncidentStepTwo(
             // without being clipped by the control strip along the bottom.
             className="pt-4.5 [&_textarea]:min-h-41"
             label="Describe incident in detail"
-            required
             trailingHint="Events before, during & after."
             value={form.description}
             onChange={(event) => {

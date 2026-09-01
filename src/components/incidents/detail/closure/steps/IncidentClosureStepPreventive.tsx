@@ -17,6 +17,8 @@ export type IncidentClosureStepPreventiveProps = Readonly<{
     value: IncidentClosureData[K],
   ) => void;
   onToggleCheckItem?: (itemId: string) => void;
+  /** Sends the closer to the Linked CAPA tab, the one place CAPAs are raised. */
+  onManageCapas?: () => void;
 }>;
 
 /**
@@ -31,7 +33,7 @@ function capaBadgeStyle(status: ClosureLinkedCapaItem["status"]) {
 export function IncidentClosureStepPreventive(
   props: Readonly<IncidentClosureStepPreventiveProps>,
 ) {
-  const { data, onChangeField } = props;
+  const { data, onChangeField, onManageCapas } = props;
 
   const linkedCapas = data.closureLinkedCapas ?? [];
 
@@ -100,6 +102,29 @@ export function IncidentClosureStepPreventive(
             </div>
           ))}
         </div>
+
+        {/*
+          A pointer to where CAPAs are actually managed, not a control of its own.
+          This was a "Link additional CAPA or Action Item" button opening a picker
+          whose candidate list was the already-linked set, so it could never link
+          anything; the one thing it could do — untick and save — wrote to closure
+          form state that `closureLinkedCapas` is not part of, so the CAPA vanished
+          from the step, the draft saved 200, and the link was still there on
+          reload. A control that reports success for work it did not do is worse on
+          a compliance record than no control.
+          A CAPA's incident is set when it is raised and the API has no way to move
+          it, so raising one from the Linked CAPA tab is the whole of the real flow.
+        */}
+        {onManageCapas ? (
+          <button
+            type="button"
+            onClick={onManageCapas}
+            className="text-ehs-normal-blue text4 mt-3 flex items-center gap-1.5 font-bold transition-colors hover:underline"
+          >
+            <Icon icon="mdi:arrow-right" className="size-4" />
+            <span>Manage CAPAs in the Linked CAPA tab</span>
+          </button>
+        ) : null}
       </div>
 
       {/* Notes. Still persisted as `actionsTaken` (the backend column is unchanged),

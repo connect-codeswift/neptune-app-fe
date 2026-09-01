@@ -54,6 +54,29 @@ export function incidentMatchesSeverityFilter(
 }
 
 /**
+ * Pulls an incident id out of whatever was typed, accepting the form the grid
+ * renders (`INC-1`) plus the separator and casing variants people actually type
+ * (`inc 1`, `INC#1`, `inc1`). Anything else returns null and the search stays
+ * purely free-text.
+ *
+ * Kept deliberately in step with ParseIncidentReference in IncidentRepository.cs.
+ * The local search pass is only correct as a no-op when it accepts everything the
+ * server accepts; matching a haystack that held just the hyphenated form meant
+ * `inc1` and `INC 1` were dropped here after the server had correctly returned
+ * them, which read to the user as id search being broken.
+ */
+function parseIncidentReference(searchQuery: string): number | null {
+  let value = searchQuery.trim();
+
+  if (/^inc/i.test(value)) {
+    value = value.slice(3).replace(/^[-\s#]+/, "");
+  }
+
+  // Plain digits only, so "+1", "1.0" and "1 2" are not read as ids.
+  return /^\d+$/.test(value) && Number(value) > 0 ? Number(value) : null;
+}
+
+/**
  * Case-insensitive match across the incident's searchable fields.
  *
  * This haystack is the client half of a cross-repo contract: the server-side
@@ -70,6 +93,13 @@ export function incidentMatchesSearch(
 ): boolean {
   const query = searchQuery.trim().toLowerCase();
   if (!query) {
+    return true;
+  }
+
+  // Additive, like the server's id clause: a bare number is a plausible free-text
+  // search too ("press 4"), so matching the id must not stop the text match below.
+  const reference = parseIncidentReference(searchQuery);
+  if (reference !== null && incident.numericId === reference) {
     return true;
   }
 

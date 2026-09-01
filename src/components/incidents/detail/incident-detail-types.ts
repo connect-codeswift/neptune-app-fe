@@ -11,13 +11,22 @@ export type {
   HrcaWhyStep,
 } from "@/components/incidents/detail/investigations/hrca/hrca-data";
 
-export type IncidentDetailInfoItemKind = "text" | "yesno" | "readonly";
+export type IncidentDetailInfoItemKind =
+  "text" | "yesno" | "select" | "readonly";
 
 export type IncidentDetailInfoItem = Readonly<{
   key: string;
   label: string;
   value: string;
   kind?: IncidentDetailInfoItemKind;
+  /**
+   * Choices for `kind: "select"`. Both sides are the stored display label,
+   * because that is what the report wizard persists for these fields
+   * (report-incident.mapper resolves the option slug to its label before the
+   * request goes out), so the picker round-trips the value already on the
+   * record instead of rewriting it into a slug.
+   */
+  options?: readonly string[];
 }>;
 
 export type IncidentDetailResponseAction = Readonly<{
