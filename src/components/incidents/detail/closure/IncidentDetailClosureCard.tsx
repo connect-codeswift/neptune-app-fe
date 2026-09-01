@@ -169,6 +169,7 @@ export function IncidentDetailClosureCard(
             <IncidentClosureStepReview
               data={data}
               onChangeField={onChangeField}
+              onGoToStep={goToStep}
             />
           )}
         </IncidentGlassCard>
