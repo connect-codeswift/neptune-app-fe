@@ -72,8 +72,6 @@ export const LOTO_ISOLATION_METHODS = [
   "Block / Bleed",
 ] as const;
 
-const stepSeq = 0;
-
 export function createEmptyIsolationStep(
   overrides: Partial<LotoIsolationStep> = {},
 ): LotoIsolationStep {

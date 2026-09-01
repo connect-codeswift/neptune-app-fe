@@ -94,4 +94,3 @@ function Stat(props: Readonly<{ value: string; label: string }>) {
     </div>
   );
 }
-
