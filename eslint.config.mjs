@@ -39,6 +39,23 @@ const eslintConfig = defineConfig([
     },
   },
   {
+    // A leading underscore is this repo's existing marker for a binding kept
+    // deliberately — a parameter held for an endpoint's signature that the
+    // service does not yet send. Without this the marker still warns, which
+    // makes the convention unusable.
+    files: ["src/**/*.{ts,tsx}"],
+    rules: {
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
+        },
+      ],
+    },
+  },
+  {
     // Tailwind v4 conventions. Everything here is a warning, never an error:
     // these flag drift from the house style, they do not block a build.
     files: ["src/**/*.{ts,tsx}"],
@@ -114,6 +131,11 @@ const eslintConfig = defineConfig([
     // vendored pdf.js worker (public/pdf.worker.min.mjs, ~1MB minified) is
     // linted as source and reports well over a thousand problems.
     "public/**",
+    // Per-developer agent tooling (gitignored, see .gitignore). CommonJS hook
+    // scripts run by Claude Code / Cursor, not app source — linting them only
+    // reports no-require-imports against files that must use require().
+    ".claude/**",
+    ".cursor/**",
   ]),
   // Switches off every ESLint rule that would fight Prettier. Must come before
   // the block below, which re-adds Prettier as a reporting rule.

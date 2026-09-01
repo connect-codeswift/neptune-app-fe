@@ -4,8 +4,8 @@ import { Icon } from "@iconify/react";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
-import { AiInFieldDraft } from "@/components/ai/AiInFieldDraft";
 import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
+import { useIncidentFieldDraft } from "@/components/incidents/report/shared/use-incident-draft";
 import {
   markAiAssisted,
   type ReportIncidentFormState,
@@ -26,12 +26,7 @@ export function ReportIncidentStepThree(
 ) {
   const { form, onChange, onBack, onContinue, className = "" } = props;
 
-  // Only wait where a draft could actually land. Once the reporter has written
-  // here their words win and the arriving draft is discarded, so a spinner
-  // would resolve to nothing every time.
-  const draftPending =
-    form.aiDraftPending && form.injuryDescription.trim() === "";
-  const showsDraft = draftPending || form.aiDrafts.injuryDescription !== null;
+  const draft = useIncidentFieldDraft(form, onChange, "injuryDescription");
 
   return (
     <IncidentGlassCard
@@ -87,65 +82,28 @@ export function ReportIncidentStepThree(
               label="Injury description"
               value={form.injuryDescription}
               onChange={(event) => {
-                const injuryDescription = event.target.value;
-                // Their own words take over: a draft still sitting underneath
-                // while they type is an offer they have already answered.
-                onChange({
-                  injuryDescription,
-                  ...(form.aiDrafts.injuryDescription
-                    ? {
-                        aiDrafts: {
-                          ...form.aiDrafts,
-                          injuryDescription: null,
-                        },
-                      }
-                    : {}),
-                });
+                onChange({ injuryDescription: event.target.value });
               }}
-              // Suppressed while a draft occupies the field — the browser would
-              // otherwise paint the placeholder underneath the ghost text.
-              placeholder={showsDraft ? "" : "Describe the injury…"}
+              placeholder="Describe the injury…"
               rows={3}
               assistant={
-                showsDraft ? (
-                  <AiInFieldDraft
-                    draft={form.aiDrafts.injuryDescription}
-                    pending={draftPending}
-                    onAccept={(text) =>
-                      onChange({
-                        injuryDescription: text,
-                        aiAssistedFields: markAiAssisted(
-                          form.aiAssistedFields,
-                          "injuryDescription",
-                        ),
-                        aiDrafts: { ...form.aiDrafts, injuryDescription: null },
-                      })
-                    }
-                    onDismiss={() =>
-                      onChange({
-                        aiDrafts: { ...form.aiDrafts, injuryDescription: null },
-                      })
-                    }
-                  />
-                ) : (
-                  // The rewrite buttons need text to work on, so they only take
-                  // the slot back once the draft has been resolved either way.
-                  <AiTextAssistant
-                    module="incident"
-                    value={form.injuryDescription}
-                    onApply={(injuryDescription) => {
-                      onChange({ injuryDescription });
-                    }}
-                    onAssisted={() => {
-                      onChange({
-                        aiAssistedFields: markAiAssisted(
-                          form.aiAssistedFields,
-                          "injuryDescription",
-                        ),
-                      });
-                    }}
-                  />
-                )
+                <AiTextAssistant
+                  module="incident"
+                  value={form.injuryDescription}
+                  draftPending={draft.pending}
+                  onRegenerateDraft={draft.run}
+                  onApply={(injuryDescription) => {
+                    onChange({ injuryDescription });
+                  }}
+                  onAssisted={() => {
+                    onChange({
+                      aiAssistedFields: markAiAssisted(
+                        form.aiAssistedFields,
+                        "injuryDescription",
+                      ),
+                    });
+                  }}
+                />
               }
             />
           </div>

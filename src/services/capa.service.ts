@@ -30,7 +30,6 @@ import { normalizeCapaWorkloadByOwnerDto } from "@/services/mappers/capa-workloa
 const CAPA_PATH = "/capas";
 const CAPA_TASKS_PATH = "/capa-tasks";
 const INCIDENTS_PATH = "/incidents";
-const RCAS_PATH = "/rcas";
 const CAPA_DASHBOARD_KPIS_PATH = "/capas/dashboard-kpis";
 const CAPA_LIFECYCLE_PATH = "/capas/lifecycle";
 const CAPA_OPENED_CLOSED_PATH = "/capas/opened-vs-closed";

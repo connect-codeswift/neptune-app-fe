@@ -13,11 +13,6 @@ import {
   normalizeClassifications,
 } from "@/forms/incident-module/classification";
 import { DEFAULT_REPORT_PHOTOS } from "@/forms/incident-module/attachments";
-import {
-  EMPTY_DESCRIPTION_DRAFT,
-  type ReportDescriptionDraft,
-} from "@/components/incidents/report/shared/report-ai-draft";
-
 /** Step 2 dropdowns the reporter can extend with their own options. */
 /**
  * A witness has to be someone in the system, so the account id travels with the name.
@@ -43,22 +38,6 @@ const EMPTY_CUSTOM_OPTIONS: Readonly<
  */
 export type AiAssistedFieldName =
   "description" | "injuryDescription" | "actionNotes";
-
-/**
- * Drafts from one `draft-assist` call, held until the reporter accepts or
- * dismisses each one. `null` means either "the model returned nothing for this
- * field" or "already dealt with" — both render as nothing at all, which is the
- * same outcome, so they don't need telling apart.
- */
-export type ReportAiDrafts = Readonly<{
-  injuryDescription: string | null;
-  actionNotes: string | null;
-}>;
-
-export const EMPTY_AI_DRAFTS: ReportAiDrafts = {
-  injuryDescription: null,
-  actionNotes: null,
-};
 
 /** Records that a field's text came from a draft. Accepting twice is a no-op. */
 export function markAiAssisted(
@@ -92,12 +71,6 @@ export type ReportIncidentFormState = Readonly<{
   /** `""` until the reporter answers — see ClassificationValue. */
   classifications: Record<string, ClassificationValue>;
   description: string;
-  /**
-   * A draft offered for `description`, built from the answers above it. Held
-   * outside `description` until accepted, so it can never overwrite words the
-   * reporter wrote themselves.
-   */
-  descriptionDraft: ReportDescriptionDraft;
   title: string;
   initialTreatment: string;
   secondaryTreatment: "Yes" | "No";
@@ -144,22 +117,6 @@ export type ReportIncidentFormState = Readonly<{
    * honest record for what is an OSHA-relevant document.
    */
   aiAssistedFields: readonly AiAssistedFieldName[];
-  /** Pending drafts for steps 3 and 4. */
-  aiDrafts: ReportAiDrafts;
-  /**
-   * What the current drafts were generated from: the description, plus the
-   * injury level and body part once the reporter has chosen them. Compared
-   * against the live values to spot a stale draft when they go back and edit;
-   * `""` means nothing has been drafted yet.
-   *
-   * The injury selections are part of the key because they arrive after the
-   * first call — they live on step 3, and the first request goes out when the
-   * reporter leaves step 2. Keying on the description alone would mean the
-   * injury draft is generated once, without the body part, and never retried.
-   */
-  aiDraftSource: string;
-  /** True while a draft-assist call is in flight. */
-  aiDraftPending: boolean;
   /** First Aid Step 2 + API required fields */
   whatTreatmentWasGiven: string;
   treatmentProvidedBy: string;
@@ -213,7 +170,6 @@ export function createInitialReportFormState(): ReportIncidentFormState {
       CLASSIFICATION_FIELDS.map((field) => [field.id, field.defaultValue]),
     ) as Record<string, ClassificationValue>,
     description: "",
-    descriptionDraft: EMPTY_DESCRIPTION_DRAFT,
     title: "",
     initialTreatment: "",
     secondaryTreatment: "No",
@@ -235,9 +191,6 @@ export function createInitialReportFormState(): ReportIncidentFormState {
     immediateActions: [],
     actionNotes: "",
     aiAssistedFields: [],
-    aiDrafts: EMPTY_AI_DRAFTS,
-    aiDraftSource: "",
-    aiDraftPending: false,
     whatTreatmentWasGiven: "",
     treatmentProvidedBy: "",
     treatmentLocation: "",

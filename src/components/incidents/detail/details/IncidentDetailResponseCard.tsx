@@ -36,6 +36,25 @@ export function IncidentDetailResponseCard(
   } = props;
   const isInteractive = isEditing && onToggleAction !== undefined;
 
+  /*
+   * Read-only, this card is a record of what was done on scene — not a
+   * checklist of what could have been.
+   *
+   * The mapper deliberately returns all six options with a `completed` flag,
+   * because editing needs the unticked ones to be reachable and the header
+   * stat counts against the full set. Rendering that list as-is here put five
+   * unticked tiles next to the one action that actually happened, which reads
+   * as five things still outstanding rather than five things that were never
+   * part of this incident.
+   *
+   * It also made the empty state unreachable: `actions` was always six long,
+   * so an incident where nothing was logged showed six blank tiles instead of
+   * saying so.
+   */
+  const visibleActions = isInteractive
+    ? actions
+    : actions.filter((action) => action.completed);
+
   return (
     <IncidentGlassCard
       paddingClassName="p-5.75"
@@ -55,7 +74,7 @@ export function IncidentDetailResponseCard(
         </span>
       </div>
 
-      {actions.length === 0 && !isInteractive ? (
+      {visibleActions.length === 0 && !isInteractive ? (
         <EmptyState
           variant="plain"
           icon="mdi:medical-bag"
@@ -64,7 +83,7 @@ export function IncidentDetailResponseCard(
         />
       ) : (
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-          {actions.map((action) => (
+          {visibleActions.map((action) => (
             <CheckboxInput
               key={action.id}
               variant="tile"

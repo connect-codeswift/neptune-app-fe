@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
+import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
 
 const CHEMICALS_HREF = "/dashboard/hazcom/chemicals";
 
@@ -23,6 +24,7 @@ function Chevron() {
 export type ChemicalEditHeaderProps = Readonly<{
   chemicalId?: string;
   chemicalName?: string;
+  isDraft?: boolean;
   className?: string;
 }>;
 
@@ -30,7 +32,7 @@ export type ChemicalEditHeaderProps = Readonly<{
  * Edit Chemical hero — breadcrumbs + title (aligned with Hazard / Policy edit).
  */
 export function ChemicalEditHeader(props: Readonly<ChemicalEditHeaderProps>) {
-  const { chemicalId, chemicalName, className = "" } = props;
+  const { chemicalId, chemicalName, isDraft = false, className = "" } = props;
   const detailHref =
     chemicalId != null && chemicalId !== ""
       ? `${CHEMICALS_HREF}/${encodeURIComponent(chemicalId)}`
@@ -80,9 +82,20 @@ export function ChemicalEditHeader(props: Readonly<ChemicalEditHeaderProps>) {
         </Link>
 
         <div className="flex min-w-0 flex-col gap-0.5">
-          <Text as="h1" className="text1 text-ehs-darker">
-            Edit Chemical
-          </Text>
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
+            <Text as="h1" className="text1 text-ehs-darker">
+              Edit Chemical
+            </Text>
+            {/* Drafts only — a published record needs no badge here. */}
+            {isDraft ? (
+              <IncidentBadge
+                label="Draft"
+                tone="warn"
+                showDot
+                className="text5 w-fit rounded-md px-2 py-0.5 tracking-normal"
+              />
+            ) : null}
+          </div>
           <Text as="p" className="text8 text-ehs-muted-text">
             {chemicalName
               ? `Update inventory record for ${chemicalName}`

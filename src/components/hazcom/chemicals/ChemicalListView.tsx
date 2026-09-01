@@ -18,6 +18,7 @@ import {
   HazcomRegisterHeader,
 } from "@/components/hazcom/shared";
 import { ChemicalListTable } from "@/components/hazcom/chemicals/ChemicalListTable";
+import { Button } from "@/components/ui/Button";
 import { ModuleSearchBar } from "@/components/ui/ModuleSearchBar";
 import {
   CHEMICAL_STATUS_FILTER_OPTIONS,
@@ -222,14 +223,20 @@ export function ChemicalListView(props: Readonly<ChemicalListViewProps>) {
                       a hundred is this. */}
                   <Link
                     href="/dashboard/hazcom/chemicals/import"
-                    className={TABLE_HEADER_SECONDARY_ACTION_CLASS}
+                    className="shrink-0"
                   >
-                    <Icon
-                      icon="mdi:database-import-outline"
-                      className={TABLE_HEADER_ACTION_ICON_CLASS}
-                      aria-hidden="true"
-                    />
-                    Import
+                    <Button
+                      type="button"
+                      variant="tertiary"
+                      className={TABLE_HEADER_SECONDARY_ACTION_CLASS}
+                    >
+                      <Icon
+                        icon="mdi:database-import-outline"
+                        className={TABLE_HEADER_ACTION_ICON_CLASS}
+                        aria-hidden="true"
+                      />
+                      Import
+                    </Button>
                   </Link>
                 </HazcomRegisterHeader>
               }
