@@ -33,6 +33,12 @@ export type SdsLibraryTableProps = Readonly<{
   onViewMore?: (id: string) => void;
   /** When true (detail panel closed), columns use the wider layout. */
   expanded?: boolean;
+  /**
+   * Draw the row's Manage (cog) shortcut. Defaults to false so a caller that
+   * has not thought about permissions gets the read-only table rather than
+   * silently offering an edit route the API will refuse.
+   */
+  canManage?: boolean;
   header?: ReactNode;
   className?: string;
 }>;
@@ -71,6 +77,7 @@ export type SdsLibraryColumnOptions = Readonly<{
   selectedId: string | null;
   onViewMore: (id: string) => void;
   expanded?: boolean;
+  canManage: boolean;
 }>;
 
 /**
@@ -81,7 +88,7 @@ export type SdsLibraryColumnOptions = Readonly<{
 function createSdsLibraryColumns(
   options: SdsLibraryColumnOptions,
 ): ColumnDef<HazcomSdsRecord, unknown>[] {
-  const { selectedId, onViewMore, expanded = true } = options;
+  const { selectedId, onViewMore, expanded = true, canManage } = options;
 
   const columns = [
     columnHelper.accessor("id", {
@@ -265,6 +272,12 @@ function createSdsLibraryColumns(
     }),
   ] as ColumnDef<HazcomSdsRecord, unknown>[];
 
+  // The eye stays for everyone — reading an SDS is exactly what a worker comes
+  // here to do. Only the cog, which opens the edit route, is held back.
+  if (!canManage) {
+    return columns;
+  }
+
   return withManageAction(columns, {
     getHref: (row) => `/dashboard/hazcom/sds/${encodeURIComponent(row.id)}`,
     getAriaLabel: (row) => `Manage SDS record ${row.chemicalName}`,
@@ -283,6 +296,7 @@ export function SdsLibraryTable(props: Readonly<SdsLibraryTableProps>) {
     selectedId = null,
     onViewMore,
     expanded = true,
+    canManage = false,
     header,
     className = "",
   } = props;
@@ -293,8 +307,9 @@ export function SdsLibraryTable(props: Readonly<SdsLibraryTableProps>) {
         selectedId,
         onViewMore: onViewMore ?? (() => undefined),
         expanded,
+        canManage,
       }),
-    [selectedId, onViewMore, expanded],
+    [selectedId, onViewMore, expanded, canManage],
   );
 
   const table = useReactTable({

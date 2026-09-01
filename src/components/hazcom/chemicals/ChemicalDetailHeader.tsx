@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
+import { Can } from "@/components/auth/Can";
 import {
   IncidentBadge,
   type IncidentBadgeTone,
@@ -124,23 +125,27 @@ export function ChemicalDetailHeader(
         </div>
 
         <div className="grid w-full min-w-0 grid-cols-1 gap-2 min-[480px]:grid-cols-2 sm:flex sm:w-auto sm:flex-wrap sm:items-center sm:justify-end">
-          <Link
-            href={`/dashboard/hazcom/chemicals/${encodeURIComponent(chemical.id)}/edit`}
-            className="min-w-0"
-          >
-            <Button
-              type="button"
-              variant="tertiary"
-              className={`${actionBaseClass} border-ehs-border-ink/14 text-ehs-dark-bg border shadow-none`}
+          {/* Printing a label reads the chemical; editing it writes. Only the
+              write is held back, so a worker keeps the label they came for. */}
+          <Can do="HazCom.Update">
+            <Link
+              href={`/dashboard/hazcom/chemicals/${encodeURIComponent(chemical.id)}/edit`}
+              className="min-w-0"
             >
-              <Icon
-                icon="mdi:pencil-outline"
-                className="size-4"
-                aria-hidden="true"
-              />
-              Edit
-            </Button>
-          </Link>
+              <Button
+                type="button"
+                variant="tertiary"
+                className={`${actionBaseClass} border-ehs-border-ink/14 text-ehs-dark-bg border shadow-none`}
+              >
+                <Icon
+                  icon="mdi:pencil-outline"
+                  className="size-4"
+                  aria-hidden="true"
+                />
+                Edit
+              </Button>
+            </Link>
+          </Can>
           <Link href="/dashboard/hazcom/labels" className="min-w-0">
             <Button type="button" variant="primary" className={actionBaseClass}>
               <Icon

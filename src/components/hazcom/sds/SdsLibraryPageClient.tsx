@@ -18,6 +18,7 @@ import {
   DEFAULT_HAZCOM_PAGE_SIZE,
   useSdsListQuery,
 } from "@/hooks/use-hazcom-queries";
+import { useCapabilities } from "@/lib/capabilities";
 
 export function SdsLibraryPageClient() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -26,6 +27,11 @@ export function SdsLibraryPageClient() {
 
   const { items, totalRecords, isLoading, isFetching, errorMessage, refetch } =
     useSdsListQuery({ pageNumber, pageSize: DEFAULT_HAZCOM_PAGE_SIZE });
+
+  // Reading an SDS is what a worker comes here for, so the table and its eye
+  // stay; the cog opens the edit route, which their token cannot call.
+  const { can, isReady } = useCapabilities();
+  const canEdit = isReady && can("HazCom.Update");
 
   /**
    * Page-scoped search: GET /api/hazcom/sds takes only pageNumber and
@@ -126,6 +132,7 @@ export function SdsLibraryPageClient() {
               selectedId={activeId}
               onViewMore={handleToggleDetailPanel}
               expanded={!isPanelOpen}
+              canManage={canEdit}
               header={
                 <HazcomRegisterHeader
                   title="Library"
@@ -135,6 +142,7 @@ export function SdsLibraryPageClient() {
                   primaryLabel="Upload SDS"
                   primaryShortLabel="Upload"
                   primaryIcon="mdi:tray-arrow-up"
+                  primaryCapability="HazCom.Create"
                 />
               }
               className="min-w-0"

@@ -28,6 +28,7 @@ import {
   type ChemicalStatusFilter,
 } from "@/components/hazcom/chemicals/chemical-utils";
 import { ModuleFilterBar } from "@/components/ui/ModuleFilterBar";
+import { useCapabilities } from "@/lib/capabilities";
 import { isoToMmDdYyyy } from "@/lib/date-time-field";
 import {
   DEFAULT_CHEMICALS_PAGE_NUMBER,
@@ -55,6 +56,18 @@ export function ChemicalListView(props: Readonly<ChemicalListViewProps>) {
     errorMessage,
     refetch,
   } = useChemicalsListQuery({ pageNumber, pageSize });
+
+  // Each control names the capability its own endpoint enforces. A worker holds
+  // HazCom.View and nothing else, so the register reads for them and offers no
+  // way in that the API would only refuse.
+  //
+  // Export has no capability of its own — it is a client-side CSV of the rows
+  // already on screen — so it rides with the write capabilities rather than
+  // handing the whole inventory to a reader. Change this line, not the button,
+  // if a HazCom.Export capability is ever added.
+  const { can, isReady } = useCapabilities();
+  const canCreate = isReady && can("HazCom.Create");
+  const canEdit = isReady && can("HazCom.Update");
 
   /**
    * Page-scoped search: GET /api/hazcom/chemical accepts only pageNumber and
@@ -203,6 +216,7 @@ export function ChemicalListView(props: Readonly<ChemicalListViewProps>) {
               chemicals={filteredChemicals}
               selectedId={activeChemicalId}
               onViewMore={handleToggleDetailPanel}
+              canManage={canEdit}
               header={
                 <HazcomRegisterHeader
                   title="Inventory"
@@ -211,33 +225,37 @@ export function ChemicalListView(props: Readonly<ChemicalListViewProps>) {
                   primaryHref="/dashboard/hazcom/chemicals/new"
                   primaryLabel="Add Chemical"
                   primaryShortLabel="Add"
+                  primaryCapability="HazCom.Create"
                   secondaryAction={{
                     label: "Export",
                     icon: "mdi:download",
                     disabled: chemicals.length === 0,
                     onClick: () => exportChemicalsToCsv(chemicals),
                   }}
+                  secondaryCapability="HazCom.Create"
                 >
                   {/* Export owns secondaryAction, so Import goes in the slot
                       beside it. Adding one chemical is the primary path; adding
-                      a hundred is this. */}
-                  <Link
-                    href="/dashboard/hazcom/chemicals/import"
-                    className="shrink-0"
-                  >
-                    <Button
-                      type="button"
-                      variant="tertiary"
-                      className={TABLE_HEADER_SECONDARY_ACTION_CLASS}
+                      a hundred is this — same capability either way. */}
+                  {canCreate ? (
+                    <Link
+                      href="/dashboard/hazcom/chemicals/import"
+                      className="shrink-0"
                     >
-                      <Icon
-                        icon="mdi:database-import-outline"
-                        className={TABLE_HEADER_ACTION_ICON_CLASS}
-                        aria-hidden="true"
-                      />
-                      Import
-                    </Button>
-                  </Link>
+                      <Button
+                        type="button"
+                        variant="tertiary"
+                        className={TABLE_HEADER_SECONDARY_ACTION_CLASS}
+                      >
+                        <Icon
+                          icon="mdi:database-import-outline"
+                          className={TABLE_HEADER_ACTION_ICON_CLASS}
+                          aria-hidden="true"
+                        />
+                        Import
+                      </Button>
+                    </Link>
+                  ) : null}
                 </HazcomRegisterHeader>
               }
             />
