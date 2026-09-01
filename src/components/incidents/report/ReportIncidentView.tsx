@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "@/lib/toast";
 import {
   applySeverityFieldDefaults,
   createInitialReportFormState,
@@ -32,6 +33,14 @@ import {
   validateStepTwo,
 } from "@/components/incidents/report/steps";
 import { logAiAssistFailure } from "@/services/ai-text.service";
+import {
+  useDeleteIncidentDraftMutation,
+  useSaveIncidentDraftMutation,
+} from "@/hooks/use-incident-draft-queries";
+import {
+  REPORT_DRAFT_PAYLOAD_VERSION,
+  toDraftPayload,
+} from "@/forms/incident-module/draft-payload";
 
 /**
  * Per-step gate for forward navigation, keyed by the step being left.
@@ -98,6 +107,14 @@ function renderStepForm(
 
 export type ReportIncidentViewProps = Readonly<{
   initialForm?: Partial<ReportIncidentFormState>;
+  /**
+   * The draft this wizard saves into. Supplied when resuming one; otherwise a new
+   * id is minted here, so every report has somewhere to be saved from the start
+   * and "Save & exit" never has to decide whether a draft exists yet.
+   */
+  draftId?: string;
+  /** Step to open on. Used when resuming a draft where the reporter left off. */
+  initialStep?: ReportStepId;
   exitHref?: string;
   headerTitle?: string;
   backHref?: string;
@@ -109,6 +126,8 @@ export type ReportIncidentViewProps = Readonly<{
 export function ReportIncidentView(props: Readonly<ReportIncidentViewProps>) {
   const {
     initialForm,
+    draftId,
+    initialStep,
     exitHref = "/dashboard/incidents/list",
     headerTitle,
     backHref,
@@ -116,7 +135,9 @@ export function ReportIncidentView(props: Readonly<ReportIncidentViewProps>) {
     onAfterCreateIncident,
   } = props;
   const router = useRouter();
-  const [currentStep, setCurrentStep] = useState<ReportStepId>(1);
+  const [currentStep, setCurrentStep] = useState<ReportStepId>(
+    initialStep ?? 1,
+  );
   const [form, setForm] = useState<ReportIncidentFormState>(() => ({
     ...createInitialReportFormState(),
     ...initialForm,
@@ -125,6 +146,21 @@ export function ReportIncidentView(props: Readonly<ReportIncidentViewProps>) {
     Partial<Record<ReportStepId, boolean>>
   >({});
   const draftAssist = useDraftAssistMutation();
+  const saveDraftMutation = useSaveIncidentDraftMutation();
+  const deleteDraftMutation = useDeleteIncidentDraftMutation();
+
+  /**
+   * The id this report saves under, stable for the life of the wizard.
+   *
+   * <p>A lazy state initializer, so it is minted exactly once per mount. Minting
+   * it inline during render would produce a new id on every re-render and turn a
+   * reporter's second save into a second draft. It exists even for a report that
+   * is never saved, which is what lets the save be a plain PUT with no "have I
+   * saved before?" branch.</p>
+   */
+  const [reportDraftId] = useState<string>(
+    () => draftId ?? crypto.randomUUID(),
+  );
 
   // Fast Refresh can keep older form state that predates step-2 fields.
   const formDefaults = createInitialReportFormState();
@@ -375,11 +411,71 @@ export function ReportIncidentView(props: Readonly<ReportIncidentViewProps>) {
     router.push(exitHref);
   };
 
+  /**
+   * The report has been filed, so the draft of it is finished with.
+   *
+   * <p>Deleting it is what stops the same event being filed twice from a tab
+   * left open on the drafts list. It is deliberately not allowed to fail the
+   * submission: the incident is already saved by this point, and telling a
+   * reporter their report failed because a draft could not be tidied up would be
+   * both wrong and alarming. A draft that outlives its incident is a stale row,
+   * not a lost record.</p>
+   */
+  const handleAfterCreateIncident = async (incidentId: number) => {
+    try {
+      await deleteDraftMutation.mutateAsync(reportDraftId);
+    } catch {
+      // Intentionally swallowed. See above.
+    }
+
+    if (onAfterCreateIncident) {
+      await onAfterCreateIncident(incidentId);
+    }
+  };
+
+  /**
+   * Saves the unfinished report, then leaves.
+   *
+   * <p>This button used to be `router.push(exitHref)` and nothing else, so four
+   * steps of typing were discarded under a control that says Save. The order
+   * matters: navigation happens only after the save resolves, and a failed save
+   * keeps the reporter on the page with their work still in front of them. The
+   * one thing this must never do is leave and lose it quietly, which is exactly
+   * what it did before.</p>
+   */
+  const handleSaveExit = async () => {
+    if (saveDraftMutation.isPending) return;
+
+    try {
+      await saveDraftMutation.mutateAsync({
+        draftId: reportDraftId,
+        body: {
+          title: normalizedForm.title.trim() || null,
+          currentStep,
+          payloadVersion: REPORT_DRAFT_PAYLOAD_VERSION,
+          payload: toDraftPayload(normalizedForm),
+        },
+      });
+
+      toast.success(
+        "Draft saved",
+        "Pick it up from Drafts when you are ready.",
+      );
+      router.push(exitHref);
+    } catch {
+      toast.error(
+        "Could not save your draft",
+        "Nothing has been lost. Check your connection and try again.",
+      );
+    }
+  };
+
   return (
     <div className="flex min-h-screen min-w-0 flex-1 flex-col">
       <div className="flex min-w-0 flex-1 flex-col gap-0 px-3 pb-8 sm:px-4">
         <ReportIncidentPageHeader
-          onSaveExit={() => router.push(exitHref)}
+          onSaveExit={() => void handleSaveExit()}
+          isSavingExit={saveDraftMutation.isPending}
           backHref={backHref}
           backLabel={backLabel}
           title={headerTitle}
@@ -409,7 +505,7 @@ export function ReportIncidentView(props: Readonly<ReportIncidentViewProps>) {
             handleContinue,
             showStepFieldErrors,
             goToStep,
-            onAfterCreateIncident,
+            handleAfterCreateIncident,
           )}
 
           {isReviewStep ? null : (
