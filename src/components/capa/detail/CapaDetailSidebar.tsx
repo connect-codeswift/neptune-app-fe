@@ -1,9 +1,11 @@
 "use client";
 
 import type { ReactNode } from "react";
+import Link from "next/link";
 import { IncidentGlassCard } from "@/components/incidents";
 import { Text } from "@/components/Text";
 import type { CapaDetailRecord } from "@/components/capa/detail/capa-detail-data";
+import { capaSourceHref } from "@/services/mappers/capa.mapper";
 
 export type CapaDetailSidebarProps = Readonly<{
   record: CapaDetailRecord;
@@ -23,6 +25,8 @@ function MetaRow(props: Readonly<{ label: string; children: ReactNode }>) {
 /** CAPA Details sidebar — Figma 1368:3232. */
 export function CapaDetailSidebar(props: CapaDetailSidebarProps) {
   const { record } = props;
+
+  const sourceHref = capaSourceHref(record.sourceType, record.sourceId);
 
   return (
     <IncidentGlassCard
@@ -85,10 +89,27 @@ export function CapaDetailSidebar(props: CapaDetailSidebarProps) {
           </Text>
         </MetaRow>
 
-        <MetaRow label="Source">
-          <Text as="span" className="text-ehs-normal-blue text-base">
-            {record.source}
+        <MetaRow label="Assigned by">
+          <Text as="span" className="text-ehs-dark-bg text-base">
+            {record.assignedBy}
           </Text>
+        </MetaRow>
+
+        <MetaRow label="Source">
+          {sourceHref ? (
+            <Link
+              href={sourceHref}
+              className="text-ehs-normal-blue hover:text-ehs-normal-blue-hover text-base underline-offset-2 transition-colors hover:underline"
+            >
+              {record.source}
+            </Link>
+          ) : (
+            // Standalone, or a source with no page of its own such as an RCA. Rendered as
+            // text rather than a dead link.
+            <Text as="span" className="text-ehs-dark-bg text-base">
+              {record.source}
+            </Text>
+          )}
         </MetaRow>
 
         <MetaRow label="Module">

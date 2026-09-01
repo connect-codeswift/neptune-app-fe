@@ -29,9 +29,17 @@ export type HazcomChemical = Readonly<{
   pictograms: readonly HazcomPictogram[];
   signalWord: HazcomSignalWord;
   status: HazcomChemicalStatus;
+  /**
+   * Saved through "Save as Draft" rather than submitted. The inventory list
+   * returns drafts alongside real rows while the HazCom dashboard KPIs exclude
+   * them, so the table has to say which is which.
+   */
+  isDraft: boolean;
   sdsRecordId: string | null; // "SDS-12"
   sdsFileName: string | null; // "SDS_Hydrochloric_Acid_Rev2026.pdf"
   storageNotes: string;
+  /** ISO "2026-03-14", or null when none is recorded. */
+  expiryDate: string | null;
   hazardStatements: readonly HazcomStatementCode[];
   precautionaryStatements: readonly HazcomStatementCode[];
   addedOn: string; // ISO "2026-03-14"
@@ -75,6 +83,10 @@ export type HazcomTrainingSession = Readonly<{
   date: string; // ISO
   chemicalId: number | null;
   chemicalName: string;
+  /** FKs to Chemicals — the full set the session covered. */
+  chemicalIds: readonly number[];
+  /** Resolved names for {@link chemicalIds}, in the same order. */
+  chemicalNames: readonly string[];
   trainerId: number | null;
   /** Assigned user's `FullName`; legacy string for pre-FK rows. "TBD" when neither is set. */
   trainer: string;

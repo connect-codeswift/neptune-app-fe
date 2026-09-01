@@ -7,6 +7,13 @@ export type CreateNearMissResponseDto = CreateNearMissRequestDto & {
   createdAt?: string;
   /** "Open" | "Investigating" | "Closed"; null on records created before it existed. */
   status?: string | null;
+  /** Every attached photo. */
+  attachments?: string[] | null;
+  /** Who closed it and when; both null while it is open. */
+  closedById?: number | null;
+  closedAt?: string | null;
+  /** The incident this near miss was escalated into; null while not converted. */
+  incidentId?: number | null;
 };
 
 /** Matches backend response for POST /api/v1/near-misses/search. */

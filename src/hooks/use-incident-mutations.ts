@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { ReportIncidentFormState } from "@/components/incidents/report/shared/report-incident-state";
+import type { ReportIncidentFormState } from "@/forms/incident-module/form-state";
 import { getAuthContext } from "@/lib/auth-context";
 import type { IncidentDto } from "@/dtos/res/incident-response.dto";
 import type { IncidentClosureData } from "@/components/incidents/detail/incident-detail-types";
@@ -24,8 +24,26 @@ export function useCreateIncidentMutation() {
       const payload = mapReportFormToIncidentDto(form, auth);
       return createIncident(payload);
     },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: incidentQueryKeys.all });
+    /**
+     * Deliberately not awaited, and deliberately not able to throw.
+     *
+     * The incident is already saved by the time this runs. TanStack Query
+     * awaits `onSuccess` and rejects `mutateAsync` if it throws, so awaiting
+     * the invalidation here meant one failed list refetch turned a successful
+     * create into "Submit failed" — which re-enabled the submit button and
+     * invited the reporter to file the whole report a second time. The create
+     * endpoint has no idempotency key, so that retry is a real duplicate
+     * incident, not a no-op.
+     *
+     * A stale list until the next refetch is a far smaller problem.
+     */
+    onSuccess: () => {
+      void queryClient
+        .invalidateQueries({ queryKey: incidentQueryKeys.all })
+        .catch(() => {
+          // Nothing to do and nothing to tell the reporter: the report they
+          // filed is safe, and the list refreshes on its next fetch.
+        });
     },
   });
 }

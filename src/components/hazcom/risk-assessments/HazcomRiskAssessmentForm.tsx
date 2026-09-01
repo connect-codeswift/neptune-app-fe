@@ -20,6 +20,7 @@ import type { HazcomRiskAssessmentFormState } from "@/components/hazcom/risk-ass
 import { ReportSelectField } from "@/components/incidents/report/shared/ReportFormField";
 import type { ChemicalRiskAssessmentRequestDto } from "@/dtos/req/hazcom-request.dto";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useSubmitLock } from "@/hooks/use-submit-lock";
 import { useCreateRiskAssessmentMutation } from "@/hooks/use-hazcom-mutations";
 import { useChemicalNamesQuery } from "@/hooks/use-hazcom-queries";
 import { toast } from "@/lib/toast";
@@ -72,6 +73,10 @@ export function HazcomRiskAssessmentForm(
   const { values, onChange, className = "" } = props;
   const router = useRouter();
   const createAssessment = useCreateRiskAssessmentMutation();
+  // Held past the response: `isPending` drops when the record is saved, while
+  // the navigation away is still in flight. A click in that gap saved a
+  // duplicate.
+  const submitLock = useSubmitLock();
   const {
     chemicals,
     isLoading: isLoadingChemicals,
@@ -107,6 +112,10 @@ export function HazcomRiskAssessmentForm(
       return;
     }
 
+    if (!submitLock.acquire()) {
+      return;
+    }
+
     createAssessment.mutate(toAssessmentRequest(values, isDraft), {
       onSuccess: () => {
         toast.success(
@@ -117,6 +126,7 @@ export function HazcomRiskAssessmentForm(
         router.push(ASSESSMENTS_ROUTE);
       },
       onError: (error) => {
+        submitLock.release();
         toast.error(
           getMutationErrorMessage(
             error,
@@ -268,7 +278,7 @@ export function HazcomRiskAssessmentForm(
             <Button
               type="button"
               variant="secondary"
-              disabled={createAssessment.isPending}
+              disabled={submitLock.isLocked}
               onClick={() => save(true)}
               className="text4 rounded-2.5 h-9 px-3"
             >
@@ -277,10 +287,10 @@ export function HazcomRiskAssessmentForm(
             <Button
               type="submit"
               variant="primary"
-              isLoading={createAssessment.isPending}
+              isLoading={submitLock.isLocked}
               className="text4 rounded-2.5 h-9 px-3"
             >
-              {createAssessment.isPending ? "Saving…" : "Submit for Review"}
+              {submitLock.isLocked ? "Saving…" : "Submit for Review"}
             </Button>
           </div>
         </div>

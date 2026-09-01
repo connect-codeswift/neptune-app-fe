@@ -10,14 +10,13 @@ import {
 } from "@/components/form-builder";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useSubmitLock } from "@/hooks/use-submit-lock";
 import { useCreateInspectionMutation } from "@/hooks/use-inspection-mutations";
 import {
   useInspectionTemplateQuery,
   useInspectionTemplatesQuery,
 } from "@/hooks/use-inspection-template-queries";
-import { useUserDropdownQuery } from "@/hooks/use-user-queries";
 import { getCurrentUser } from "@/lib/current-user";
-import { toAssigneeOptions } from "@/lib/map-user";
 import { toast } from "@/lib/toast";
 import {
   buildStartInspectionSchema,
@@ -43,9 +42,6 @@ export function StartInspectionForm() {
   );
   const activeTemplateId = hydrated ? preselectedTemplateId : "";
   const isTemplateLocked = activeTemplateId !== "";
-
-  const userDropdownQuery = useUserDropdownQuery();
-  const users = userDropdownQuery.data?.dataModel;
 
   // Only published templates can start an inspection. Skipped entirely when a
   // template is already chosen — that one is fetched by id instead.
@@ -81,11 +77,10 @@ export function StartInspectionForm() {
   const schema = useMemo(
     () =>
       buildStartInspectionSchema({
-        inspectorOptions: toAssigneeOptions(users ?? []),
         templateOptions,
         isTemplateLocked,
       }),
-    [users, templateOptions, isTemplateLocked],
+    [templateOptions, isTemplateLocked],
   );
 
   // Seed the template value from the query param. Deferred to post-hydration
@@ -98,6 +93,10 @@ export function StartInspectionForm() {
   }, [activeTemplateId]);
 
   const createInspection = useCreateInspectionMutation();
+  // Held past the response: `isPending` drops when the record is saved, while
+  // the navigation away is still in flight. A click in that gap saved a
+  // duplicate.
+  const submitLock = useSubmitLock();
 
   const handleSubmit = (values: FormValues) => {
     // Values are keyed by the schema field names, matching StartInspectionValues.
@@ -121,6 +120,10 @@ export function StartInspectionForm() {
       parsedDueDate && !Number.isNaN(parsedDueDate.getTime())
         ? parsedDueDate.toISOString()
         : undefined;
+
+    if (!submitLock.acquire()) {
+      return;
+    }
 
     createInspection.mutate(
       {
@@ -148,6 +151,7 @@ export function StartInspectionForm() {
           );
         },
         onError: (error) => {
+          submitLock.release();
           toast.error(
             getMutationErrorMessage(
               error,
@@ -168,10 +172,10 @@ export function StartInspectionForm() {
         schema={schema}
         initialValues={initialValues}
         submitLabel={
-          createInspection.isPending ? "Scheduling…" : "Schedule Inspection"
+          submitLock.isLocked ? "Scheduling…" : "Schedule Inspection"
         }
         cancelLabel="Cancel"
-        isSubmitting={createInspection.isPending}
+        isSubmitting={submitLock.isLocked}
         onSubmit={handleSubmit}
         onCancel={() => router.push(INSPECTION_LIST_ROUTE)}
       />

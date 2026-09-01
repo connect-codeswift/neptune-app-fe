@@ -4,12 +4,13 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Text } from "@/components/Text";
 import { ReportIncidentView } from "@/components/incidents/report";
-import { INCIDENT_LOCATION_OPTIONS } from "@/components/incidents/report/shared/report-locations";
-import { formatMmDdYyyy } from "@/components/incidents/report/shared/report-date-time";
-import type { ReportIncidentFormState } from "@/components/incidents/report/shared/report-incident-data";
+import { INCIDENT_LOCATION_OPTIONS } from "@/forms/incident-module/locations";
+import { formatMmDdYyyy } from "@/lib/date-time-field";
+import type { ReportIncidentFormState } from "@/forms/incident-module/index";
 import { SkeletonFormPage } from "@/components/ui/skeletons";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useNearMissDetailQuery } from "@/hooks/use-near-miss-queries";
+import { useConvertNearMissToIncidentMutation } from "@/hooks/use-near-miss-mutations";
 import { canConvertNearMissToIncident } from "@/lib/current-user";
 import {
   formatNearMissDisplayId,
@@ -55,6 +56,7 @@ export function ConvertToIncidentContent(
   const router = useRouter();
   const apiId = toNearMissApiId(nearMissId);
   const detailQuery = useNearMissDetailQuery(apiId);
+  const convertMutation = useConvertNearMissToIncidentMutation();
 
   const dto = detailQuery.data?.dataModel ?? null;
   const record = dto ? mapNearMissDtoToRecord(dto) : null;
@@ -124,6 +126,12 @@ export function ConvertToIncidentContent(
       backHref={detailRoute}
       backLabel={displayId}
       headerTitle={`Convert ${displayId} to an incident`}
+      onAfterCreateIncident={async (incidentId) => {
+        await convertMutation.mutateAsync({
+          nearMissId: apiId,
+          incidentId,
+        });
+      }}
     />
   );
 }

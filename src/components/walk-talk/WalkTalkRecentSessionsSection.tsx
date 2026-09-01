@@ -181,7 +181,7 @@ export function WalkTalkRecentSessionsSection(
       <ModuleSearchBar
         value={query}
         onChange={handleQueryChange}
-        placeholder="Search by ID, observer, site..."
+        placeholder="Search by ID, observer, focus area..."
         aria-label="Search sessions"
         resultLabel={resultLabel}
       />

@@ -30,11 +30,14 @@ export async function getBehaviorCategories() {
   return data;
 }
 
-/** Fetches a paged BBS observation list from GET /api/bbs. */
+/** Fetches a paged BBS observation list from GET /api/bbs/observations. */
 export async function getBbsObservations(params: GetBbsObservationsParams) {
   const { data } = await http.get<GetBbsObservationsResponseDto>(BBS_PATH, {
     params: {
       observe: params.observe,
+      // Omitted rather than sent blank: the endpoint reads a missing `search`
+      // as "no filter", and an empty one would only add noise to the URL.
+      ...(params.search ? { search: params.search } : {}),
       ...(params.categoryId !== undefined
         ? { categoryId: params.categoryId }
         : {}),

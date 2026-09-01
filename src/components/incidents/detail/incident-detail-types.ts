@@ -106,7 +106,12 @@ export type ClosureLinkedCapaItem = Readonly<{
   title: string;
   subtitle: string;
   progressPercent: number;
-  status: "Completed" | "In Progress" | "Planning";
+  /**
+   * The CAPA's stored status, exactly as the API spells it - see `CAPA_API_STATUS`.
+   * Was a three-value union of its own (`Planning` / `In Progress` / `Completed`), which
+   * meant a status the API stopped sending still type-checked and simply rendered wrong.
+   */
+  status: string;
 }>;
 
 export type IncidentClosureData = Readonly<{
@@ -147,3 +152,25 @@ export type IncidentClosureData = Readonly<{
   approverInitials: string;
   isApproved: boolean;
 }>;
+
+/**
+ * Shown in the affected person's name slot when the record carries no name.
+ *
+ * Two placeholders, not one, because "nobody is recorded" and "somebody is
+ * recorded but we have no name for them" are different facts and the second
+ * still has an employee id worth showing.
+ *
+ * They are compared against rather than only rendered, so they are constants:
+ * the edit inputs must not seed a reporter's field with one, and the card must
+ * not treat one as a real name.
+ */
+export const NO_AFFECTED_PERSON_LABEL = "No affected person logged";
+export const AFFECTED_NAME_UNKNOWN_LABEL = "Name not recorded";
+
+export function isAffectedNamePlaceholder(value: string): boolean {
+  const trimmed = value.trim();
+  return (
+    trimmed === NO_AFFECTED_PERSON_LABEL ||
+    trimmed === AFFECTED_NAME_UNKNOWN_LABEL
+  );
+}

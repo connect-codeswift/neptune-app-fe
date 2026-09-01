@@ -5,17 +5,19 @@ import type {
   AttachmentItem,
   IncidentClosureData,
   IncidentDetailInfoItem,
+  IncidentDetailResponseAction,
   ResponderMember,
   TimelineEvent,
   WitnessRow,
 } from "@/components/incidents/detail/incident-detail-types";
+import { isAffectedNamePlaceholder } from "@/components/incidents/detail/incident-detail-types";
 import { IncidentDetailView } from "@/components/incidents/detail/IncidentDetailView";
 import type { TabId } from "@/components/incidents/detail/shared/IncidentDetailHeader";
 import {
   createInitialClosureData,
   resetClosureWizardFields,
 } from "@/components/incidents/detail/closure/closure-form-state";
-import { toCanonicalIncidentType } from "@/components/incidents/detail/closure/closure-classification-options";
+import { toCanonicalIncidentType } from "@/forms/incident-module/closure-classification";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import {
   useCreateCapaMutation,
@@ -36,9 +38,21 @@ import {
 } from "@/hooks/use-incident-queries";
 import { useRcaByIncidentQuery } from "@/hooks/use-rca-queries";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
-import { getAuthDisplayName } from "@/lib/auth-context";
+import {
+  useSiteUsersQuery,
+  useUserSummaryQuery,
+} from "@/hooks/use-user-queries";
+import {
+  buildPeoplePhotoIndex,
+  lookupPeoplePerson,
+} from "@/components/incidents/detail/people/people-photos";
+import { getAuthContext, getAuthDisplayName } from "@/lib/auth-context";
 import { formatFileSize } from "@/lib/cloudinary-constants";
 import { fetchRemoteFileMeta } from "@/lib/fetch-remote-file-bytes";
+import { getStoredFile } from "@/services/files.service";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { useIncidentActivityQuery } from "@/hooks/use-incident-queries";
+import { mapIncidentActivityToTimelineEvents } from "@/services/mappers/incident-activity.mapper";
 import { formatShortDateTime } from "@/lib/format-short-date-time";
 import { toast } from "@/lib/toast";
 import {
@@ -50,6 +64,14 @@ import {
   applyDetailEditDraft,
   applyPeopleEditDraft,
 } from "@/services/mappers/incident-detail-edit.mapper";
+import {
+  firstPeopleEditError,
+  hasPeopleEditErrors,
+  NO_PEOPLE_EDIT_ERRORS,
+  parseDaysAway,
+  validatePeopleEditDraft,
+  type PeopleEditErrors,
+} from "@/components/incidents/detail/people/people-edit-validation";
 import {
   EMPTY_INCIDENT_INVESTIGATION,
   parseIncidentRouteId,
@@ -68,6 +90,9 @@ export type IncidentDetailContentProps = Readonly<{
 
 type EditScope = "details" | "people" | "attachments";
 
+/** One page of roster covers a site's people; incidents rarely name more. */
+const ROSTER_PAGE_SIZE = 200;
+
 function initialsFromName(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   if (parts.length === 0) {
@@ -83,6 +108,40 @@ function initialsFromName(name: string): string {
  * Detail page orchestrator (near-miss DetailContent pattern).
  * Owns queries, mutations, and editable local state; renders IncidentDetailView.
  */
+/**
+ * A stored attachment is a bare file id since the move to R2, not a public URL. The
+ * HEAD/Range probe therefore resolved it against this app's own origin and always failed,
+ * which is why every file since the move showed no size and no upload time, and the
+ * Storage card sat at 0 MB. `GET /files/{id}` already answers both.
+ *
+ * Older records still hold full Cloudinary URLs, so the probe stays for those.
+ */
+const FILE_ID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+async function readAttachmentMeta(
+  value: string,
+): Promise<{ bytes: number | null; lastModified: Date | null }> {
+  // The display name rides along as a query param; the id is what identifies the file.
+  const id = value.split("?")[0]?.trim() ?? "";
+
+  if (FILE_ID_PATTERN.test(id)) {
+    try {
+      const file = await getStoredFile(id);
+      const created = file.createdDate ? new Date(file.createdDate) : null;
+      return {
+        bytes: file.sizeBytes > 0 ? file.sizeBytes : null,
+        lastModified:
+          created && !Number.isNaN(created.getTime()) ? created : null,
+      };
+    } catch {
+      // Deleted, or not ours. Fall through to the probe rather than failing the row.
+    }
+  }
+
+  return fetchRemoteFileMeta(value);
+}
+
 export function IncidentDetailContent(
   props: Readonly<IncidentDetailContentProps>,
 ) {
@@ -104,11 +163,30 @@ export function IncidentDetailContent(
   const [affectedInjuryLabel, setAffectedInjuryLabel] = useState("");
   const [bodyPart, setBodyPart] = useState("");
   const [treatment, setTreatment] = useState("");
+  // Held as a string because the input is text-shaped: "" is "not recorded" and must stay
+  // distinct from "0", which is a measured zero days away.
+  //
+  // It now also lives per person on the incident payload, not only on the closure record —
+  // OSHA 300 is a per-person log and a multi-casualty incident has a different count for
+  // each of them. The closure field remains as the fallback the lost-day KPI reads for
+  // incidents recorded before that existed.
+  const [daysAway, setDaysAway] = useState("");
+  // Witnesses come from the incident report module. Rows already on the record
+  // when the edit began are locked; only rows appended here may be changed.
+  const [lockedWitnessCount, setLockedWitnessCount] = useState(0);
+  const [peopleErrors, setPeopleErrors] = useState<PeopleEditErrors>(
+    NO_PEOPLE_EDIT_ERRORS,
+  );
+  const [pendingAttachmentDelete, setPendingAttachmentDelete] =
+    useState<AttachmentItem | null>(null);
   const [timelineEvents, setTimelineEvents] = useState<
     readonly TimelineEvent[]
   >([]);
   const [summaryText, setSummaryText] = useState("");
   const [responseNotes, setResponseNotes] = useState("");
+  const [responseActions, setResponseActions] = useState<
+    readonly IncidentDetailResponseAction[]
+  >([]);
   const [infoItems, setInfoItems] = useState<readonly IncidentDetailInfoItem[]>(
     [],
   );
@@ -144,6 +222,13 @@ export function IncidentDetailContent(
   const incidentDto = detailQuery.data?.dto ?? null;
 
   const capaQuery = useCapasByIncidentQuery({
+    incidentId: loadedDetail?.numericId ?? numericId,
+    enabled:
+      isClientReady &&
+      hasToken &&
+      (loadedDetail?.numericId != null || numericId != null),
+  });
+  const activityQuery = useIncidentActivityQuery({
     incidentId: loadedDetail?.numericId ?? numericId,
     enabled:
       isClientReady &&
@@ -206,6 +291,66 @@ export function IncidentDetailContent(
     detail?.displayId ??
     (numericId != null ? `INC-${String(numericId)}` : incidentIdParam);
 
+  // Per person first, closure second. Days away used to live only on the closure record,
+  // so `detail.daysAway` was always the "—" placeholder and the number had to be read back
+  // from closure. It is now carried per person on the incident payload — OSHA 300 is a
+  // per-person log — and the closure figure is the fallback for incidents recorded before
+  // that. Reading closure first would mask the per-person value on every incident that has
+  // both.
+  const perPersonDaysAway =
+    detail?.daysAway != null && detail.daysAway !== "—"
+      ? String(detail.daysAway)
+      : "";
+  const daysAwayDisplay =
+    perPersonDaysAway ||
+    (closureQuery.data == null
+      ? (detail?.daysAway ?? "—")
+      : String(closureData.daysAwayFromWork));
+
+  // The incident names its people by id (the affected person) or by name alone
+  // (responders, witnesses, routing, sign-off), so one roster fetch resolves
+  // the whole page rather than a request per person. Scoped to the incident's
+  // own site, falling back to the viewer's when the payload predates `siteId`.
+  const rosterSiteId = incidentDto?.siteId ?? getAuthContext()?.siteId ?? 0;
+  const siteRosterQuery = useSiteUsersQuery(
+    rosterSiteId,
+    { pageSize: ROSTER_PAGE_SIZE },
+    isClientReady && hasToken && rosterSiteId > 0,
+  );
+  const peoplePhotos = useMemo(
+    () => buildPeoplePhotoIndex(siteRosterQuery.data ?? []),
+    [siteRosterQuery.data],
+  );
+
+  const affectedIdKey = detail?.affectedEmpId.trim() ?? "";
+  const affectedFromRoster = lookupPeoplePerson(peoplePhotos, affectedIdKey);
+
+  // `GET /users/{id}` is restricted to Ehs_Director, Ehs_Lead and Ehs_Manager,
+  // so it is only worth asking when the roster came up empty — a Supervisor or
+  // Worker gets a 403 there, and relying on it left exactly those roles seeing
+  // "Name not recorded" on incidents everyone else could read. Kept as a
+  // fallback for the case the roster cannot cover: someone recorded against a
+  // different site than this incident's.
+  const affectedUserId = /^\d+$/.test(affectedIdKey)
+    ? Number(affectedIdKey)
+    : null;
+  const affectedUserQuery = useUserSummaryQuery(
+    affectedUserId,
+    isClientReady && hasToken && affectedFromRoster == null,
+  );
+  const affectedUser = affectedUserQuery.data ?? null;
+  const affectedProfileUrl =
+    affectedFromRoster?.photoUrl ?? affectedUser?.profileUrl ?? null;
+
+  // A resolved name replaces the mapper's placeholder, but never a real name
+  // already on the record.
+  const affectedResolvedName =
+    affectedFromRoster?.name || (affectedUser?.fullName ?? "");
+  const affectedDisplayName =
+    detail && isAffectedNamePlaceholder(detail.affectedName)
+      ? affectedResolvedName || detail.affectedName
+      : (detail?.affectedName ?? "");
+
   const [hydratedDetailKey, setHydratedDetailKey] = useState<string | null>(
     null,
   );
@@ -237,17 +382,17 @@ export function IncidentDetailContent(
     setWitnesses(detail.witnesses);
     setResponders(detail.responders);
     setAffectedName(
-      detail.affectedName === "No affected person logged"
-        ? ""
-        : detail.affectedName,
+      isAffectedNamePlaceholder(detail.affectedName) ? "" : detail.affectedName,
     );
     setAffectedEmpId(detail.affectedEmpId);
     setAffectedInjuryLabel(detail.affectedInjuryLabel);
     setBodyPart(detail.bodyPart);
     setTreatment(detail.treatment);
+    setDaysAway(detail.daysAway === "—" ? "" : String(detail.daysAway));
     setTimelineEvents(detail.timelineEvents);
     setSummaryText(detail.summaryText);
     setResponseNotes(detail.responseNotes);
+    setResponseActions(detail.responseActions);
     setInfoItems(detail.infoItems);
   }
 
@@ -284,11 +429,9 @@ export function IncidentDetailContent(
       subtitle: c.title || c.controlCategory || "",
       progressPercent:
         typeof c.progressPercent === "number" ? c.progressPercent : 0,
-      status: (c.status === "Closed" || c.status === "Verified"
-        ? "Completed"
-        : c.status === "Planning"
-          ? "Planning"
-          : "In Progress") as "Completed" | "In Progress" | "Planning",
+      // Passed through untouched. The old mapping folded five statuses into three and
+      // named two - Verified and Planning - that the API no longer has.
+      status: c.status,
     }));
     setClosureData((prev) => ({
       ...prev,
@@ -322,7 +465,7 @@ export function IncidentDetailContent(
     void (async () => {
       const updates = await Promise.all(
         pending.map(async (item) => {
-          const meta = await fetchRemoteFileMeta(item.url);
+          const meta = await readAttachmentMeta(item.url);
           const sizeUpdate =
             item.needsSize && meta.bytes != null
               ? {
@@ -394,14 +537,22 @@ export function IncidentDetailContent(
     };
   }, [detail]);
 
-  if (detail?.isClosed && activeTab === "closure") {
-    setActiveTab("details");
-  }
+  /**
+   * Real history wins. The rows are written when the change happens, so their times are the
+   * times — the derived set below stamps almost everything with the report time.
+   *
+   * Incidents predating the activity log have no rows and keep the derived timeline rather
+   * than showing an empty tab. That derived set is the one with invented timestamps, and it
+   * should go once the log has covered the backlog.
+   */
+  const resolvedTimelineEvents = useMemo(() => {
+    const rows = activityQuery.data ?? [];
+    return rows.length > 0
+      ? mapIncidentActivityToTimelineEvents(rows)
+      : timelineEvents;
+  }, [activityQuery.data, timelineEvents]);
 
   const handleTabChange = (tab: TabId) => {
-    if (tab === "closure" && detail?.isClosed) {
-      return;
-    }
     if (
       (editScope === "details" && tab !== "details") ||
       (editScope === "people" && tab !== "people") ||
@@ -436,8 +587,17 @@ export function IncidentDetailContent(
     setActiveTab("details");
     setSummaryText(detail.summaryText);
     setResponseNotes(detail.responseNotes);
+    setResponseActions(detail.responseActions);
     setInfoItems(detail.infoItems);
     setEditScope("details");
+  };
+
+  const toggleResponseAction = (id: string) => {
+    setResponseActions((prev) =>
+      prev.map((action) =>
+        action.id === id ? { ...action, completed: !action.completed } : action,
+      ),
+    );
   };
 
   const beginEditPeople = () => {
@@ -446,9 +606,7 @@ export function IncidentDetailContent(
     }
     setActiveTab("people");
     setAffectedName(
-      detail.affectedName === "No affected person logged"
-        ? ""
-        : detail.affectedName,
+      isAffectedNamePlaceholder(detail.affectedName) ? "" : detail.affectedName,
     );
     setAffectedEmpId(detail.affectedEmpId);
     setAffectedInjuryLabel(detail.affectedInjuryLabel);
@@ -456,6 +614,17 @@ export function IncidentDetailContent(
     setTreatment(detail.treatment);
     setResponders(detail.responders);
     setWitnesses(detail.witnesses);
+    // Per person first, closure second. The incident payload now carries days away on the
+    // affected person, and the closure figure is what incidents recorded before that still
+    // have. Seeding from closure unconditionally overwrote the per-person value, so opening
+    // the editor discarded it and saving wrote the closure number back over it.
+    {
+      const perPerson = detail.daysAway === "—" ? "" : String(detail.daysAway);
+      setDaysAway(perPerson || String(closureData.daysAwayFromWork));
+    }
+    // Every witness present now is pre-existing, so all of them start locked.
+    setLockedWitnessCount(detail.witnesses.length);
+    setPeopleErrors(NO_PEOPLE_EDIT_ERRORS);
     setEditScope("people");
   };
 
@@ -467,9 +636,60 @@ export function IncidentDetailContent(
     setEditScope("attachments");
   };
 
+  /**
+   * Removing an attachment while viewing, rather than only inside the attachments editor.
+   *
+   * <p>The editor's own delete stages a removal that the Save button then writes. This one has
+   * no Save to wait for, so it persists immediately — dropping the row from local state alone
+   * would put the file back on the next refetch and read as a delete that silently failed.</p>
+   *
+   * <p>The incident update replaces the evidence list wholesale, so the request carries the
+   * attachments that remain rather than the one being removed.</p>
+   */
   const handleDeleteAttachment = (file: AttachmentItem) => {
-    setAttachments((prev) => prev.filter((item) => item.id !== file.id));
-    setPreviewFile((current) => (current?.id === file.id ? null : current));
+    setPendingAttachmentDelete(file);
+  };
+
+  const confirmDeleteAttachment = async () => {
+    const file = pendingAttachmentDelete;
+    if (!file || !detail) {
+      return;
+    }
+
+    const remaining = attachments.filter((item) => item.id !== file.id);
+
+    // Staged edits are written by Save; deleting from inside the editor must not also fire a
+    // request here, or one of the two writes lands on a stale evidence list.
+    if (isEditingAttachments) {
+      setAttachments(remaining);
+      setPreviewFile((current) => (current?.id === file.id ? null : current));
+      setPendingAttachmentDelete(null);
+      return;
+    }
+
+    try {
+      await updateIncidentMutation.mutateAsync({
+        incidentId: detail.numericId,
+        patch: applyAttachmentsEditDraft(remaining),
+      });
+
+      setAttachments(remaining);
+      setPreviewFile((current) => (current?.id === file.id ? null : current));
+      setPendingAttachmentDelete(null);
+      toast.success(
+        "Attachment removed",
+        `${file.name} is no longer on this incident.`,
+      );
+      await detailQuery.refetch();
+    } catch (error) {
+      // Left in place on failure. Removing it from the list after the write was refused
+      // would show the file as gone while it is still on the record.
+      setPendingAttachmentDelete(null);
+      toast.error(
+        "Could not remove attachment",
+        getMutationErrorMessage(error, "Please try again."),
+      );
+    }
   };
 
   const handleEditOrSave = async () => {
@@ -500,6 +720,7 @@ export function IncidentDetailContent(
         const patch = applyDetailEditDraft(incidentDto, {
           summary: summaryText,
           responseNotes,
+          responseActions,
           infoItems,
         });
 
@@ -508,12 +729,31 @@ export function IncidentDetailContent(
           patch,
         });
       } else if (editScope === "people") {
+        const errors = validatePeopleEditDraft({
+          bodyPart,
+          treatment,
+          daysAway,
+          witnesses,
+          lockedWitnessCount,
+        });
+        setPeopleErrors(errors);
+        if (hasPeopleEditErrors(errors)) {
+          toast.error(
+            "Check the highlighted fields",
+            firstPeopleEditError(errors) ?? "Some required fields are missing.",
+          );
+          return;
+        }
+
+        // Identity fields are locked in this scope, so they pass straight back
+        // through unchanged — the mapper still rebuilds the whole people array.
         const patch = applyPeopleEditDraft(incidentDto, {
           affectedName,
           affectedEmpId,
           affectedInjuryLabel,
           bodyPart,
           treatment,
+          daysAway,
           responders,
           witnesses,
         });
@@ -522,6 +762,17 @@ export function IncidentDetailContent(
           incidentId: detail.numericId,
           patch,
         });
+
+        // Days away is not part of the incident payload. Write it only when it
+        // actually changed, so a People edit does not touch a closure record
+        // that no one asked to modify.
+        const nextDaysAway = parseDaysAway(daysAway);
+        if (nextDaysAway !== closureData.daysAwayFromWork) {
+          await updateClosureMutation.mutateAsync({
+            incidentId: detail.numericId,
+            data: { ...closureData, daysAwayFromWork: nextDaysAway },
+          });
+        }
       } else {
         const patch = applyAttachmentsEditDraft(attachments);
 
@@ -532,6 +783,7 @@ export function IncidentDetailContent(
       }
 
       setEditScope(null);
+      setPeopleErrors(NO_PEOPLE_EDIT_ERRORS);
       toast.success(
         "Incident updated",
         "Your changes were saved to this incident.",
@@ -566,32 +818,6 @@ export function IncidentDetailContent(
     }
   };
 
-  const handleAddTimelinePost = (text: string) => {
-    const now = new Date();
-    const month = now.toLocaleString("en-US", { month: "short" });
-    const day = String(now.getDate());
-    const hh = String(now.getHours()).padStart(2, "0");
-    const min = String(now.getMinutes()).padStart(2, "0");
-
-    setTimelineEvents((prev) => [
-      ...prev,
-      {
-        id: `local-${String(now.getTime())}`,
-        title: "Status update",
-        description: text.trim(),
-        time: `${month} ${day} · ${hh}:${min}`,
-        actorName: "You",
-        actorInitials: "YO",
-        actorRole: "Update",
-        icon: "mdi:message-text-outline",
-      },
-    ]);
-    toast.success(
-      "Update posted",
-      "Your status update has been added to the timeline.",
-    );
-  };
-
   const usedBytes = attachments.reduce((sum, item) => sum + item.bytes, 0);
 
   const showBootLoading = !isClientReady;
@@ -615,350 +841,370 @@ export function IncidentDetailContent(
             : null;
 
   return (
-    <IncidentDetailView
-      displayId={displayId}
-      activeTab={activeTab}
-      onTabChange={handleTabChange}
-      onEditOrSave={() => {
-        void handleEditOrSave();
-      }}
-      isEditing={isEditing}
-      isSaving={updateIncidentMutation.isPending}
-      errorMessage={errorMessage}
-      showLoading={(showBootLoading || showQueryLoading) && !errorMessage}
-      hasToken={hasToken}
-      canRetry={numericId != null}
-      onRetry={() => {
-        void detailQuery.refetch();
-      }}
-      detail={detail}
-      investigation={investigation}
-      rcaInvestigationPreview={rcaInvestigationPreview}
-      isRcaInvestigationLoading={
-        rcaQueryEnabled && rcaQuery.isLoading && !rcaQuery.data
-      }
-      rcaInvestigationError={rcaInvestigationError}
-      onRetryRca={() => {
-        void rcaQuery.refetch();
-      }}
-      incidentNumericId={rcaIncidentId}
-      hrcaQueryEnabled={rcaQueryEnabled}
-      showHrca={showHrca}
-      onOpenHrca={() => setShowHrca(true)}
-      onCloseHrca={() => setShowHrca(false)}
-      isEditingDetails={isEditingDetails}
-      isEditingPeople={isEditingPeople}
-      isEditingAttachments={isEditingAttachments}
-      summaryText={summaryText}
-      onChangeSummary={setSummaryText}
-      responseNotes={responseNotes}
-      onChangeResponseNotes={setResponseNotes}
-      infoItems={infoItems}
-      onChangeInfoItem={(key, value) => {
-        setInfoItems((prev) =>
-          prev.map((item) => (item.key === key ? { ...item, value } : item)),
-        );
-      }}
-      timelineEvents={timelineEvents}
-      onAddTimelinePost={handleAddTimelinePost}
-      affectedName={affectedName}
-      affectedEmpId={affectedEmpId}
-      affectedInjuryLabel={affectedInjuryLabel}
-      affectedInitials={initialsFromName(affectedName)}
-      bodyPart={bodyPart}
-      treatment={treatment}
-      responders={responders}
-      witnesses={witnesses}
-      onChangeAffectedName={setAffectedName}
-      onChangeAffectedEmpId={setAffectedEmpId}
-      onChangeAffectedInjuryLabel={setAffectedInjuryLabel}
-      onChangeBodyPart={setBodyPart}
-      onChangeTreatment={setTreatment}
-      onChangeResponder={(index, patch) => {
-        setResponders((prev) =>
-          prev.map((member, memberIndex) => {
-            if (memberIndex !== index) {
-              return member;
-            }
-            const name = patch.name ?? member.name;
-            return {
-              ...member,
-              ...patch,
-              name,
-              initials: initialsFromName(name),
-            };
-          }),
-        );
-      }}
-      onAddWitness={() => {
-        setWitnesses((prev) => [
-          ...prev,
-          {
-            name: "",
-            role: "Witness",
-            initials: "—",
-            badgeLabel: "Pending",
-            badgeTone: "gray",
-          },
-        ]);
-      }}
-      onChangeWitness={(index, patch) => {
-        setWitnesses((prev) =>
-          prev.map((witness, witnessIndex) => {
-            if (witnessIndex !== index) {
-              return witness;
-            }
-            const name = patch.name ?? witness.name;
-            return {
-              ...witness,
-              ...patch,
-              name,
-              initials: initialsFromName(name),
-            };
-          }),
-        );
-      }}
-      onRemoveWitness={(index) => {
-        setWitnesses((prev) =>
-          prev.filter((_, witnessIndex) => witnessIndex !== index),
-        );
-      }}
-      attachments={attachments}
-      usedBytes={usedBytes}
-      onSelectFile={setPreviewFile}
-      onAddFile={() => openUploadPickerRef.current?.()}
-      onDeleteFile={handleDeleteAttachment}
-      onUploadSuccess={handleUploadSuccess}
-      onRegisterUploadOpen={registerUploadOpen}
-      linkedCapa={linkedCapa}
-      isCapaLoading={capaQuery.isPending}
-      isCapaSubmitting={
-        createCapaMutation.isPending ||
-        updateCapaMutation.isPending ||
-        createCapaTaskMutation.isPending ||
-        deleteCapaTaskMutation.isPending ||
-        verifyCapaMutation.isPending
-      }
-      openAddCapaOnLinkedTab={openAddCapaOnLinkedTab}
-      onAddCapaModalOpened={handleAddCapaModalOpened}
-      onNavigateToLinkedCapa={handleNavigateToLinkedCapa}
-      onSubmitCapa={async (payload) => {
-        if (!detail) {
-          return;
+    <>
+      <IncidentDetailView
+        displayId={displayId}
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+        onEditOrSave={() => {
+          void handleEditOrSave();
+        }}
+        isEditing={isEditing}
+        isSaving={updateIncidentMutation.isPending}
+        errorMessage={errorMessage}
+        showLoading={(showBootLoading || showQueryLoading) && !errorMessage}
+        hasToken={hasToken}
+        canRetry={numericId != null}
+        onRetry={() => {
+          void detailQuery.refetch();
+        }}
+        detail={detail}
+        investigation={investigation}
+        rcaInvestigationPreview={rcaInvestigationPreview}
+        isRcaInvestigationLoading={
+          rcaQueryEnabled && rcaQuery.isLoading && !rcaQuery.data
         }
-        try {
-          await createCapaMutation.mutateAsync({
-            payload: buildCreateCapaRequest({
-              incidentId: detail.numericId,
+        rcaInvestigationError={rcaInvestigationError}
+        onRetryRca={() => {
+          void rcaQuery.refetch();
+        }}
+        incidentNumericId={rcaIncidentId}
+        hrcaQueryEnabled={rcaQueryEnabled}
+        showHrca={showHrca}
+        onOpenHrca={() => setShowHrca(true)}
+        onCloseHrca={() => setShowHrca(false)}
+        isEditingDetails={isEditingDetails}
+        isEditingPeople={isEditingPeople}
+        isEditingAttachments={isEditingAttachments}
+        summaryText={summaryText}
+        onChangeSummary={setSummaryText}
+        responseNotes={responseNotes}
+        responseActions={responseActions}
+        onToggleResponseAction={toggleResponseAction}
+        onChangeResponseNotes={setResponseNotes}
+        infoItems={infoItems}
+        onChangeInfoItem={(key, value) => {
+          setInfoItems((prev) =>
+            prev.map((item) => (item.key === key ? { ...item, value } : item)),
+          );
+        }}
+        timelineEvents={resolvedTimelineEvents}
+        affectedName={affectedName}
+        affectedDisplayName={affectedDisplayName}
+        affectedProfileUrl={affectedProfileUrl}
+        peoplePhotos={peoplePhotos}
+        affectedEmpId={affectedEmpId}
+        affectedInjuryLabel={affectedInjuryLabel}
+        affectedInitials={initialsFromName(affectedName)}
+        bodyPart={bodyPart}
+        treatment={treatment}
+        responders={responders}
+        witnesses={witnesses}
+        daysAway={daysAway}
+        daysAwayDisplay={daysAwayDisplay}
+        onChangeBodyPart={setBodyPart}
+        onChangeTreatment={setTreatment}
+        onChangeDaysAway={setDaysAway}
+        lockedWitnessCount={lockedWitnessCount}
+        peopleErrors={peopleErrors}
+        onAddWitness={() => {
+          setWitnesses((prev) => [
+            ...prev,
+            {
+              name: "",
+              role: "Witness",
+              initials: "—",
+              badgeLabel: "Pending",
+              badgeTone: "gray",
+            },
+          ]);
+        }}
+        onChangeWitness={(index, patch) => {
+          // Locked rows belong to the incident report module and are read-only
+          // in this scope; the card does not render inputs for them either.
+          if (index < lockedWitnessCount) {
+            return;
+          }
+          setWitnesses((prev) =>
+            prev.map((witness, witnessIndex) => {
+              if (witnessIndex !== index) {
+                return witness;
+              }
+              const name = patch.name ?? witness.name;
+              return {
+                ...witness,
+                ...patch,
+                name,
+                initials: initialsFromName(name),
+              };
+            }),
+          );
+        }}
+        onRemoveWitness={(index) => {
+          // Only rows appended during this edit can be dropped — removing a
+          // pre-existing witness would delete it from the incident record.
+          if (index < lockedWitnessCount) {
+            return;
+          }
+          setWitnesses((prev) =>
+            prev.filter((_, witnessIndex) => witnessIndex !== index),
+          );
+        }}
+        attachments={attachments}
+        usedBytes={usedBytes}
+        onSelectFile={setPreviewFile}
+        onAddFile={() => openUploadPickerRef.current?.()}
+        onDeleteFile={handleDeleteAttachment}
+        onUploadSuccess={handleUploadSuccess}
+        onRegisterUploadOpen={registerUploadOpen}
+        linkedCapa={linkedCapa}
+        isCapaLoading={capaQuery.isPending}
+        isCapaSubmitting={
+          createCapaMutation.isPending ||
+          updateCapaMutation.isPending ||
+          createCapaTaskMutation.isPending ||
+          deleteCapaTaskMutation.isPending ||
+          verifyCapaMutation.isPending
+        }
+        openAddCapaOnLinkedTab={openAddCapaOnLinkedTab}
+        onAddCapaModalOpened={handleAddCapaModalOpened}
+        onNavigateToLinkedCapa={handleNavigateToLinkedCapa}
+        onSubmitCapa={async (payload) => {
+          if (!detail) {
+            return;
+          }
+          try {
+            await createCapaMutation.mutateAsync({
+              payload: buildCreateCapaRequest({
+                incidentId: detail.numericId,
+                controlLevel: payload.controlLevel,
+                description: payload.description,
+                type: payload.type,
+                owner: payload.owner,
+                dueDate: payload.dueDate,
+                priority: payload.priority,
+              }),
+              tasks: payload.tasks,
+            });
+            const taskCount = payload.tasks?.length ?? 0;
+            toast.success(
+              "CAPA created",
+              taskCount > 0
+                ? `Added ${payload.type.toLowerCase()} action with ${String(taskCount)} task${taskCount === 1 ? "" : "s"}.`
+                : `Added ${payload.type.toLowerCase()} action for ${displayId}.`,
+            );
+          } catch (error) {
+            toast.error(
+              "Could not create CAPA",
+              getMutationErrorMessage(error, "Please try again."),
+            );
+            throw error;
+          }
+        }}
+        onUpdateCapa={async (capa, payload) => {
+          try {
+            await updateCapaMutation.mutateAsync({
+              capa,
               controlLevel: payload.controlLevel,
               description: payload.description,
               type: payload.type,
               owner: payload.owner,
               dueDate: payload.dueDate,
               priority: payload.priority,
-            }),
-            tasks: payload.tasks,
-          });
-          const taskCount = payload.tasks?.length ?? 0;
-          toast.success(
-            "CAPA created",
-            taskCount > 0
-              ? `Added ${payload.type.toLowerCase()} action with ${String(taskCount)} task${taskCount === 1 ? "" : "s"}.`
-              : `Added ${payload.type.toLowerCase()} action for ${displayId}.`,
-          );
-        } catch (error) {
-          toast.error(
-            "Could not create CAPA",
-            getMutationErrorMessage(error, "Please try again."),
-          );
-          throw error;
-        }
-      }}
-      onUpdateCapa={async (capa, payload) => {
-        try {
-          await updateCapaMutation.mutateAsync({
-            capa,
-            controlLevel: payload.controlLevel,
-            description: payload.description,
-            type: payload.type,
-            owner: payload.owner,
-            dueDate: payload.dueDate,
-            priority: payload.priority,
-          });
-          toast.success("CAPA updated", `${capa.code} was saved.`);
-        } catch (error) {
-          toast.error(
-            "Could not update CAPA",
-            getMutationErrorMessage(error, "Please try again."),
-          );
-          throw error;
-        }
-      }}
-      isCreatingCapaTask={createCapaTaskMutation.isPending}
-      onCreateCapaTask={async (capa, payload) => {
-        if (!detail) {
-          return;
-        }
+            });
+            toast.success("CAPA updated", `${capa.code} was saved.`);
+          } catch (error) {
+            toast.error(
+              "Could not update CAPA",
+              getMutationErrorMessage(error, "Please try again."),
+            );
+            throw error;
+          }
+        }}
+        isCreatingCapaTask={createCapaTaskMutation.isPending}
+        onCreateCapaTask={async (capa, payload) => {
+          if (!detail) {
+            return;
+          }
 
-        try {
-          await createCapaTaskMutation.mutateAsync({
-            capaId: capa.numericId,
-            incidentId: detail.numericId,
-            task: payload.task,
-            dueDate: payload.dueDate,
-            priority: payload.priority,
-          });
-          toast.success("Task added", `New task linked to ${capa.code}.`);
-        } catch (error) {
-          toast.error(
-            "Could not add task",
-            getMutationErrorMessage(error, "Please try again."),
-          );
-          throw error;
-        }
-      }}
-      isDeletingCapaTask={deleteCapaTaskMutation.isPending}
-      onDeleteCapaTask={async (capa, taskId) => {
-        if (!detail) {
-          return;
-        }
+          try {
+            await createCapaTaskMutation.mutateAsync({
+              capaId: capa.numericId,
+              incidentId: detail.numericId,
+              task: payload.task,
+              dueDate: payload.dueDate,
+              priority: payload.priority,
+            });
+            toast.success("Task added", `New task linked to ${capa.code}.`);
+          } catch (error) {
+            toast.error(
+              "Could not add task",
+              getMutationErrorMessage(error, "Please try again."),
+            );
+            throw error;
+          }
+        }}
+        isDeletingCapaTask={deleteCapaTaskMutation.isPending}
+        onDeleteCapaTask={async (capa, taskId) => {
+          if (!detail) {
+            return;
+          }
 
-        try {
-          await deleteCapaTaskMutation.mutateAsync({
-            taskId,
-            capaId: capa.numericId,
-            incidentId: detail.numericId,
-          });
-          toast.success("Task removed", `Task deleted from ${capa.code}.`);
-        } catch (error) {
-          toast.error(
-            "Could not delete task",
-            getMutationErrorMessage(error, "Please try again."),
-          );
-          throw error;
-        }
-      }}
-      isVerifyingCapa={verifyCapaMutation.isPending}
-      onVerifyCapa={async (capa, input) => {
-        if (!detail) {
-          return;
-        }
+          try {
+            await deleteCapaTaskMutation.mutateAsync({
+              taskId,
+              capaId: capa.numericId,
+              incidentId: detail.numericId,
+            });
+            toast.success("Task removed", `Task deleted from ${capa.code}.`);
+          } catch (error) {
+            toast.error(
+              "Could not delete task",
+              getMutationErrorMessage(error, "Please try again."),
+            );
+            throw error;
+          }
+        }}
+        isVerifyingCapa={verifyCapaMutation.isPending}
+        onVerifyCapa={async (capa, input) => {
+          if (!detail) {
+            return;
+          }
 
-        try {
-          await verifyCapaMutation.mutateAsync({
-            capa,
-            incidentId: detail.numericId,
-            effectiveness: input.effectiveness,
-            notes: input.notes,
-          });
-          toast.success(
-            "CAPA verified",
-            `${capa.code} has been verified and closed.`,
-          );
-        } catch (error) {
-          toast.error(
-            "Could not verify CAPA",
-            getMutationErrorMessage(error, "Please try again."),
-          );
-          throw error;
+          try {
+            await verifyCapaMutation.mutateAsync({
+              capa,
+              incidentId: detail.numericId,
+              effectiveness: input.effectiveness,
+              notes: input.notes,
+            });
+            toast.success(
+              "CAPA verified",
+              `${capa.code} has been verified and closed.`,
+            );
+          } catch (error) {
+            toast.error(
+              "Could not verify CAPA",
+              getMutationErrorMessage(error, "Please try again."),
+            );
+            throw error;
+          }
+        }}
+        previewFile={previewFile}
+        onClosePreview={() => setPreviewFile(null)}
+        closureData={closureData}
+        isClosureSubmitting={
+          updateClosureMutation.isPending || closeIncidentMutation.isPending
         }
-      }}
-      previewFile={previewFile}
-      onClosePreview={() => setPreviewFile(null)}
-      closureData={closureData}
-      isClosureSubmitting={
-        updateClosureMutation.isPending || closeIncidentMutation.isPending
-      }
-      onSelectClosureStep={(step) => {
-        setClosureData((prev) => ({ ...prev, currentStep: step }));
-      }}
-      onChangeClosureField={(field, value) => {
-        setClosureData((prev) => ({ ...prev, [field]: value }));
-      }}
-      onToggleClosureCheckItem={(itemId) => {
-        setClosureData((prev) => ({
-          ...prev,
-          verificationChecklist: prev.verificationChecklist.map((item) =>
-            item.id === itemId
-              ? {
-                  ...item,
-                  completed: !item.completed,
-                  completedAt: !item.completed
-                    ? formatShortDateTime(new Date())
-                    : undefined,
-                  completedBy: !item.completed ? "Current User" : undefined,
-                }
-              : item,
-          ),
-        }));
-      }}
-      onCancelClosure={() => {
-        const intakeType = detail?.infoItems?.find((item) =>
-          item.key.toLowerCase().includes("type"),
-        )?.value;
-
-        setClosureData((prev) =>
-          resetClosureWizardFields(prev, {
-            finalIncidentType: toCanonicalIncidentType(intakeType),
-          }),
-        );
-      }}
-      onSaveClosureDraft={async () => {
-        const targetId = detail?.numericId ?? numericId;
-        if (!targetId) return;
-        try {
-          await updateClosureMutation.mutateAsync({
-            incidentId: targetId,
-            data: closureData,
-          });
-          toast.success(
-            "Draft Saved",
-            "Incident closure draft saved successfully.",
-          );
-        } catch (error) {
-          toast.error(
-            "Failed to Save Draft",
-            getMutationErrorMessage(
-              error,
-              "Please check your network or try again.",
+        onSelectClosureStep={(step) => {
+          setClosureData((prev) => ({ ...prev, currentStep: step }));
+        }}
+        onChangeClosureField={(field, value) => {
+          setClosureData((prev) => ({ ...prev, [field]: value }));
+        }}
+        onToggleClosureCheckItem={(itemId) => {
+          setClosureData((prev) => ({
+            ...prev,
+            verificationChecklist: prev.verificationChecklist.map((item) =>
+              item.id === itemId
+                ? {
+                    ...item,
+                    completed: !item.completed,
+                    completedAt: !item.completed
+                      ? formatShortDateTime(new Date())
+                      : undefined,
+                    completedBy: !item.completed ? "Current User" : undefined,
+                  }
+                : item,
             ),
+          }));
+        }}
+        onCancelClosure={() => {
+          const intakeType = detail?.infoItems?.find((item) =>
+            item.key.toLowerCase().includes("type"),
+          )?.value;
+
+          setClosureData((prev) =>
+            resetClosureWizardFields(prev, {
+              finalIncidentType: toCanonicalIncidentType(intakeType),
+            }),
           );
+        }}
+        onSaveClosureDraft={async () => {
+          const targetId = detail?.numericId ?? numericId;
+          if (!targetId) return;
+          try {
+            await updateClosureMutation.mutateAsync({
+              incidentId: targetId,
+              data: closureData,
+            });
+            toast.success(
+              "Draft Saved",
+              "Incident closure draft saved successfully.",
+            );
+          } catch (error) {
+            toast.error(
+              "Failed to Save Draft",
+              getMutationErrorMessage(
+                error,
+                "Please check your network or try again.",
+              ),
+            );
+          }
+        }}
+        onFinalizeClosure={async () => {
+          const targetId = detail?.numericId ?? numericId;
+          if (!targetId) return;
+
+          const updatedData: IncidentClosureData = {
+            ...closureData,
+            closureStatus: "Closed",
+            closureId: closureData.closureId ?? `CLS-${displayId}`,
+            closedAt: formatShortDateTime(new Date()),
+            closedBy: closureData.approverName || closureData.closedBy,
+            isApproved: true,
+          };
+
+          setClosureData(updatedData);
+
+          try {
+            await updateClosureMutation.mutateAsync({
+              incidentId: targetId,
+              data: updatedData,
+            });
+            await closeIncidentMutation.mutateAsync(targetId);
+            await closureQuery.refetch();
+            toast.success(
+              "Incident Officially Closed",
+              `Incident ${displayId} has been successfully closed and verified.`,
+            );
+            await detailQuery.refetch();
+          } catch (error) {
+            toast.error(
+              "Failed to Finalize Closure",
+              getMutationErrorMessage(error, "Please try again."),
+            );
+          }
+        }}
+      />
+
+      <ConfirmDialog
+        open={pendingAttachmentDelete != null}
+        title="Remove attachment?"
+        description={
+          pendingAttachmentDelete
+            ? `${pendingAttachmentDelete.name} will be removed from this incident. This can't be undone.`
+            : undefined
         }
-      }}
-      onFinalizeClosure={async () => {
-        const targetId = detail?.numericId ?? numericId;
-        if (!targetId) return;
-
-        const updatedData: IncidentClosureData = {
-          ...closureData,
-          closureStatus: "Closed",
-          closureId: closureData.closureId ?? `CLS-${displayId}`,
-          closedAt: formatShortDateTime(new Date()),
-          closedBy: closureData.approverName || closureData.closedBy,
-          isApproved: true,
-        };
-
-        setClosureData(updatedData);
-
-        try {
-          await updateClosureMutation.mutateAsync({
-            incidentId: targetId,
-            data: updatedData,
-          });
-          await closeIncidentMutation.mutateAsync(targetId);
-          await closureQuery.refetch();
-          toast.success(
-            "Incident Officially Closed",
-            `Incident ${displayId} has been successfully closed and verified.`,
-          );
-          await detailQuery.refetch();
-        } catch (error) {
-          toast.error(
-            "Failed to Finalize Closure",
-            getMutationErrorMessage(error, "Please try again."),
-          );
-        }
-      }}
-    />
+        confirmLabel="Remove"
+        isConfirming={updateIncidentMutation.isPending}
+        onConfirm={() => void confirmDeleteAttachment()}
+        onCancel={() => {
+          if (!updateIncidentMutation.isPending) {
+            setPendingAttachmentDelete(null);
+          }
+        }}
+      />
+    </>
   );
 }

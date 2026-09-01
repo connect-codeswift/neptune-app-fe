@@ -3,6 +3,7 @@
 import { EmptyState } from "@/components/ui/EmptyState";
 
 import { Icon } from "@iconify/react";
+import { Can } from "@/components/auth/Can";
 import { Text } from "@/components/Text";
 import type {
   ContributingFactorItem,
@@ -22,6 +23,11 @@ export type IncidentDetailInvestigationCardProps = Readonly<{
   errorMessage?: string | null;
   onRetry?: () => void;
   onOpenHrca?: () => void;
+  /**
+   * A closed incident cannot start an investigation — the RCA endpoints refuse
+   * every write against it. One already on record stays open for reading.
+   */
+  isIncidentClosed?: boolean;
   className?: string;
 }>;
 
@@ -37,8 +43,14 @@ export function IncidentDetailInvestigationCard(
     errorMessage = null,
     onRetry,
     onOpenHrca,
+    isIncidentClosed = false,
     className = "",
   } = props;
+
+  // Nothing documented means there is nothing to view, and a closed incident
+  // cannot document anything now — so the worksheet has no reason to open.
+  const hasRecordedRca = whyChain.length > 0 || contributingFactors.length > 0;
+  const canOpenHrca = !isIncidentClosed || hasRecordedRca;
 
   const handleOpenHrca =
     onOpenHrca ??
@@ -103,18 +115,28 @@ export function IncidentDetailInvestigationCard(
             {statusLabel}
           </span>
 
-          <button
-            type="button"
-            onClick={handleOpenHrca}
-            className="bg-ehs-normal-blue text-ehs-on-accent hover:bg-ehs-normal-blue-active rounded-2.5 text5 inline-flex shrink-0 items-center gap-2 px-3.75 pt-2.5 pb-[11px] shadow-(--ehs-shadow-button-primary-flat) transition-colors"
-          >
-            <Icon
-              icon="mdi:open-in-new"
-              className="size-3.25"
-              aria-hidden="true"
-            />
-            Open HRCA
-          </button>
+          {canOpenHrca ? (
+            // The worksheet reads GET /incidents/{id}/rca, which checks Rca.View.
+            <Can do="Rca.View">
+              <button
+                type="button"
+                onClick={handleOpenHrca}
+                className="bg-ehs-normal-blue text-ehs-on-accent hover:bg-ehs-normal-blue-active rounded-2.5 text5 inline-flex shrink-0 items-center gap-2 px-3.75 pt-2.5 pb-[11px] shadow-(--ehs-shadow-button-primary-flat) transition-colors"
+              >
+                <Icon
+                  icon="mdi:open-in-new"
+                  className="size-3.25"
+                  aria-hidden="true"
+                />
+                {isIncidentClosed ? "View RCA" : "Open RCA"}
+              </button>
+            </Can>
+          ) : (
+            <span className="text-ehs-muted-text text5 border-ehs-border-ink/8 bg-ehs-surface/62 rounded-2.5 inline-flex shrink-0 items-center gap-2 border px-3.75 pt-2.5 pb-[11px]">
+              <Icon icon="mdi:lock" className="size-3.25" aria-hidden="true" />
+              Closed — no investigation
+            </span>
+          )}
         </div>
       </IncidentGlassCard>
 
@@ -153,8 +175,16 @@ export function IncidentDetailInvestigationCard(
           <EmptyState
             variant="plain"
             icon="mdi:sitemap-outline"
-            title="No root cause analysis yet"
-            message="Open HRCA to document contributing factors, whys, and corrective actions."
+            title={
+              isIncidentClosed
+                ? "No root cause analysis recorded"
+                : "No root cause analysis yet"
+            }
+            message={
+              isIncidentClosed
+                ? "This incident was closed without one, and a closed incident can no longer be investigated."
+                : "Open RCA to document contributing factors, whys, and corrective actions."
+            }
           />
         ) : (
           <div className="flex flex-col">

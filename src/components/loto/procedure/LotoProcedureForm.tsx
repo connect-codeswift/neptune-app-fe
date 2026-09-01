@@ -2,6 +2,8 @@
 
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
+import { Button } from "@/components/ui/Button";
+import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
 import {
   FormBuilder,
   type FormSchema,
@@ -19,7 +21,8 @@ import {
   type LotoProcedureFormState,
 } from "@/app/dashboard/lockout-tagout/loto-procedure-data";
 import { LotoLocationSearchField } from "./LotoLocationSearchField";
-import { LotoPersonnelSearchField } from "./LotoPersonnelSearchField";
+import { MultipleUsersPickerInput } from "@/components/inputs/MultipleUsersPickerInput";
+import { getCurrentUser } from "@/lib/current-user";
 import {
   LOTO_EQUIPMENT_FORM_ID,
   LOTO_PPE_FORM_ID,
@@ -28,7 +31,7 @@ import {
   fieldStringArray,
   lotoStepFormId,
   lotoStepSchema,
-  lotoVerificationSchema,
+  makeLotoVerificationSchema,
   makeLotoEquipmentSchema,
   makeLotoPpeSchema,
   toEquipmentFormValues,
@@ -87,6 +90,10 @@ export type LotoProcedurePreview = Readonly<{
 }>;
 
 export type LotoProcedureFormProps = Readonly<{
+  mode: "create" | "edit";
+  onCancel: () => void;
+  onSubmit: () => void;
+  isSubmitting?: boolean;
   initial: LotoProcedureFormState;
   steps: readonly LotoIsolationStep[];
   onStepsChange: (steps: LotoIsolationStep[]) => void;
@@ -139,6 +146,10 @@ function displayOrDash(text: string): string {
 /** Create / edit procedure body using FormBuilder — Figma 6912:56200 / 6915:56769. */
 export function LotoProcedureForm(props: Readonly<LotoProcedureFormProps>) {
   const {
+    mode,
+    onCancel,
+    onSubmit,
+    isSubmitting = false,
     initial,
     steps,
     onStepsChange,
@@ -153,6 +164,10 @@ export function LotoProcedureForm(props: Readonly<LotoProcedureFormProps>) {
     ppeStatusMessage,
   } = props;
 
+  // Proofread and paraphrase on the three free-text fields. Click-driven only —
+  // there is no draft-assist for LOTO, because a procedure is authored from
+  // knowledge of the machine rather than composed from answers already on the
+  // form. Nothing fires on change.
   const equipmentSchema = makeLotoEquipmentSchema(
     <LotoLocationSearchField
       value={location}
@@ -161,6 +176,30 @@ export function LotoProcedureForm(props: Readonly<LotoProcedureFormProps>) {
         onPreviewChange({ location: next?.name ?? "" });
       }}
     />,
+    (control) => (
+      <AiTextAssistant
+        module="loto"
+        value={control.value}
+        onApply={control.onChange}
+      />
+    ),
+  );
+
+  const verificationSchema = makeLotoVerificationSchema(
+    (control) => (
+      <AiTextAssistant
+        module="loto"
+        value={control.value}
+        onApply={control.onChange}
+      />
+    ),
+    (control) => (
+      <AiTextAssistant
+        module="loto"
+        value={control.value}
+        onApply={control.onChange}
+      />
+    ),
   );
 
   const ppeSchema = makeLotoPpeSchema(ppeOptions);
@@ -207,91 +246,193 @@ export function LotoProcedureForm(props: Readonly<LotoProcedureFormProps>) {
             }}
             className={equipmentFieldClass}
           />
+
+          {/* Part of Equipment Information, under Description: a procedure
+              nobody is authorized to perform cannot be applied, so this belongs
+              with the machine's own details rather than in a card of its own. */}
+          <div className="border-ehs-border-ink/8 mt-4 border-t pt-4">
+            <Text as="h3" className="text4 text-ehs-darker mb-1 font-semibold">
+              Authorized Personnel
+            </Text>
+            <Text as="p" className="text8 text-ehs-muted-text mb-2.5">
+              Only these users can perform this LOTO procedure
+            </Text>
+            <MultipleUsersPickerInput
+              label="Authorized Personnel"
+              hideLabel
+              required
+              placeholder="Search people…"
+              value={personnel.map((person) => ({
+                userId: String(person.userId),
+                name: person.name,
+              }))}
+              onChange={(next) => {
+                onPersonnelChange(
+                  next.map((entry) => ({
+                    userId: Number(entry.userId),
+                    name: entry.name,
+                  })),
+                );
+              }}
+              siteId={getCurrentUser().siteId}
+              // Any registered, active user on the site is eligible — but an
+              // outstanding invitation or a soft-deleted account is not a person
+              // who can be authorized on a lockout.
+              filter={(user) => !user.isInvited && !user.isDrop}
+            />
+          </div>
         </IncidentGlassCard>
 
         <IncidentGlassCard paddingClassName="p-5 md:p-5.5" className="min-w-0">
-          <div className="mb-2 flex items-center justify-between gap-3">
-            <Text as="h2" className="text3 text-ehs-darker">
-              Isolation Steps
-            </Text>
-            <button
-              type="button"
-              onClick={addStep}
-              className="text4 text-ehs-normal-blue border-ehs-normal-blue/20 bg-ehs-normal-blue/12 hover:bg-ehs-normal-blue/18 inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg border px-3 font-semibold transition-colors"
-            >
-              <Icon icon="mdi:plus" className="size-3.5" aria-hidden="true" />
-              Add Step
-            </button>
-          </div>
-          <Text as="p" className="text8 text-ehs-muted-text mb-3">
+          <Text as="h2" className="text3 text-ehs-darker">
+            Isolation Steps
+          </Text>
+          <Text as="p" className="text8 text-ehs-muted-text mt-0.5 mb-1">
             Document each energy isolation point in the sequence they must be
             performed
           </Text>
 
-          <div className="flex flex-col gap-3">
+          {/*
+           * A hairline-divided list, not a stack of cards. Each step used to
+           * carry its own border, fill and padding inside a card that already
+           * had all three, so the panel read as boxes within a box and the
+           * chrome competed with the fields for attention. The rule between
+           * rows separates them just as well at a fraction of the weight.
+           *
+           * The number moves into a rail on the left, which also gives the
+           * sequence something to read down — these steps are performed in
+           * order, and "Step 1" as a text heading on every row said that four
+           * times over while pushing the first field further down each time.
+           */}
+          <div className="divide-ehs-border-ink/8 flex flex-col divide-y">
             {steps.map((step, index) => (
-              <div
-                key={step.id}
-                className="rounded-4 border-ehs-border-ink/8 bg-ehs-surface/50 border p-4"
-              >
-                <div className="mb-3 flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <Text as="span" className="text5 text-ehs-darker">
-                      {`Step ${String(index + 1)}`}
-                    </Text>
-                    {step.verified ? (
-                      <Text
-                        as="span"
-                        className="text8 text-ehs-green bg-ehs-green/10 rounded-lg px-1.5 py-px font-bold"
-                      >
-                        Verified
-                      </Text>
-                    ) : null}
-                  </div>
-                  <button
-                    type="button"
-                    aria-label={`Remove step ${String(index + 1)}`}
-                    disabled={steps.length <= 1}
-                    onClick={() => {
-                      removeStep(step.id);
-                    }}
-                    className="text-ehs-red hover:bg-ehs-red/8 flex size-8 cursor-pointer items-center justify-center rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-40"
-                  >
-                    <Icon
-                      icon="mdi:trash-can-outline"
-                      className="size-5"
-                      aria-hidden="true"
-                    />
-                  </button>
-                </div>
+              <div key={step.id} className="flex gap-3 py-4 last:pb-0">
+                <span className="text8 text-ehs-muted-text bg-ehs-surface-inverse/6 mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full font-semibold tabular-nums">
+                  {/* The numeral alone reads as a bare "1" out of context, so
+                      the word it replaced is kept for a screen reader. */}
+                  <span className="sr-only">Step </span>
+                  {index + 1}
+                </span>
 
-                <FormBuilder
-                  formId={lotoStepFormId(step.id)}
-                  schema={lotoStepSchema}
-                  initialValues={toStepFormValues(step)}
-                  hideActions
-                  onSubmit={(values) => {
-                    onFormValid(lotoStepSchema, values, step.id);
-                  }}
-                  className={stepFieldClass}
-                />
+                <div className="min-w-0 flex-1">
+                  {/*
+                   * Only drawn when it has something to say. An always-present
+                   * row would add its height and margin to every step to hold
+                   * nothing, which on a fresh single-step form is the common
+                   * case.
+                   */}
+                  {step.verified || steps.length > 1 ? (
+                    <div className="mb-2 flex min-h-6 items-center justify-between gap-2">
+                      {step.verified ? (
+                        <Text
+                          as="span"
+                          className="text8 text-ehs-green bg-ehs-green/10 rounded-lg px-1.5 py-px font-bold"
+                        >
+                          Verified
+                        </Text>
+                      ) : (
+                        <span />
+                      )}
+                      {/*
+                       * Hidden on the only step, not disabled. A procedure with no
+                       * isolation steps is not a procedure, so the last one can
+                       * never be removed — and a control that is permanently greyed
+                       * out on a fresh form reads as broken rather than as a rule.
+                       * There is nothing the author can do to enable it until they
+                       * add a second step, so it earns no space until then.
+                       *
+                       * `removeStep` keeps its own guard: this decides what is
+                       * shown, that decides what is allowed.
+                       */}
+                      {steps.length > 1 ? (
+                        <button
+                          type="button"
+                          aria-label={`Remove step ${String(index + 1)}`}
+                          onClick={() => {
+                            removeStep(step.id);
+                          }}
+                          // Muted until pointed at. It is a destructive action
+                          // on a row the author is still filling in, so it
+                          // should be reachable without standing out.
+                          className="text-ehs-muted-text hover:text-ehs-red hover:bg-ehs-red/8 flex size-7 cursor-pointer items-center justify-center rounded-lg transition-colors"
+                        >
+                          <Icon
+                            icon="mdi:trash-can-outline"
+                            className="size-4.5"
+                            aria-hidden="true"
+                          />
+                        </button>
+                      ) : null}
+                    </div>
+                  ) : null}
+
+                  <FormBuilder
+                    formId={lotoStepFormId(step.id)}
+                    schema={lotoStepSchema}
+                    initialValues={toStepFormValues(step)}
+                    hideActions
+                    onSubmit={(values) => {
+                      onFormValid(lotoStepSchema, values, step.id);
+                    }}
+                    className={stepFieldClass}
+                  />
+                </div>
               </div>
             ))}
           </div>
+
+          {/*
+           * At the end of the sequence rather than up in the heading. A step is
+           * appended to the bottom of the list, so the control that appends one
+           * belongs where the new row will appear — and the heading keeps its
+           * weight for the section title.
+           */}
+          <button
+            type="button"
+            onClick={addStep}
+            className="text4 text-ehs-normal-blue border-ehs-border-ink/12 hover:border-ehs-normal-blue/30 hover:bg-ehs-normal-blue/6 mt-3 inline-flex h-9 w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-dashed font-medium transition-colors"
+          >
+            <Icon icon="mdi:plus" className="size-3.5" aria-hidden="true" />
+            Add Step
+          </button>
         </IncidentGlassCard>
 
         <IncidentGlassCard paddingClassName="p-5 md:p-5.5" className="min-w-0">
           <FormBuilder
             formId={LOTO_VERIFICATION_FORM_ID}
-            schema={lotoVerificationSchema}
+            schema={verificationSchema}
             initialValues={toVerificationFormValues(initial)}
             hideActions
             onSubmit={(values) => {
-              onFormValid(lotoVerificationSchema, values);
+              onFormValid(verificationSchema, values);
             }}
             className={equipmentFieldClass}
           />
         </IncidentGlassCard>
+
+        <div className="flex flex-wrap items-center gap-2.5">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={onCancel}
+            className="text4 rounded-2.5 px-4 py-2.5 font-medium"
+          >
+            Cancel
+          </Button>
+          <Button
+            type="button"
+            variant="primary"
+            onClick={onSubmit}
+            disabled={isSubmitting}
+            className="text4 rounded-2.5 gap-2 px-4 py-2.5 font-semibold shadow-[0px_4px_6px_color-mix(in_oklab,var(--ehs-normal-blue)_30%,transparent)]"
+          >
+            <Icon
+              icon={mode === "create" ? "mdi:plus" : "mdi:content-save-outline"}
+              className="size-3.5 shrink-0"
+            />
+            {mode === "create" ? "Create Procedure" : "Save Changes"}
+          </Button>
+        </div>
       </div>
 
       <aside className="flex min-w-0 flex-col gap-3.5 xl:sticky xl:top-4">
@@ -343,13 +484,6 @@ export function LotoProcedureForm(props: Readonly<LotoProcedureFormProps>) {
           {ppeStatusMessage ? (
             <p className="text8 text-ehs-muted-text mt-1">{ppeStatusMessage}</p>
           ) : null}
-        </IncidentGlassCard>
-
-        <IncidentGlassCard paddingClassName="p-4.5" className="min-w-0">
-          <LotoPersonnelSearchField
-            value={personnel}
-            onChange={onPersonnelChange}
-          />
         </IncidentGlassCard>
       </aside>
     </div>

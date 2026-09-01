@@ -1,4 +1,4 @@
-import { startOfDay } from "@/components/incidents/report/shared/report-date-time";
+import { startOfDay } from "@/lib/date-time-field";
 
 export type DateRange = Readonly<{
   start: Date;

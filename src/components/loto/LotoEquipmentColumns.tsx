@@ -3,7 +3,6 @@ import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
 import type { IncidentBadgeTone } from "@/components/near-miss/IncidentBadge";
-import { CompliancePill } from "@/components/regulatory-compliance/compliance-ui";
 import type { TableColumns } from "@/components/ui/table-columns";
 import type {
   LotoEquipmentItem,
@@ -28,7 +27,6 @@ function statusTone(status: LotoEquipmentStatus): IncidentBadgeTone {
 
 export type LotoEquipmentColumnActions = Readonly<{
   onView: (item: LotoEquipmentItem) => void;
-  onLock: (item: LotoEquipmentItem) => void;
 }>;
 
 export function buildLotoEquipmentColumns(
@@ -65,18 +63,6 @@ export function buildLotoEquipmentColumns(
       ),
       meta: { align: "left" as const },
     }),
-    columnHelper.accessor("energySources", {
-      header: () => columnHeader("Energy Sources"),
-      size: 220,
-      cell: (info) => (
-        <div className="flex max-w-55 flex-wrap gap-1">
-          {info.getValue().map((source: string) => (
-            <CompliancePill key={source} label={source} />
-          ))}
-        </div>
-      ),
-      meta: { align: "left" as const },
-    }),
     columnHelper.accessor("status", {
       header: () => columnHeader("Status"),
       size: 130,
@@ -104,8 +90,13 @@ export function buildLotoEquipmentColumns(
       size: 88,
       cell: ({ row }) => {
         const item = row.original;
-        const isLockedOut = item.status === "Locked Out";
 
+        // View only, plus the cog the manage-column helper merges in here.
+        // Every other register in the app offers exactly that from a row; the
+        // lock was a second, LOTO-only action that broke the shared shape.
+        // Applying a lockout is a decision made against the machine's detail
+        // — its state, its energy sources, its authorized personnel — so it
+        // stays on that screen rather than one click from a list row.
         return (
           <div className="flex items-center justify-center gap-0.5">
             <button
@@ -119,33 +110,6 @@ export function buildLotoEquipmentColumns(
             >
               <Icon
                 icon="lets-icons:view"
-                className="size-5"
-                aria-hidden="true"
-              />
-            </button>
-            <button
-              type="button"
-              disabled={isLockedOut}
-              className={[
-                "inline-flex size-8 items-center justify-center rounded-lg transition-colors",
-                isLockedOut
-                  ? "text-ehs-red cursor-default"
-                  : "text-ehs-muted-text hover:text-ehs-dark-bg hover:bg-ehs-surface-inverse/6 cursor-pointer",
-              ].join(" ")}
-              aria-label={
-                isLockedOut
-                  ? `${item.name} is locked out`
-                  : `Apply lockout to ${item.name}`
-              }
-              onClick={(event) => {
-                event.stopPropagation();
-                if (!isLockedOut) {
-                  actions.onLock(item);
-                }
-              }}
-            >
-              <Icon
-                icon="material-symbols:lock-outline"
                 className="size-5"
                 aria-hidden="true"
               />

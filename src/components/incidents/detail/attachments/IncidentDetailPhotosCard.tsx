@@ -14,6 +14,8 @@ export type IncidentDetailPhotosCardProps = Readonly<{
   onAddFile?: () => void;
   onDeleteFile?: (file: AttachmentItem) => void;
   isEditing?: boolean;
+  /** Defaults to `isEditing`. See IncidentDetailFilesTable for why the two are separate. */
+  canDelete?: boolean;
   readOnly?: boolean;
   /** When true, renders section content without an outer glass card. */
   embedded?: boolean;
@@ -27,6 +29,7 @@ function PhotosContent(
     onAddFile?: () => void;
     onDeleteFile?: (file: AttachmentItem) => void;
     isEditing: boolean;
+    canDelete: boolean;
     readOnly: boolean;
   }>,
 ) {
@@ -36,6 +39,7 @@ function PhotosContent(
     onAddFile,
     onDeleteFile,
     isEditing,
+    canDelete,
     readOnly,
   } = props;
   // Always show every attachment — do not hide PDFs when images exist.
@@ -54,16 +58,7 @@ function PhotosContent(
               : `${String(attachments.length)} files attached`}
           </span>
         </div>
-        {!readOnly && !isEditing ? (
-          <button
-            type="button"
-            onClick={onAddFile}
-            className="text-ehs-dark-bg rounded-2.5 text5 backdrop-blur-1.5 border-ehs-hairline/90 bg-ehs-surface/62 hover:bg-ehs-surface/80 inline-flex shrink-0 items-center gap-2 border px-3.75 pt-2.5 pb-[11px] transition-colors"
-          >
-            <Icon icon="mdi:plus" className="size-3.25" aria-hidden="true" />
-            Add file
-          </button>
-        ) : null}
+        
       </div>
 
       {displayItems.length === 0 ? (
@@ -148,7 +143,7 @@ function PhotosContent(
                   </div>
                 </button>
 
-                {isEditing ? (
+                {canDelete ? (
                   <button
                     type="button"
                     onClick={(event) => {
@@ -183,6 +178,7 @@ export function IncidentDetailPhotosCard(
     onAddFile,
     onDeleteFile,
     isEditing = false,
+    canDelete,
     readOnly = false,
     embedded = false,
     className = "",
@@ -194,6 +190,7 @@ export function IncidentDetailPhotosCard(
       onSelectFile={onSelectFile}
       onAddFile={onAddFile}
       onDeleteFile={onDeleteFile}
+      canDelete={canDelete ?? isEditing}
       isEditing={isEditing}
       readOnly={readOnly}
     />

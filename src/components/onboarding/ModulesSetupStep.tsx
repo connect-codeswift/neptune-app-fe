@@ -10,7 +10,7 @@ import {
   type ModuleState,
 } from "@/components/onboarding/constants";
 import { Button } from "@/components/ui/Button";
-import { Check } from "@/components/ui/Check";
+import { CheckboxInput } from "@/components/inputs/CheckboxInput";
 
 const MODULE_REQUIRED_MESSAGE = "Select at least one module to continue.";
 
@@ -60,45 +60,28 @@ export function ModulesSetupStep(props: Readonly<ModulesSetupStepProps>) {
 
           return (
             <li key={module.id}>
-              <button
-                type="button"
-                aria-pressed={isActive}
-                aria-label={`${isActive ? "Deselect" : "Select"} ${module.title}`}
-                onClick={() => handleModuleToggle(module.id, !isActive)}
-                className={[
-                  "border-ehs-border flex w-full cursor-pointer items-center justify-between gap-3 py-4 text-left",
+              <CheckboxInput
+                variant="tile"
+                boxPosition="end"
+                size="lg"
+                icon={module.icon}
+                label={module.title}
+                description={
+                  "description" in module ? module.description : undefined
+                }
+                checked={isActive}
+                onChange={(next) => handleModuleToggle(module.id, next)}
+                // The framing is responsive here — a divider list on mobile,
+                // cards from md up — so it replaces the default tile chrome.
+                tileClassName={[
+                  "border-ehs-border flex w-full items-center justify-between gap-3 py-4 text-left",
                   "max-md:border-b max-md:last:border-b-0",
                   "md:rounded-xl md:border md:px-4",
                   isActive
                     ? "md:border-ehs-normal-blue/40 md:bg-ehs-light-blue"
                     : "md:border-ehs-border md:bg-ehs-surface",
                 ].join(" ")}
-              >
-                <span className="flex min-w-0 flex-1 items-center gap-3">
-                  <Icon
-                    icon={module.icon}
-                    className="text-ehs-gray shrink-0 text-xl md:text-2xl"
-                    aria-hidden="true"
-                  />
-                  <span className="min-w-0">
-                    <Text
-                      as="span"
-                      className="text-ehs-darker block text-sm font-medium md:text-base md:font-semibold"
-                    >
-                      {module.title}
-                    </Text>
-                    {"description" in module && module.description ? (
-                      <Text
-                        as="span"
-                        className="text-ehs-muted-text mt-0.5 hidden text-xs leading-snug md:block md:text-sm"
-                      >
-                        {module.description}
-                      </Text>
-                    ) : null}
-                  </span>
-                </span>
-                <Check checked={isActive} />
-              </button>
+              />
             </li>
           );
         })}

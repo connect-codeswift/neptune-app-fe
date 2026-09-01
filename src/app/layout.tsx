@@ -53,10 +53,7 @@ export default function RootLayout({
         {/* Before first paint, so a dark-theme user never sees a white flash.
             It only writes `data-theme` / `color-scheme` on <html>; ThemeProvider
             adopts that value on mount rather than recomputing it. */}
-        <script
-          // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }}
-        />
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
       <body className="min-h-screen w-full">
         {/* The ambient gradient ground now lives on `body` in globals.css as

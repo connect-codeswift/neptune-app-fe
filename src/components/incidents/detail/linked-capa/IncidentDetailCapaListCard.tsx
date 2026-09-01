@@ -11,6 +11,7 @@ import type { CapaFormPayload } from "@/components/incidents/shared/capa/AddCapa
 import type { CapaTaskFormPayload } from "@/components/incidents/shared/capa/AddTaskModal";
 import { CapaCompletionReviewModal } from "@/components/incidents/shared/capa/CapaCompletionReviewModal";
 import { SkeletonListRows } from "@/components/ui/skeletons";
+import { useCapabilities } from "@/lib/capabilities";
 import type { CapaItem } from "@/components/incidents/detail/linked-capa/capa-types";
 import type { CapaEffectiveness } from "@/dtos/req/capa-verification-request.dto";
 import {
@@ -28,6 +29,13 @@ export type IncidentDetailCapaListCardProps = Readonly<{
   isLoading?: boolean;
   isSubmitting?: boolean;
   isVerifying?: boolean;
+  /**
+   * A finalised incident takes no new CAPAs, and no edits to the ones it has — the
+   * backend refuses both outright — so the card stops offering either rather than
+   * surfacing buttons that 400. The list still renders: a closed incident's actions
+   * are exactly what people come back to read.
+   */
+  isIncidentClosed?: boolean;
   openAddModal?: boolean;
   onAddModalOpened?: () => void;
   onSubmitCapa?: (payload: CapaFormPayload) => void | Promise<void>;
@@ -63,6 +71,7 @@ export function IncidentDetailCapaListCard(
     isLoading = false,
     isSubmitting = false,
     isVerifying = false,
+    isIncidentClosed = false,
     openAddModal = false,
     onAddModalOpened,
     onSubmitCapa,
@@ -80,8 +89,21 @@ export function IncidentDetailCapaListCard(
   const [editingCapa, setEditingCapa] = useState<CapaItem | null>(null);
   const [reviewCapa, setReviewCapa] = useState<CapaItem | null>(null);
   const autoPromptedRef = useRef<ReadonlySet<string>>(new Set());
+  const { can } = useCapabilities();
 
-  const isAddCapaOpen = addModalRequestedLocally || openAddModal;
+  // Gated here rather than only on the button so a stale `openAddModal` request —
+  // for instance a "add CAPA" deep link followed while the incident was being closed —
+  // cannot pop the modal on a closed incident, or for a role POST /capas refuses.
+  const canAddCapa = !isIncidentClosed && can("CAPA.Create");
+  const isAddCapaOpen =
+    canAddCapa && (addModalRequestedLocally || openAddModal);
+
+  // The pencil opens the editor, which saves the CAPA's tasks too —
+  // PUT /capa-tasks/{taskId}, which takes CAPA.Manage. CAPA.Update is not enough:
+  // a Worker holds it so they can progress a CAPA assigned to them, and the save
+  // would still 403. Off on a closed incident too: the record is finished, and an
+  // editor that only leads to a rejected save is worse than no pencil at all.
+  const canEditCapa = !isIncidentClosed && can("CAPA.Manage");
 
   const handleCloseAddModal = () => {
     setAddModalRequestedLocally(false);
@@ -140,15 +162,24 @@ export function IncidentDetailCapaListCard(
           </div>
 
           <div className="flex shrink-0 items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setAddModalRequestedLocally(true)}
-              disabled={isSubmitting}
-              className="bg-ehs-normal-blue text-ehs-on-accent hover:bg-ehs-normal-blue-active rounded-2.5 text5 inline-flex items-center gap-2 px-3 py-2 shadow-(--ehs-shadow-button-primary-flat) transition-colors disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              <Icon icon="mdi:plus" className="size-3.25" aria-hidden="true" />
-              Add CAPA
-            </button>
+            {/* Both rules live in canAddCapa rather than in a `Can` wrapper here: the
+                modal has its own entry point through `openAddModal`, and a check that
+                only guarded the button would leave that one open. */}
+            {canAddCapa ? (
+              <button
+                type="button"
+                onClick={() => setAddModalRequestedLocally(true)}
+                disabled={isSubmitting}
+                className="bg-ehs-normal-blue text-ehs-on-accent hover:bg-ehs-normal-blue-active rounded-2.5 text5 inline-flex items-center gap-2 px-3 py-2 shadow-(--ehs-shadow-button-primary-flat) transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <Icon
+                  icon="mdi:plus"
+                  className="size-3.25"
+                  aria-hidden="true"
+                />
+                Add CAPA
+              </button>
+            ) : null}
           </div>
         </div>
 
@@ -227,19 +258,21 @@ export function IncidentDetailCapaListCard(
                       >
                         {isVerified ? "Verified" : taskStatusLabel}
                       </span>
-                      <button
-                        type="button"
-                        aria-label={`Edit ${item.code}`}
-                        disabled={isSubmitting}
-                        onClick={() => setEditingCapa(item)}
-                        className="text-ehs-muted-text hover:text-ehs-normal-blue inline-flex size-7 shrink-0 items-center justify-center rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-60"
-                      >
-                        <Icon
-                          icon="mdi:pencil-outline"
-                          className="size-4"
-                          aria-hidden="true"
-                        />
-                      </button>
+                      {canEditCapa ? (
+                        <button
+                          type="button"
+                          aria-label={`Edit ${item.code}`}
+                          disabled={isSubmitting}
+                          onClick={() => setEditingCapa(item)}
+                          className="text-ehs-muted-text hover:text-ehs-normal-blue inline-flex size-7 shrink-0 items-center justify-center rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          <Icon
+                            icon="mdi:pencil-outline"
+                            className="size-4"
+                            aria-hidden="true"
+                          />
+                        </button>
+                      ) : null}
                     </div>
                   </div>
 
@@ -321,19 +354,19 @@ export function IncidentDetailCapaListCard(
       {isAddCapaOpen ? (
         <AddCapaModal
           key="add-capa"
-          incidentId={incidentId}
-          incidentTitle={incidentTitle}
+          sourceLabel={incidentId}
+          sourceTitle={incidentTitle}
           isSubmitting={isSubmitting}
           onClose={handleCloseAddModal}
           onSubmit={onSubmitCapa}
         />
       ) : null}
 
-      {editingCapa ? (
+      {editingCapa && canEditCapa ? (
         <AddCapaModal
           key={`edit-capa-${editingCapa.id}`}
-          incidentId={incidentId}
-          incidentTitle={incidentTitle}
+          sourceLabel={incidentId}
+          sourceTitle={incidentTitle}
           capaToEdit={editingCapa}
           isSubmitting={isSubmitting}
           isCreatingTask={isCreatingCapaTask}

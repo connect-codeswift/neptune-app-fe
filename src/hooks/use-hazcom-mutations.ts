@@ -11,6 +11,7 @@ import type {
 } from "@/dtos/req/hazcom-request.dto";
 import { hazcomQueryKeys } from "@/hooks/use-hazcom-queries";
 import {
+  bulkCreateChemicals,
   createChemical,
   createChemicalRiskAssessment,
   createSafetyDataSheet,
@@ -44,6 +45,17 @@ export function useCreateChemicalMutation() {
 
   return useMutation({
     mutationFn: (payload: ChemicalRequestDto) => createChemical(payload),
+    onSuccess: invalidate,
+  });
+}
+
+/** POST /api/v1/hazcom/chemicals/bulk — the inventory import. */
+export function useBulkCreateChemicalsMutation() {
+  const invalidate = useHazcomInvalidator();
+
+  return useMutation({
+    mutationFn: (rows: readonly ChemicalRequestDto[]) =>
+      bulkCreateChemicals(rows),
     onSuccess: invalidate,
   });
 }

@@ -4,6 +4,18 @@ export type PersonDto = {
   injuryLevel?: string | null;
   bodyPartAffected?: string | null;
   injuryDescription?: string | null;
+  /**
+   * Lost and restricted days for this person. Null means not recorded, which is not the
+   * same as zero — zero days away is a real answer about someone who stayed at work, so
+   * the two must not be collapsed on the way in.
+   */
+  daysAwayFromWork?: number | null;
+  daysOnRestrictedDuty?: number | null;
+  /**
+   * This person's own account. Required for a witness on create — a witness has to be
+   * someone in the system, not a free-typed name. Null on records predating that rule.
+   */
+  userId?: number | null;
 };
 
 /** Matches backend `IncidentDto` from GET/POST Incident APIs */
@@ -56,6 +68,12 @@ export type IncidentDto = {
    * added it to `IncidentDto`, so treat it as absent rather than "not closed".
    */
   stage?: string | null;
+  /**
+   * True when a near miss or hazard on this site was converted into this incident.
+   * The conversion link lives on the near-miss/hazard side, so the backend derives
+   * this per incident rather than storing it on the incident row.
+   */
+  isConverted?: boolean;
   furtherMedicalRecommendations?: boolean;
   images?: string[] | null;
   people?: PersonDto[] | null;

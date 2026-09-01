@@ -83,6 +83,7 @@ export function ChemicalEditView(props: Readonly<ChemicalEditViewProps>) {
       <ChemicalEditHeader
         chemicalId={chemical.id}
         chemicalName={chemical.name}
+        isDraft={chemical.isDraft}
       />
 
       {/*

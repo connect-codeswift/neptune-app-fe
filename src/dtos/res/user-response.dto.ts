@@ -3,7 +3,8 @@ import type { ApiEnvelopeDto, PagedDataDto } from "@/dtos/res/api-envelope.dto";
 /**
  * One entry of GET /api/v1/users/dropdown. The backend's exact key names aren't
  * pinned down yet, so the common spellings are all optional here and
- * `toAssigneeOptions` picks whichever is present.
+ * `fromDropdownItem` in `components/inputs/user-option.ts` picks whichever is
+ * present.
  */
 export type UserDropdownItemDto = {
   id?: number | string;
@@ -104,6 +105,23 @@ export function readUserProfileUrl(user: SiteUserDto): string {
 
   return "";
 }
+
+/**
+ * One person, as `GET /api/v1/users/{id}` projects them.
+ *
+ * The endpoint used to hand back the whole `User` entity — `PasswordHash`,
+ * `TotpSecret`, `ResetOtp` — for any id a caller cared to type. It now selects
+ * into a summary (`AuthRepository.GetUserById`), so it is safe to read and to
+ * hold in a query cache. Anything not on this list is not returned.
+ */
+export type UserSummaryDto = {
+  id: number;
+  fullName: string;
+  email: string;
+  profileUrl: string | null;
+  jobTitle: string | null;
+  roleName: string | null;
+};
 
 /** Matches backend response for GET /api/v1/sites/{siteId}/users. */
 export type GetUsersBySiteIdResponseDto =

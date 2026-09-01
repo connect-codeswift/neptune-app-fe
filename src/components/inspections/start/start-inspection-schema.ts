@@ -19,8 +19,6 @@ export type StartInspectionValues = {
 };
 
 export type StartInspectionSchemaOptions = Readonly<{
-  /** Inspectors from GET /api/v1/users/dropdown. */
-  inspectorOptions: readonly SelectOption[];
   /** Templates available to pick from. */
   templateOptions: readonly SelectOption[];
   /** Arrived via "Use template" — the choice is fixed, so lock the dropdown. */
@@ -28,17 +26,13 @@ export type StartInspectionSchemaOptions = Readonly<{
 }>;
 
 /**
- * Inspectors and templates come from APIs, so the schema is built per render
- * rather than declared as a module constant.
+ * Templates come from an API, so the schema is built per render rather than
+ * declared as a module constant. The inspector field fetches its own people.
  */
 export function buildStartInspectionSchema(
   options: StartInspectionSchemaOptions,
 ): FormSchema {
-  const {
-    inspectorOptions,
-    templateOptions,
-    isTemplateLocked = false,
-  } = options;
+  const { templateOptions, isTemplateLocked = false } = options;
 
   return [
     {
@@ -72,17 +66,18 @@ export function buildStartInspectionSchema(
       addCustomPlaceholder: "e.g. Plant C · Loading Dock 2",
     },
     {
-      type: "select",
+      type: "person",
       name: "inspector",
       label: "Inspector",
       required: true,
       colSpan: 6,
-      placeholder: "Select inspector",
-      options: inspectorOptions,
-      // External inspectors aren't in the user directory.
-      allowCustom: true,
-      addCustomLabel: "Add external inspector",
-      addCustomPlaceholder: "e.g. NFPA · Beacon",
+      placeholder: "Search for an inspector…",
+      // Org-wide: an inspector is often from another site.
+      usersSource: "org",
+      // External inspectors aren't in the user directory, so a typed name is
+      // kept rather than cleared. It files no id, which is the same thing the
+      // old "add external inspector" option did.
+      allowFreeText: true,
     },
     {
       type: "date",
@@ -90,6 +85,8 @@ export function buildStartInspectionSchema(
       label: "Scheduled Date",
       required: true,
       colSpan: 6,
+      // Scheduled, not recorded — same rule as Start Audit.
+      limit: "not-past",
     },
     {
       type: "date",
@@ -97,6 +94,8 @@ export function buildStartInspectionSchema(
       label: "Due Date",
       required: false,
       colSpan: 6,
+      // Same rule as scheduledDate above — a due date cannot open overdue.
+      limit: "not-past",
     },
   ];
 }

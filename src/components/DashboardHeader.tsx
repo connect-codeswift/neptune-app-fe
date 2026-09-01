@@ -1,12 +1,19 @@
 ﻿"use client";
 
 import { Icon } from "@iconify/react";
+import type { ReactNode } from "react";
 import { OrgSiteSwitcher } from "@/components/OrgSiteSwitcher";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
 
 export type DashboardHeaderProps = Readonly<{
   title?: string;
+  /**
+   * Sits immediately after the title, on the same baseline row — a status chip such as
+   * "Beta" that qualifies the page name itself. Kept as a slot rather than a `badge: string`
+   * so a caller owns its own styling, and so a page needing two chips is not blocked.
+   */
+  badge?: ReactNode;
   /** When true (default), loads org + sites from GET /api/v1/organizations/me. */
   showSiteSwitcher?: boolean;
   actionLabel?: string;
@@ -36,6 +43,7 @@ function ActionButton(
 export function DashboardHeader(props: Readonly<DashboardHeaderProps>) {
   const {
     title,
+    badge,
     showSiteSwitcher = true,
     actionLabel,
     onActionClick,
@@ -55,9 +63,14 @@ export function DashboardHeader(props: Readonly<DashboardHeaderProps>) {
         .join(" ")}
     >
       {title ? (
-        <Text as="h1" className="text1 text-ehs-darker shrink-0">
-          {title}
-        </Text>
+        // `flex-wrap` so a long title and its badge stack rather than pushing the
+        // right-hand controls off a narrow screen.
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
+          <Text as="h1" className="text1 text-ehs-darker shrink-0">
+            {title}
+          </Text>
+          {badge}
+        </div>
       ) : null}
 
       {showRightControls ? (

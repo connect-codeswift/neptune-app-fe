@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import type { ReportStepId } from "@/forms/incident-module/steps";
 import { useState } from "react";
 import { Icon } from "@iconify/react";
 import { Button } from "@/components/ui/Button";
@@ -11,12 +12,21 @@ import {
   SEVERITY_OPTIONS,
   INJURY_LEVEL_OPTIONS,
   IMMEDIATE_ACTION_OPTIONS,
+  CLASSIFICATION_FIELDS,
+  MECHANISM_OPTIONS,
+  NATURE_OF_INJURY_OPTIONS,
+  INITIAL_TREATMENT_OPTIONS,
+  WHAT_TREATMENT_GIVEN_OPTIONS,
+  TREATMENT_PROVIDER_OPTIONS,
+  TREATMENT_LOCATION_OPTIONS,
+  CASE_DISPOSITION_OPTIONS,
   formatBodyPartSelection,
-} from "@/components/incidents/report/shared/report-incident-data";
+} from "@/forms/incident-module/index";
 import { ReportReviewDetailCard } from "@/components/incidents/report/steps/step-5/ReportReviewDetailCard";
 import { formatIncidentLocationsLabel } from "@/components/incidents/report/shared/ReportLocationsField";
 import { ReportFieldError } from "@/components/incidents/report/shared/ReportFormField";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useSubmitLock } from "@/hooks/use-submit-lock";
 import { useCreateIncidentMutation } from "@/hooks/use-incident-mutations";
 import { getAccessToken } from "@/lib/axios";
 import { toast } from "@/lib/toast";
@@ -26,6 +36,14 @@ export type ReportIncidentStepFiveProps = Readonly<{
   onChange: (next: Partial<ReportIncidentFormState>) => void;
   onBack?: () => void;
   onContinue?: () => void;
+  /** Jumps back to a step so a summarised answer can be corrected in place. */
+  onGoToStep?: (step: ReportStepId) => void;
+  /**
+   * Called after the incident is created but before navigation away.
+   * Receives the new incident id. Used by the near-miss convert flow to
+   * link the near miss to the incident via POST …/convert-to-incident.
+   */
+  onAfterCreateIncident?: (incidentId: number) => Promise<void> | void;
   className?: string;
 }>;
 
@@ -80,6 +98,61 @@ function splitSiteAndArea(location: string): {
   };
 }
 
+/**
+ * The chip used for the summary badges at the top of this step and for the
+ * immediate actions below. One definition on purpose: they sit on the same
+ * screen a few centimetres apart, so two copies would drift.
+ */
+const reviewChipClass =
+  "text-ehs-gray rounded-1.5 bg-ehs-surface-inverse/6 px-2.5 py-1 text-xs font-bold tracking-[0.2px]";
+
+/**
+ * The label a stored value was picked from, falling back to the value itself.
+ *
+ * The fallback is what makes reporter-typed entries survive: several of these
+ * fields accept a custom option (`customOptions` on the form), which is stored
+ * with the typed text as its own value and so matches nothing in the list. The
+ * request mapper resolves labels the same way.
+ */
+function optionLabel(
+  options: readonly (readonly [] | { value: string; label: string })[],
+  value: string,
+): string {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return "—";
+  }
+
+  const match = (options as readonly { value: string; label: string }[]).find(
+    (option) => option.value === trimmed,
+  );
+
+  return match?.label ?? trimmed;
+}
+
+/** Free text as entered, or an em dash so an empty row still reads as answered-blank. */
+function textOrDash(value: string): string {
+  return value.trim() || "—";
+}
+
+/**
+ * Every classification answered on step 1, as one row.
+ *
+ * Six separate rows would swamp the card, and the unanswered ones carry no
+ * information — the reporter is told which questions they left blank by the
+ * step itself, not by a review card repeating six em dashes.
+ */
+function classificationsLabel(form: ReportIncidentFormState): string {
+  return (
+    CLASSIFICATION_FIELDS.map((field) => {
+      const answer = (form.classifications[field.id] ?? "").trim();
+      return answer ? `${field.label.replace(/\?$/, "")}: ${answer}` : null;
+    })
+      .filter(Boolean)
+      .join(" · ") || "—"
+  );
+}
+
 function previewTitle(form: ReportIncidentFormState): string {
   const titled = form.title.trim();
   if (titled) {
@@ -98,11 +171,22 @@ function previewTitle(form: ReportIncidentFormState): string {
 export function ReportIncidentStepFive(
   props: Readonly<ReportIncidentStepFiveProps>,
 ) {
-  const { form, onBack, className = "" } = props;
+  const {
+    form,
+    onBack,
+    onGoToStep,
+    onAfterCreateIncident,
+    className = "",
+  } = props;
   const router = useRouter();
   const createIncidentMutation = useCreateIncidentMutation();
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
   const submitErrors = attemptedSubmit ? getReportFormErrors(form) : null;
+
+  // Held past the response, not just the request: `isPending` drops the
+  // instant the incident is created while `router.push` is still fetching the
+  // next route, and a click in that gap filed a duplicate report.
+  const submitLock = useSubmitLock();
 
   const handleSubmit = async () => {
     if (!getAccessToken()) {
@@ -117,6 +201,10 @@ export function ReportIncidentStepFive(
       return;
     }
 
+    if (!submitLock.acquire()) {
+      return;
+    }
+
     try {
       const created = await createIncidentMutation.mutateAsync(form);
       const createdId = created.id;
@@ -126,6 +214,26 @@ export function ReportIncidentStepFive(
         "The incident has been recorded successfully.",
       );
 
+      if (
+        onAfterCreateIncident &&
+        typeof createdId === "number" &&
+        createdId > 0
+      ) {
+        try {
+          await onAfterCreateIncident(createdId);
+        } catch (linkError) {
+          // Per FEGuide ConvertToIncident.md §2: surface the link error rather
+          // than silently retrying, or a retry could create a duplicate incident.
+          toast.error(
+            "Incident created, but could not link to near miss",
+            getMutationErrorMessage(
+              linkError,
+              "The incident was saved, but the link to the near miss failed. Please link them manually from the incident detail page.",
+            ),
+          );
+        }
+      }
+
       if (typeof createdId === "number" && createdId > 0) {
         router.push(`/dashboard/incidents/${String(createdId)}`);
         return;
@@ -133,6 +241,7 @@ export function ReportIncidentStepFive(
 
       router.push("/dashboard/incidents/list");
     } catch (error) {
+      submitLock.release();
       toast.error(
         "Submit failed",
         getMutationErrorMessage(
@@ -158,23 +267,36 @@ export function ReportIncidentStepFive(
       : "—";
   const injuryLevelLabel =
     INJURY_LEVEL_OPTIONS.find((o) => o.id === form.injuryLevel)?.label ?? "—";
+  // `formatBodyPartSelection` only knows the closed anatomical union, so the
+  // reporter's own additions have to be appended or they vanish from the
+  // review — the same join the AI draft input uses.
+  const selectedBodyParts = formatBodyPartSelection(
+    form.bodyParts,
+    form.bodySide,
+    form.bodyPartSides,
+  );
   const bodyPartsLabel =
-    formatBodyPartSelection(
-      form.bodyParts,
-      form.bodySide,
-      form.bodyPartSides,
-    ) || "—";
+    [
+      selectedBodyParts === "None selected" ? "" : selectedBodyParts,
+      ...form.customBodyParts,
+    ]
+      .filter(Boolean)
+      .join(", ") || "—";
   const affectedPersonLabel = form.affectedPerson.trim() || "—";
-  const witnessesLabel = form.witnesses.trim() || "None";
+  const witnessesLabel =
+    form.witnesses
+      .map((witness) => witness.name.trim())
+      .filter(Boolean)
+      .join(", ") || "None";
 
-  const actionsLabel =
-    form.immediateActions
-      .map(
-        (id) =>
-          IMMEDIATE_ACTION_OPTIONS.find((option) => option.id === id)?.label ??
-          id,
-      )
-      .join(" · ") || "None";
+  // Kept as id + label rather than a joined string: several actions run to a
+  // few words each, and a single "·"-separated line wrapped mid-phrase so it
+  // read as one long sentence instead of a set of discrete choices.
+  const selectedActions = form.immediateActions.map((id) => ({
+    id,
+    label:
+      IMMEDIATE_ACTION_OPTIONS.find((option) => option.id === id)?.label ?? id,
+  }));
 
   const photosCountLabel =
     form.photos.length > 0 ? `${String(form.photos.length)} attached` : "None";
@@ -188,6 +310,51 @@ export function ReportIncidentStepFive(
         : form.location.trim() || "—";
   // No anonymous toggle in the wizard yet — default matches Figma preview.
   const anonymousLabel = "No";
+
+  // Severity's full label, not the badge's short form — the badge is already
+  // above and this row is where the reporter checks the exact answer.
+  const severityLabel =
+    SEVERITY_OPTIONS.find((option) => option.id === form.severity)?.label ??
+    "—";
+
+  // First Aid is the only severity that collects the treatment block; every
+  // other one is stamped "N/A" by NON_FIRST_AID_FIELD_DEFAULTS, and six rows
+  // of "N/A" is noise rather than review.
+  const isFirstAid = form.severity === "first-aid";
+  const firstAidRows = isFirstAid
+    ? [
+        {
+          label: "Treatment given",
+          value: optionLabel(
+            WHAT_TREATMENT_GIVEN_OPTIONS,
+            form.whatTreatmentWasGiven,
+          ),
+        },
+        {
+          label: "Provided by",
+          value: optionLabel(
+            TREATMENT_PROVIDER_OPTIONS,
+            form.treatmentProvidedBy,
+          ),
+        },
+        {
+          label: "Treated at",
+          value: optionLabel(
+            TREATMENT_LOCATION_OPTIONS,
+            form.treatmentLocation,
+          ),
+        },
+        { label: "Further medical", value: form.furtherMedicalRecommended },
+        {
+          label: "Fit for full duty",
+          value: textOrDash(form.isFitForFullDuty),
+        },
+        {
+          label: "Case disposition",
+          value: optionLabel(CASE_DISPOSITION_OPTIONS, form.caseDisposition),
+        },
+      ]
+    : [];
   const incidentTitle = previewTitle(form);
 
   return (
@@ -219,15 +386,9 @@ export function ReportIncidentStepFive(
           {/* Section 1: Top nested summary card */}
           <div className="rounded-3 border-ehs-border-ink/8 bg-ehs-surface/42 flex flex-col gap-2.5 border p-4">
             <div className="flex flex-wrap items-center gap-1.5">
-              <span className="text-ehs-gray rounded-1.5 bg-ehs-surface-inverse/6 px-2.5 py-1 text-xs font-bold tracking-[0.2px]">
-                {severityBadge}
-              </span>
-              <span className="text-ehs-gray rounded-1.5 bg-ehs-surface-inverse/6 px-2.5 py-1 text-xs font-bold tracking-[0.2px]">
-                {typeBadge}
-              </span>
-              <span className="text-ehs-gray rounded-1.5 bg-ehs-surface-inverse/6 px-2.5 py-1 text-xs font-bold tracking-[0.2px]">
-                {siteBadge}
-              </span>
+              <span className={reviewChipClass}>{severityBadge}</span>
+              <span className={reviewChipClass}>{typeBadge}</span>
+              <span className={reviewChipClass}>{siteBadge}</span>
             </div>
 
             <Text
@@ -249,37 +410,112 @@ export function ReportIncidentStepFive(
           <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
             <ReportReviewDetailCard
               title="Where & when"
+              onEdit={onGoToStep ? () => onGoToStep(1) : undefined}
               rows={[
+                { label: "Severity", value: severityLabel },
                 { label: "Site", value: site },
                 { label: "Area", value: incidentAreasLabel },
                 { label: "When", value: when },
+                { label: "Reported on", value: textOrDash(form.reportDate) },
+                // Step 1's six yes/no answers. They belong on this card
+                // because it is the one that edits step 1 — the rule the card
+                // documents — even though the title speaks only of place and
+                // time.
+                { label: "Classifications", value: classificationsLabel(form) },
               ]}
               error={
                 submitErrors?.location ?? submitErrors?.incidentDate ?? null
               }
             />
+            {/*
+              Regrouped so every card maps to exactly one step. Witnesses and Photos are
+              both answered on step 2 but sat under People and Response, so a single edit
+              button per card could only ever send the reporter to the wrong place for one
+              of its rows.
+            */}
             <ReportReviewDetailCard
-              title="People"
+              title="People & injury"
+              onEdit={onGoToStep ? () => onGoToStep(3) : undefined}
               rows={[
                 { label: "Affected", value: affectedPersonLabel },
+                { label: "Gender", value: textOrDash(form.gender) },
                 { label: "Injury", value: injuryLevelLabel },
                 { label: "Body part", value: bodyPartsLabel },
+                {
+                  label: "Injury detail",
+                  value: textOrDash(form.injuryDescription),
+                },
+              ]}
+            />
+            <ReportReviewDetailCard
+              title="Details"
+              onEdit={onGoToStep ? () => onGoToStep(2) : undefined}
+              rows={[
+                {
+                  label: "Mechanism",
+                  value: optionLabel(MECHANISM_OPTIONS, form.mechanismOfInjury),
+                },
+                {
+                  label: "Nature",
+                  value: optionLabel(
+                    NATURE_OF_INJURY_OPTIONS,
+                    form.natureOfInjury,
+                  ),
+                },
+                {
+                  label: "Object involved",
+                  value: textOrDash(form.objectInvolved),
+                },
+                {
+                  label: "Initial treatment",
+                  value: optionLabel(
+                    INITIAL_TREATMENT_OPTIONS,
+                    form.initialTreatment,
+                  ),
+                },
+                { label: "Further treatment", value: form.secondaryTreatment },
+                ...firstAidRows,
+                {
+                  label: "OSHA notified",
+                  value: form.oshaNotificationRequired,
+                },
                 { label: "Witnesses", value: witnessesLabel },
+                { label: "Photos", value: photosCountLabel },
               ]}
             />
             <ReportReviewDetailCard
               title="Response"
+              onEdit={onGoToStep ? () => onGoToStep(4) : undefined}
               rows={[
-                { label: "Actions", value: actionsLabel },
-                { label: "Photos", value: photosCountLabel },
+                {
+                  label: "Actions",
+                  // `justify-end` because the card right-aligns its value
+                  // column; the chips have to wrap back towards the label
+                  // rather than away from it.
+                  value:
+                    selectedActions.length > 0 ? (
+                      <div className="flex flex-wrap justify-end gap-1.5">
+                        {selectedActions.map((action) => (
+                          <span key={action.id} className={reviewChipClass}>
+                            {action.label}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      "None"
+                    ),
+                },
+                { label: "Notes", value: textOrDash(form.actionNotes) },
               ]}
             />
 
             <ReportReviewDetailCard
               title="Reporter"
+              onEdit={onGoToStep ? () => onGoToStep(1) : undefined}
               paddingClassName="px-3.75 pt-3.75 pb-7.25"
               rows={[
                 { label: "Reported by", value: reporterName },
+                { label: "Email", value: textOrDash(form.reporterEmail) },
                 { label: "Department", value: departmentLabel },
                 { label: "Anonymous", value: anonymousLabel },
               ]}
@@ -344,7 +580,7 @@ export function ReportIncidentStepFive(
               type="button"
               variant="tertiary"
               onClick={onBack}
-              disabled={createIncidentMutation.isPending}
+              disabled={submitLock.isLocked}
               className="rounded-2.5 px-3.75 py-2.5 text-sm font-bold"
             >
               <Icon
@@ -364,10 +600,10 @@ export function ReportIncidentStepFive(
               type="button"
               variant="primary"
               onClick={() => void handleSubmit()}
-              disabled={createIncidentMutation.isPending}
+              disabled={submitLock.isLocked}
               className="rounded-2.5 px-3.75 py-2.5 text-sm font-bold shadow-(--ehs-shadow-button-primary-flat)"
             >
-              {createIncidentMutation.isPending ? (
+              {submitLock.isLocked ? (
                 <>
                   Submitting…
                   <Icon

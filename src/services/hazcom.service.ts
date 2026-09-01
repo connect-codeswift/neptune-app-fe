@@ -83,6 +83,22 @@ export async function createChemical(payload: ChemicalRequestDto) {
   return data;
 }
 
+/**
+ * POST /api/v1/hazcom/chemicals/bulk — the inventory import.
+ *
+ * All or nothing: the endpoint writes every row in one transaction or none of
+ * them, so a rejection leaves the register untouched. The rows are validated in
+ * the browser before they get here (see `chemical-import.ts`).
+ */
+export async function bulkCreateChemicals(rows: readonly ChemicalRequestDto[]) {
+  const { data } = await http.post<CreateChemicalResponseDto>(
+    `${CHEMICAL_PATH}/bulk`,
+    rows,
+  );
+
+  return data;
+}
+
 /** GET /api/v1/hazcom/chemicals?pageNumber&pageSize */
 export async function getAllChemicals(
   query: HazcomPageQueryDto = HAZCOM_DEFAULT_PAGE,

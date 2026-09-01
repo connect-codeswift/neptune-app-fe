@@ -8,6 +8,7 @@ import { complianceGlassCardClass } from "@/components/regulatory-compliance/com
 import type { LotoLockoutStatusFilterDto } from "@/dtos/req/loto-request.dto";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import {
+  DEFAULT_LOTO_PAGE_NUMBER,
   DEFAULT_LOTO_PAGE_SIZE,
   useLotoLockoutHistoryQuery,
 } from "@/hooks/use-loto-queries";
@@ -24,30 +25,44 @@ const STATUS_OPTIONS = [
   { value: "Completed", label: "Completed" },
 ] as const;
 
+/** Same narrowing as the equipment register — see isStatusFilter there. */
+function isLockoutStatusFilter(
+  value: string,
+): value is LotoLockoutStatusFilterDto {
+  return STATUS_OPTIONS.some((option) => option.value === value);
+}
+
 /** Lockout history — POST /api/v1/loto/lockouts/search, the global site-wide log. */
 export function LotoHistorySection() {
   const hasToken = useHasAccessToken();
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [status, setStatus] = useState<LotoLockoutStatusFilterDto>("All");
-  const [pageNumber, setPageNumber] = useState(1);
+  const [pageNumber, setPageNumber] = useState(DEFAULT_LOTO_PAGE_NUMBER);
 
+  // Trimmed before storing and skipped when unchanged — see the equipment
+  // register for why the guard matters.
   useEffect(() => {
+    const trimmed = query.trim();
+    if (trimmed === debouncedQuery) {
+      return;
+    }
+
     const timer = globalThis.setTimeout(() => {
-      setDebouncedQuery(query);
-      setPageNumber(1);
+      setDebouncedQuery(trimmed);
+      setPageNumber(DEFAULT_LOTO_PAGE_NUMBER);
     }, SEARCH_DEBOUNCE_MS);
 
     return () => {
       globalThis.clearTimeout(timer);
     };
-  }, [query]);
+  }, [query, debouncedQuery]);
 
   const historyQuery = useLotoLockoutHistoryQuery(
     {
       pageNumber,
       pageSize: DEFAULT_LOTO_PAGE_SIZE,
-      search: debouncedQuery.trim(),
+      search: debouncedQuery,
       status,
     },
     hasToken === true,
@@ -68,8 +83,9 @@ export function LotoHistorySection() {
             options: [...STATUS_OPTIONS],
             value: status,
             onChange: (value) => {
-              setStatus(value as LotoLockoutStatusFilterDto);
-              setPageNumber(1);
+              if (!isLockoutStatusFilter(value)) return;
+              setStatus(value);
+              setPageNumber(DEFAULT_LOTO_PAGE_NUMBER);
             },
           },
         ]}

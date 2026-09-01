@@ -1,142 +1,125 @@
 "use client";
 
-import { EmptyState } from "@/components/ui/EmptyState";
-
-import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { IncidentGlassCard } from "@/components/incidents";
+import { type ControlLevel } from "@/components/incidents/shared/capa/CapaHierarchySelector";
 import {
-  CapaHierarchySelector,
-  type ControlLevel,
-} from "@/components/incidents/shared/capa/CapaHierarchySelector";
+  AddTaskModal,
+  type CapaTaskFormPayload,
+} from "@/components/incidents/shared/capa/AddTaskModal";
+import { CapaModalTasksSection } from "@/components/incidents/shared/capa/CapaModalTasksSection";
+import type { StagedCapaTask } from "@/components/incidents/shared/capa/AddCapaModal";
 import {
-  CapaDetailAddTaskModal,
-  type CapaDetailAddTaskDraft,
-} from "@/components/capa/detail/CapaDetailAddTaskModal";
+  CapaControlLevelStep,
+  CapaCoreFields,
+  CapaStepHeading,
+  CAPA_PRIORITY_OPTIONS,
+  CAPA_TYPE_OPTIONS,
+  resolveCapaFooterHint,
+  type CapaCoreFieldsValue,
+} from "@/components/capa/shared/CapaFormSteps";
 import { CreateCapaHeader } from "@/components/capa/create/CreateCapaHeader";
-import {
-  buildCreateCapaSchema,
-  CREATE_CAPA_FORM_ID,
-  createCreateCapaInitialValues,
-  fieldString,
-} from "@/components/capa/create/create-capa-form-schema";
-import { FormBuilder, type FormValues } from "@/components/form-builder";
 import { Button } from "@/components/ui/Button";
-import { Text } from "@/components/Text";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { useCapabilities } from "@/lib/capabilities";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useSubmitLock } from "@/hooks/use-submit-lock";
 import { useCreateCapaMutation } from "@/hooks/use-capa-mutations";
-import { getAuthContext } from "@/lib/auth-context";
+import { cantBePast, mmDdYyyyToIso } from "@/lib/date-time-field";
 import { toast } from "@/lib/toast";
-import {
-  buildCapaTitleFromDescription,
-  toApiControlLevel,
-} from "@/services/mappers/capa.mapper";
+import { buildCreateCapaRequest } from "@/services/mappers/capa.mapper";
 
-/* The slate text ramp here is pinned (#1e293b, #334155, #475569, #64748b,
-   #94a3b8): it is Tailwind's slate scale, not the brand greys, and rounding
-   each to the nearest `--ehs-*` grey collapses five steps into three. The
-   disabled submit fill #7bc1c5 is pinned for the same reason - it is opaque,
-   not a translucent teal. */
+/* The disabled submit fill #7bc1c5 is pinned: it is an opaque teal, not a
+   translucent one, so no `--ehs-*` token plus an alpha reproduces it. */
 
 const CAPA_ROUTE = "/dashboard/capa";
 
-export type CreateCapaTaskDraft = Readonly<
-  CapaDetailAddTaskDraft & {
-    id: string;
-  }
->;
-
-function parseAssignedId(value: string): number {
-  const trimmed = value.trim();
-  if (!trimmed) return 0;
-  const parsed = Number(trimmed);
-  if (!Number.isFinite(parsed) || parsed <= 0) return 0;
-  return Math.trunc(parsed);
-}
-
-function StepBadge(props: Readonly<{ step: string }>) {
-  return (
-    <span className="bg-ehs-normal-blue text-ehs-on-accent inline-flex size-6 shrink-0 items-center justify-center rounded-full pt-[2px] pb-[3px] text-sm leading-5">
-      {props.step}
-    </span>
-  );
-}
-
-/** Create CAPA page — Figma 7123:41554. */
+/**
+ * Create CAPA — Figma 7123:41554.
+ *
+ * The form itself is `CapaControlLevelStep` + `CapaCoreFields`, shared with the
+ * Add CAPA modal raised from an incident, hazard or near miss; this route only
+ * frames them and owns the mutation. It used to be a second, FormBuilder-driven
+ * build of the same fields, which drifted from the modal on every change.
+ */
 export function CreateCapaContent() {
   const router = useRouter();
+
+  // ?sourceType=Hazard&sourceId=12 - set by the "Add CAPA" link on a hazard or near miss.
+  // Absent on the plain New CAPA route, which is how a standalone CAPA is raised.
+  const searchParams = useSearchParams();
+  const sourceType = searchParams.get("sourceType")?.trim() ?? "";
+  const sourceId = Number(searchParams.get("sourceId") ?? 0);
+  const { can, isReady } = useCapabilities();
   const createCapaMutation = useCreateCapaMutation();
+  // Held past the response: `isPending` drops when the record is created,
+  // while the push to the next page is still in flight. A click in that gap
+  // saved a duplicate.
+  const submitLock = useSubmitLock();
 
   const [controlLevel, setControlLevel] = useState<ControlLevel | null>(null);
-  const [formValues, setFormValues] = useState<FormValues | null>(null);
-  const [tasks, setTasks] = useState<CreateCapaTaskDraft[]>([]);
+  const [fields, setFields] = useState<CapaCoreFieldsValue>({
+    description: "",
+    type: CAPA_TYPE_OPTIONS[0],
+    owner: "",
+    ownerUserId: "",
+    dueDate: "",
+    priority: CAPA_PRIORITY_OPTIONS[1],
+  });
+  const [tasks, setTasks] = useState<readonly StagedCapaTask[]>([]);
+  const [editingTaskLocalId, setEditingTaskLocalId] = useState<string | null>(
+    null,
+  );
   const [addTaskOpen, setAddTaskOpen] = useState(false);
 
-  const schema = useMemo(() => buildCreateCapaSchema(), []);
+  const isSubmitting = submitLock.isLocked;
+  const dueDateError = cantBePast(
+    mmDdYyyyToIso(fields.dueDate),
+    "Due date",
+  ).error;
 
-  const initialValues = useMemo(
-    () => createCreateCapaInitialValues(schema),
-    [schema],
-  );
-
-  const description = fieldString(formValues ?? initialValues, "description");
-  const isSubmitting = createCapaMutation.isPending;
+  // A CAPA with no tasks is a dead end: status is derived from its tasks, so it can never
+  // leave Open - not Completed, so never Pending Verification, and never Closed. The only
+  // thing anyone could do with it afterwards is drop it. Require one up front instead.
+  const hasAtLeastOneTask = tasks.length > 0;
   const canSubmit =
-    controlLevel != null && description.trim().length > 0 && !isSubmitting;
+    controlLevel != null &&
+    fields.description.trim().length > 0 &&
+    hasAtLeastOneTask &&
+    dueDateError === null &&
+    !isSubmitting;
+
+  const patchFields = (patch: Partial<CapaCoreFieldsValue>) => {
+    setFields((current) => ({ ...current, ...patch }));
+  };
 
   const handleCancel = () => {
     router.push(CAPA_ROUTE);
   };
 
-  const handleSubmit = async (values: FormValues) => {
-    if (!controlLevel || isSubmitting) return;
-
-    const auth = getAuthContext();
-    if (!auth) {
-      toast.error(
-        "Could not create CAPA",
-        "Sign in required to create a CAPA.",
-      );
-      return;
-    }
-
-    const description = fieldString(values, "description").trim();
-    const capaType =
-      fieldString(values, "type").trim().toLowerCase() === "preventive"
-        ? "Preventive"
-        : "Corrective";
-    const priority = fieldString(values, "priority") || "Medium";
-    const assigned = fieldString(values, "assigned");
-    const dueDate = fieldString(values, "dueDate").trim();
-
-    const assignedId = parseAssignedId(assigned);
-    if (assignedId > 0 && assignedId === auth.userId) {
-      toast.error(
-        "Could not create CAPA",
-        "A CAPA cannot be assigned to yourself. Pick a different owner.",
-      );
+  const handleSubmit = async () => {
+    if (!controlLevel || !canSubmit || !submitLock.acquire()) {
       return;
     }
 
     try {
       await createCapaMutation.mutateAsync({
-        payload: {
-          id: 0,
-          title: buildCapaTitleFromDescription(description),
-          capaType,
-          priority,
-          controlLevel: toApiControlLevel(controlLevel),
-          description,
-          userId: auth.userId,
-          incidentId: 0,
-          rcaId: 0,
-          assignedId,
-          dueDate,
-          isDrop: false,
-        },
+        payload: buildCreateCapaRequest({
+          // Carried from ?sourceType=&sourceId= so a CAPA raised from a hazard or a near
+          // miss links back to it. Without these it saves as Standalone, and the record it
+          // came from shows no CAPA at all.
+          ...(sourceType && sourceId > 0 ? { sourceType, sourceId } : {}),
+          controlLevel,
+          description: fields.description.trim(),
+          type: fields.type,
+          owner: fields.ownerUserId.trim() || fields.owner.trim(),
+          dueDate: fields.dueDate,
+          priority: fields.priority,
+        }),
         tasks: tasks.map((task) => ({
-          task: task.name,
+          task: task.task,
           dueDate: task.dueDate,
           priority: task.priority,
         })),
@@ -145,12 +128,11 @@ export function CreateCapaContent() {
       const taskCount = tasks.length;
       toast.success(
         "CAPA created",
-        taskCount > 0
-          ? `${controlLevel} · ${capaType} with ${String(taskCount)} task${taskCount === 1 ? "" : "s"}`
-          : `${controlLevel} · ${capaType}`,
+        `${controlLevel} · ${fields.type} with ${String(taskCount)} task${taskCount === 1 ? "" : "s"}`,
       );
       router.push(CAPA_ROUTE);
     } catch (error) {
+      submitLock.release();
       toast.error(
         "Could not create CAPA",
         getMutationErrorMessage(error, "Please try again."),
@@ -158,19 +140,53 @@ export function CreateCapaContent() {
     }
   };
 
-  const removeTask = (id: string) => {
-    setTasks((current) => current.filter((task) => task.id !== id));
+  const closeTaskModal = () => {
+    setAddTaskOpen(false);
+    setEditingTaskLocalId(null);
   };
 
-  const handleAddTask = (draft: CapaDetailAddTaskDraft) => {
+  const handleAddTask = (payload: CapaTaskFormPayload) => {
+    if (editingTaskLocalId !== null) {
+      setTasks((current) =>
+        current.map((task) =>
+          task.localId === editingTaskLocalId
+            ? { ...payload, localId: task.localId }
+            : task,
+        ),
+      );
+      return;
+    }
+
     setTasks((current) => [
       ...current,
-      {
-        id: `task-${String(Date.now())}`,
-        ...draft,
-      },
+      { ...payload, localId: crypto.randomUUID() },
     ]);
   };
+
+  const openAddTask = () => {
+    // A task's picker is capped against the CAPA's own due date, so opening this
+    // before one is chosen would let a task be dated past its parent.
+    if (fields.dueDate.trim().length === 0) {
+      toast.error(
+        "Set the CAPA due date first",
+        "Tasks are scheduled against it, so it has to be chosen before adding one.",
+      );
+      return;
+    }
+    setAddTaskOpen(true);
+  };
+
+  // Hiding the buttons that lead here does not stop a typed url. After the hooks, never before.
+  if (isReady && !can("CAPA.Create")) {
+    return (
+      <EmptyState
+        variant="plain"
+        icon="mdi:lock-outline"
+        title="You do not have access to raise a CAPA"
+        message="Ask an EHS manager to raise it, or to grant you CAPA creation."
+      />
+    );
+  }
 
   return (
     <div className="flex min-w-0 flex-col gap-3.5 px-4 pb-8">
@@ -180,120 +196,57 @@ export function CreateCapaContent() {
         paddingClassName="p-0 overflow-hidden"
         className="min-w-0"
       >
-        <div className="flex flex-col gap-8 px-4 pt-6 pb-6 sm:px-6 md:flex-row md:items-start md:gap-12 md:px-8 md:pt-8">
-          <section className="w-full shrink-0 md:w-85 lg:w-98">
-            <div className="mb-6 flex flex-col gap-1.25">
-              <div className="flex items-center gap-2.5">
-                <StepBadge step="1" />
-                <Text as="h3" className="text-base leading-6 text-[#1e293b]">
-                  Select control level
-                </Text>
-              </div>
-              <Text as="p" className="text-sm leading-[19.5px] text-[#64748b]">
-                Most → least effective. Prefer higher-order controls.
-              </Text>
-            </div>
-            <CapaHierarchySelector
+        <div className="grid grid-cols-1 gap-8 px-4 pt-6 pb-6 sm:px-6 md:grid-cols-2 md:items-start md:gap-x-12 md:px-8 md:pt-8">
+          <section className="min-w-0">
+            <CapaControlLevelStep
               value={controlLevel}
               onChange={setControlLevel}
             />
           </section>
 
-          <section className="min-w-0 flex-1">
-            <div className="mb-6 flex items-center gap-2.5">
-              <StepBadge step="2" />
-              <Text as="h3" className="text-base leading-6 text-[#1e293b]">
-                What CAPA is needed?
-              </Text>
-            </div>
+          <section className="min-w-0">
+            <CapaStepHeading
+              step="2"
+              title="What CAPA is needed?"
+              className="mb-4 sm:mb-6"
+            />
+            <CapaCoreFields
+              value={fields}
+              onChange={patchFields}
+              dueDateError={dueDateError}
+            />
+          </section>
 
-            <FormBuilder
-              formId={CREATE_CAPA_FORM_ID}
-              schema={schema}
-              initialValues={initialValues}
-              hideActions
-              onChange={setFormValues}
-              onSubmit={handleSubmit}
-              beforeActions={
-                <div className="flex flex-col gap-3">
-                  <div className="flex items-center justify-between gap-3">
-                    <Text
-                      as="h4"
-                      className="text-ehs-dark-bg text-base font-bold"
-                    >
-                      Tasks Checklist
-                    </Text>
-                    <button
-                      type="button"
-                      onClick={() => setAddTaskOpen(true)}
-                      className="text-3.25 border-ehs-normal-blue/18 bg-ehs-normal-blue/12 text-ehs-normal-blue hover:bg-ehs-normal-blue/18 inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 font-bold transition-colors"
-                    >
-                      <Icon icon="mdi:plus" className="size-3.5" aria-hidden />
-                      Add Task
-                    </button>
-                  </div>
-
-                  {tasks.length === 0 ? (
-                    <EmptyState
-                      variant="plain"
-                      icon="mdi:format-list-checks"
-                      title="No tasks yet"
-                      message="Add checklist items for the assignee."
-                      className="rounded-2.5 border-ehs-border bg-ehs-surface/70 border border-dashed"
-                    />
-                  ) : (
-                    <ul className="rounded-2.5 border-ehs-border overflow-hidden border">
-                      {tasks.map((task, index) => (
-                        <li
-                          key={task.id}
-                          className={[
-                            "bg-ehs-surface flex items-center justify-between gap-3 px-4 py-3",
-                            index < tasks.length - 1
-                              ? "border-ehs-border border-b"
-                              : "",
-                          ].join(" ")}
-                        >
-                          <div className="min-w-0 flex-1">
-                            <p className="text-3.25 leading-[19.5px] text-[#475569]">
-                              {task.name}
-                            </p>
-                            {task.dueDate ? (
-                              <p className="mt-0.5 text-xs text-[#94a3b8]">
-                                {task.dueDate}
-                              </p>
-                            ) : null}
-                          </div>
-                          <div className="flex shrink-0 items-center gap-4">
-                            <span className="bg-ehs-surface-inverse/14 text-ehs-gray rounded-full px-2.5 py-1 text-xs font-bold tracking-wide uppercase">
-                              {task.priority}
-                            </span>
-                            <button
-                              type="button"
-                              aria-label={`Remove ${task.name}`}
-                              onClick={() => removeTask(task.id)}
-                              className="text-ehs-muted-text hover:text-ehs-red transition-colors"
-                            >
-                              <Icon
-                                icon="mdi:trash-can-outline"
-                                className="size-4"
-                              />
-                            </button>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              }
+          {/* Its own row: the checklist is a list, and a list reads badly in a
+              half-width column beside the triangle. */}
+          <section className="min-w-0 md:col-span-2">
+            <CapaModalTasksSection
+              heading={<CapaStepHeading step="3" title="Tasks Checklist" />}
+              isEditMode={false}
+              savedTasks={[]}
+              stagedTasks={tasks}
+              busy={isSubmitting}
+              onOpenAddTask={openAddTask}
+              onRemoveStagedTask={(localId) => {
+                setTasks((current) =>
+                  current.filter((task) => task.localId !== localId),
+                );
+              }}
+              onEditStagedTask={(localId) => {
+                setEditingTaskLocalId(localId);
+                setAddTaskOpen(true);
+              }}
             />
           </section>
         </div>
 
         <div className="border-ehs-border flex flex-col gap-3 border-t px-4 py-5 sm:px-6 md:flex-row md:flex-wrap md:items-center md:justify-between md:px-8">
-          <p className="text-sm leading-[19.5px] text-[#94a3b8]">
-            {controlLevel
-              ? `${controlLevel} selected`
-              : "Select a control level to continue"}
+          <p className="text-ehs-muted-text text-sm leading-[19.5px]">
+            {resolveCapaFooterHint({
+              controlLevel,
+              description: fields.description,
+              hasAtLeastOneTask,
+            })}
           </p>
           <div className="flex w-full flex-wrap items-center gap-3 md:w-auto">
             <Button
@@ -301,14 +254,16 @@ export function CreateCapaContent() {
               variant="tertiary"
               onClick={handleCancel}
               disabled={isSubmitting}
-              className="border-ehs-border rounded-xl border px-6 py-2.5 text-sm text-[#334155] max-md:flex-1"
+              className="border-ehs-border text-ehs-slate rounded-xl border px-6 py-2.5 text-sm max-md:flex-1"
             >
               Cancel
             </Button>
             <Button
-              type="submit"
-              form={CREATE_CAPA_FORM_ID}
+              type="button"
               variant="primary"
+              onClick={() => {
+                void handleSubmit();
+              }}
               disabled={!canSubmit}
               className="rounded-xl px-5 py-2.5 text-sm disabled:bg-[#7bc1c5] disabled:opacity-100 max-md:flex-1"
             >
@@ -320,10 +275,17 @@ export function CreateCapaContent() {
       </IncidentGlassCard>
 
       {addTaskOpen ? (
-        <CapaDetailAddTaskModal
-          confirmLabel="Add Task"
-          onClose={() => setAddTaskOpen(false)}
-          onAssign={handleAddTask}
+        <AddTaskModal
+          sourceLabel={sourceType || "Standalone"}
+          sourceTitle="New CAPA"
+          capaCode="new CAPA"
+          capaDueDate={fields.dueDate}
+          initialValues={
+            tasks.find((task) => task.localId === editingTaskLocalId) ??
+            undefined
+          }
+          onClose={closeTaskModal}
+          onSubmit={handleAddTask}
         />
       ) : null}
     </div>

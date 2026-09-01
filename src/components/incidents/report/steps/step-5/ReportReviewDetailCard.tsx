@@ -13,6 +13,11 @@ export type ReportReviewDetailCardProps = Readonly<{
   title: string;
   rows: readonly ReportReviewDetailRow[];
   error?: string | null;
+  /**
+   * Jumps back to the step this card summarises. Every row on a card must come from that
+   * one step, or the button sends the reporter somewhere the value they clicked is not.
+   */
+  onEdit?: () => void;
   /** Defaults to Figma Where & when (`p-3.75`). Reporter uses `pt-3.75 px-3.75 pb-7.25`. */
   paddingClassName?: string;
   className?: string;
@@ -29,6 +34,7 @@ export function ReportReviewDetailCard(
     title,
     rows,
     error = null,
+    onEdit,
     paddingClassName = "p-3.75",
     className = "",
   } = props;
@@ -46,13 +52,22 @@ export function ReportReviewDetailCard(
         .join(" ")}
       data-field-error={error ? "true" : undefined}
     >
-      <div className="relative z-1 flex w-full flex-col items-start py-px">
+      <div className="relative z-1 flex w-full items-start justify-between gap-3 py-px">
         <Text
           as="p"
-          className="text-ehs-muted-text w-full text-xs font-bold tracking-[1.05px] uppercase"
+          className="text-ehs-muted-text min-w-0 text-xs font-bold tracking-[1.05px] uppercase"
         >
           {title}
         </Text>
+        {onEdit ? (
+          <button
+            type="button"
+            onClick={onEdit}
+            className="text-ehs-normal-blue shrink-0 text-xs font-bold transition-colors hover:underline"
+          >
+            {`Edit ${title.toLowerCase()}`}
+          </button>
+        ) : null}
       </div>
 
       <div className="relative z-1 flex w-full flex-col gap-1.5">

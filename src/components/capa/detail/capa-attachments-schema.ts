@@ -13,6 +13,9 @@ export const CAPA_ATTACHMENTS_SCHEMA: FormSchema = [
     fileModule: "Capa",
     accept: "files",
     listVariant: "rows",
+    // CapaAttachments.AttachmentTitle is NOT NULL, and a files-API ref is a bare uuid,
+    // so the value has to carry the filename for the save to have anything to write.
+    storeFileName: true,
     maxFiles: 10,
     maxBytes: CAPA_ATTACHMENT_MAX_BYTES,
     placeholder: "Drop files here or click to upload",

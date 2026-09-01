@@ -3,13 +3,13 @@
 import {
   useEffect,
   useId,
-  useLayoutEffect,
   useRef,
   useState,
   type KeyboardEvent,
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
+import { useAnchoredMenu } from "@/hooks/use-anchored-menu";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import type { SelectOption } from "@/components/inputs/SelectInput";
@@ -27,12 +27,6 @@ export type MultiSelectInputProps = Readonly<{
   wrapperClassName?: string;
   className?: string;
   id?: string;
-}>;
-
-type MenuPosition = Readonly<{
-  top: number;
-  left: number;
-  width: number;
 }>;
 
 /**
@@ -62,7 +56,12 @@ export function MultiSelectInput(props: Readonly<MultiSelectInputProps>) {
   const menuRef = useRef<HTMLUListElement>(null);
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [position, setPosition] = useState<MenuPosition | null>(null);
+  const menuStyle = useAnchoredMenu({
+    open,
+    anchorRef: triggerRef,
+    menuRef,
+    gap: 4,
+  });
 
   const selectedOptions = options.filter((option) =>
     value.includes(option.value),
@@ -72,41 +71,6 @@ export function MultiSelectInput(props: Readonly<MultiSelectInputProps>) {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
-
-  useLayoutEffect(() => {
-    if (!open || !triggerRef.current) {
-      return;
-    }
-
-    const updatePosition = () => {
-      const rect = triggerRef.current?.getBoundingClientRect();
-      if (!rect) {
-        return;
-      }
-
-      const menuHeight = menuRef.current?.offsetHeight ?? 208;
-      const gap = 4;
-      const spaceBelow = window.innerHeight - rect.bottom - gap;
-      const openUpward = spaceBelow < menuHeight && rect.top > spaceBelow;
-      const top = openUpward
-        ? Math.max(8, rect.top - menuHeight - gap)
-        : rect.bottom + gap;
-
-      setPosition({
-        top,
-        left: rect.left,
-        width: rect.width,
-      });
-    };
-
-    updatePosition();
-    window.addEventListener("resize", updatePosition);
-    window.addEventListener("scroll", updatePosition, true);
-    return () => {
-      window.removeEventListener("resize", updatePosition);
-      window.removeEventListener("scroll", updatePosition, true);
-    };
-  }, [open, selectedOptions.length, options.length]);
 
   useEffect(() => {
     if (!open) {
@@ -161,19 +125,15 @@ export function MultiSelectInput(props: Readonly<MultiSelectInputProps>) {
   };
 
   const menu =
-    mounted && open && position
+    mounted && open
       ? createPortal(
           <ul
             ref={menuRef}
             id={listboxId}
             role="listbox"
             aria-multiselectable="true"
-            style={{
-              top: position.top,
-              left: position.left,
-              width: position.width,
-            }}
-            className="rounded-2.5 border-ehs-border-ink/10 bg-ehs-surface fixed z-120 max-h-52 overflow-y-auto border p-1 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14)]"
+            style={menuStyle}
+            className="rounded-2.5 border-ehs-border-ink/10 bg-ehs-surface z-120 max-h-52 overflow-y-auto border p-1 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14)]"
           >
             {options.map((option) => {
               const selected = value.includes(option.value);

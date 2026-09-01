@@ -15,6 +15,7 @@ import type {
   ClosureLinkedCapaItemDto,
   IncidentClosureResponseDto,
 } from "@/dtos/res/incident-closure-response.dto";
+import type { IncidentActivityDto } from "@/dtos/res/incident-activity-response.dto";
 import http, { getAccessToken } from "@/lib/axios";
 
 const INCIDENT_PATH = "/incidents";
@@ -22,6 +23,10 @@ const INCIDENT_SEARCH_PATH = "/incidents/search";
 
 function incidentClosurePath(incidentId: number): string {
   return `${INCIDENT_PATH}/${String(incidentId)}/closure`;
+}
+
+function incidentActivityPath(incidentId: number): string {
+  return `${INCIDENT_PATH}/${String(incidentId)}/activity`;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -138,6 +143,9 @@ function unwrapIncidentRaw(
   for (const [camel, pascal] of [
     ["stage", "Stage"],
     ["caseDisposition", "CaseDisposition"],
+    // Derived per grid row, same as `stage` — the conversion link lives on the
+    // near miss / hazard, so it is never on the nested incident.
+    ["isConverted", "IsConverted"],
   ] as const) {
     const topLevel = readProp(raw, camel, pascal);
     if (topLevel !== undefined && topLevel !== null) {
@@ -261,6 +269,7 @@ function coerceIncidentDto(raw: Record<string, unknown>): IncidentDto {
     caseDisposition:
       asString(readProp(source, "caseDisposition", "CaseDisposition")) ?? null,
     stage: asString(readProp(source, "stage", "Stage")) ?? null,
+    isConverted: asBoolean(readProp(source, "isConverted", "IsConverted")),
     furtherMedicalRecommendations: asBoolean(
       readProp(
         source,
@@ -475,6 +484,52 @@ function withoutTenantFields<T extends Partial<IncidentDto>>(
 }
 
 /**
+ * Incident columns the database declares NOT NULL.
+ *
+ * `Incident` on the backend declares every string non-nullable except `Title`
+ * and `AiAssistedFields`. The update assigns each one straight onto the tracked
+ * entity, so a JSON `null` reaches `SaveChangesAsync` and fails the whole write
+ * with "An error occurred while saving the entity changes" — a message that
+ * names no field and travels without the inner exception, so the save simply
+ * looked broken from here.
+ *
+ * Kept beside the write rather than in one mapper because all three edit scopes
+ * and any future one share the same PUT: a cleared field has to travel as `""`
+ * whichever screen cleared it.
+ */
+const INCIDENT_NOT_NULL_TEXT_FIELDS = [
+  "severity",
+  "site",
+  "location",
+  "description",
+  "initialTreatment",
+  "mechanismOfInjury",
+  "natureOfInjury",
+  "objectInvolved",
+  "affectedPersonId",
+  "injuredBodyPart",
+  "injuryDescription",
+  "incidentReporterEmail",
+  "whatTreatmentWasGiven",
+  "treatmentProvidedBy",
+  "treatmentLocation",
+  "isFitForFullDuty",
+  "caseDisposition",
+] as const;
+
+function withNotNullText<T extends Record<string, unknown>>(payload: T): T {
+  const next: Record<string, unknown> = { ...payload };
+
+  for (const field of INCIDENT_NOT_NULL_TEXT_FIELDS) {
+    if (next[field] === null || next[field] === undefined) {
+      next[field] = "";
+    }
+  }
+
+  return next as T;
+}
+
+/**
  * PUT /api/v1/incidents/{id}
  * Body: incident fields minus tenant context — the server stamps siteId and
  * userId from the JWT.
@@ -523,7 +578,7 @@ async function updateIncidentById(
 export async function updateIncident(id: number, patch: Partial<IncidentDto>) {
   const existing = await getIncidentById({ id });
 
-  const payload: UpdateIncidentRequestDto = {
+  const payload: UpdateIncidentRequestDto = withNotNullText({
     ...withoutTenantFields(existing ?? {}),
     ...withoutTenantFields(patch),
     id,
@@ -532,7 +587,7 @@ export async function updateIncident(id: number, patch: Partial<IncidentDto>) {
     reportedById:
       patch.reportedById ?? existing?.reportedById ?? getAuthContext()?.userId,
     isDrop: false,
-  };
+  });
 
   return updateIncidentById(id, payload);
 }
@@ -755,6 +810,31 @@ export async function getIncidentClosure(
   });
 
   return normalizeIncidentClosureDto(data);
+}
+
+/**
+ * GET /api/v1/incidents/{incidentId}/activity
+ *
+ * An empty list is a real answer: incidents predating the activity log have no rows, and so
+ * does one nothing has happened to. Neither is worth inventing entries for.
+ */
+export async function getIncidentActivity(
+  incidentId: number,
+): Promise<IncidentActivityDto[]> {
+  const accessToken = getAccessToken();
+  if (!accessToken) {
+    throw new Error("Sign in required to load incident activity.");
+  }
+
+  const { data } = await http.get<unknown>(incidentActivityPath(incidentId), {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+
+  const payload = isRecord(data)
+    ? ((data.dataModel ?? data.DataModel) as unknown)
+    : data;
+
+  return Array.isArray(payload) ? (payload as IncidentActivityDto[]) : [];
 }
 
 /**

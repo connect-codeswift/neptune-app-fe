@@ -350,7 +350,7 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
       <ModuleSearchBar
         value={searchQuery}
         onChange={setSearchQuery}
-        placeholder="Search by ID, title, site..."
+        placeholder="Search by ID, title, description..."
         aria-label="Search incidents"
         resultLabel={`${String(filteredIncidents.length)} ${
           filteredIncidents.length === 1 ? "incident" : "incidents"

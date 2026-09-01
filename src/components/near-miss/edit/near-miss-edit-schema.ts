@@ -67,6 +67,8 @@ export function buildNearMissEditSchema(record: NearMissRecord): FormSchema {
       label: "Date of Event",
       required: true,
       colSpan: 6,
+      // Same bound as the report form — see near-miss-report-schema.
+      limit: "not-future",
     },
     {
       type: "select",

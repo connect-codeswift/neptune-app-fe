@@ -4,11 +4,17 @@ import type {
   ResponderMember,
   WitnessRow,
 } from "@/components/incidents/detail/incident-detail-types";
+import type { IncidentDetailResponseAction } from "@/components/incidents/detail/incident-detail-types";
+import {
+  buildActionTaken,
+  splitActionTaken,
+} from "@/forms/incident-module/immediate-response";
 import type { IncidentDto, PersonDto } from "@/dtos/res/incident-response.dto";
 
 export type IncidentDetailEditDraft = Readonly<{
   summary: string;
   responseNotes: string;
+  responseActions: readonly IncidentDetailResponseAction[];
   infoItems: readonly IncidentDetailInfoItem[];
 }>;
 
@@ -74,15 +80,45 @@ function editableText(value: string): string | null {
 }
 
 /**
+ * A cleared value for a column the database declares NOT NULL.
+ *
+ * `Incident` on the backend declares almost every string non-nullable — only
+ * `Title` and `AiAssistedFields` take a `?`. Clearing one of the others sent a
+ * JSON `null`, the update assigned it straight onto the tracked entity, and
+ * `SaveChangesAsync` failed with "An error occurred while saving the entity
+ * changes", which surfaced here as an unexplained save failure with the real
+ * cause only in the server's inner exception.
+ *
+ * So a cleared field travels as `""`. This is the same rule the create path
+ * documents as EMPTY_NOT_NULL in `report-incident.mapper.ts`; it was never
+ * carried across to the edit mappers.
+ */
+function editableTextNotNull(value: string): string {
+  return editableText(value) ?? "";
+}
+
+/**
  * Merges Details-tab draft edits into an existing GetById incident payload.
  */
 export function applyDetailEditDraft(
   existing: IncidentDto,
   draft: IncidentDetailEditDraft,
 ): Partial<IncidentDto> {
+  // The notes already stored under the actions line are carried across
+  // untouched: they are edited through the Response notes box, not this card,
+  // and rebuilding from the ticks alone would delete them.
+  const { notes: storedActionNotes } = splitActionTaken(existing.actionTaken);
+  const actionTaken = buildActionTaken(
+    draft.responseActions
+      .filter((action) => action.completed)
+      .map((action) => action.label),
+    storedActionNotes,
+  );
+
   const patch: Partial<IncidentDto> = {
     description: draft.summary.trim() || existing.description,
     otherNotes: draft.responseNotes.trim() || null,
+    actionTaken: actionTaken || null,
   };
 
   const byKey = new Map(draft.infoItems.map((item) => [item.key, item.value]));
@@ -159,7 +195,8 @@ export function applyDetailEditDraft(
     if (value !== null) {
       (patch as Record<string, unknown>)[field] = value;
     } else if (byKey.has(key)) {
-      (patch as Record<string, unknown>)[field] = null;
+      // `""`, not null — every field in this list is NOT NULL on the entity.
+      (patch as Record<string, unknown>)[field] = "";
     }
   }
 
@@ -172,6 +209,8 @@ export type IncidentPeopleEditDraft = Readonly<{
   affectedInjuryLabel: string;
   bodyPart: string;
   treatment: string;
+  /** Raw input text. "" means not recorded and is sent as null, not 0. */
+  daysAway: string;
   responders: readonly ResponderMember[];
   witnesses: readonly WitnessRow[];
 }>;
@@ -183,6 +222,17 @@ function roleIncludes(person: PersonDto, needle: string): boolean {
 function isReporterResponder(member: ResponderMember): boolean {
   const role = member.role.trim().toLowerCase();
   return member.badgeLabel === "Reporter" || role.includes("reporter");
+}
+
+/** "" and anything non-numeric are "not recorded" (null), never 0. */
+function parseDaysAway(raw: string): number | null {
+  const trimmed = raw.trim();
+  if (trimmed === "") {
+    return null;
+  }
+
+  const parsed = Number(trimmed);
+  return Number.isInteger(parsed) && parsed >= 0 ? parsed : null;
 }
 
 function isTreatmentResponder(member: ResponderMember): boolean {
@@ -226,6 +276,9 @@ export function applyPeopleEditDraft(
     people.push({
       name: affectedName,
       role: "Affected person",
+      // Parsed rather than coerced: "" and a non-numeric value both mean "not recorded",
+      // and Number("") is 0, which would silently claim the person lost no days.
+      daysAwayFromWork: parseDaysAway(draft.daysAway),
       injuryLevel: editableText(draft.affectedInjuryLabel),
       bodyPartAffected: editableText(draft.bodyPart),
       injuryDescription: existingAffected?.injuryDescription ?? null,
@@ -270,23 +323,28 @@ export function applyPeopleEditDraft(
       ? reporterEmpId
       : editableText(existing.incidentReporterEmail ?? "");
 
-  const treatment = editableText(draft.treatment);
-  const bodyPart = editableText(draft.bodyPart);
-  const injuryLabel = editableText(draft.affectedInjuryLabel);
+  // Cleared values travel as `""`: these are all NOT NULL columns.
+  const treatment = editableTextNotNull(draft.treatment);
+  const bodyPart = editableTextNotNull(draft.bodyPart);
+  const injuryLabel = editableTextNotNull(draft.affectedInjuryLabel);
   const affectedEmpId = editableText(draft.affectedEmpId);
 
   return {
     people,
-    affectedPersonId: affectedEmpId ?? affectedName,
+    affectedPersonId: affectedEmpId ?? affectedName ?? "",
     injuredBodyPart: bodyPart,
     natureOfInjury: injuryLabel,
-    whatTreatmentWasGiven: treatment,
+    // Only `initialTreatment`. These are two different answers with two different
+    // option sets — the level of care sought (first aid, clinic, ER) versus what was
+    // actually done (wound cleaning, bandaging, ice pack) — and writing one value into
+    // both collapsed the distinction on every edit. `whatTreatmentWasGiven` belongs to
+    // the First Aid step of the wizard and is not edited from this card.
     initialTreatment: treatment,
     treatmentProvidedBy:
       editableText(treatmentProvider?.name ?? "") ??
       existing.treatmentProvidedBy ??
-      null,
-    incidentReporterEmail: reporterEmail,
+      "",
+    incidentReporterEmail: reporterEmail ?? "",
   };
 }
 

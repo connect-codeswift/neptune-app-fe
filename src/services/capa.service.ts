@@ -30,7 +30,6 @@ import { normalizeCapaWorkloadByOwnerDto } from "@/services/mappers/capa-workloa
 const CAPA_PATH = "/capas";
 const CAPA_TASKS_PATH = "/capa-tasks";
 const INCIDENTS_PATH = "/incidents";
-const RCAS_PATH = "/rcas";
 const CAPA_DASHBOARD_KPIS_PATH = "/capas/dashboard-kpis";
 const CAPA_LIFECYCLE_PATH = "/capas/lifecycle";
 const CAPA_OPENED_CLOSED_PATH = "/capas/opened-vs-closed";
@@ -41,7 +40,6 @@ export type GetCapasRequest = Readonly<{
   pageNumber?: number;
   pageSize?: number;
   search?: string;
-  scope?: string;
   status?: string;
   capaType?: string;
   priority?: string;
@@ -167,6 +165,15 @@ function coerceCapaDto(raw: Record<string, unknown>): CapaDto | null {
       asString(readProp(raw, "ownerName", "OwnerName", "owner", "Owner")) ??
       null,
     sourceInfo: asString(readProp(raw, "sourceInfo", "SourceInfo")) ?? null,
+    // The routing pair behind the Source link, and who raised it. Read here rather than
+    // derived: the API owns which record a CAPA came from.
+    sourceType: asString(readProp(raw, "sourceType", "SourceType")) ?? null,
+    sourceId: asNumber(readProp(raw, "sourceId", "SourceId")) ?? null,
+    createdByName:
+      asString(readProp(raw, "createdByName", "CreatedByName")) ?? null,
+    verifiedByName:
+      asString(readProp(raw, "verifiedByName", "VerifiedByName")) ?? null,
+    isOverdue: asBoolean(readProp(raw, "isOverdue", "IsOverdue")) ?? false,
     code: asString(readProp(raw, "code", "Code")) ?? null,
     capaCode: asString(readProp(raw, "capaCode", "CapaCode")) ?? null,
   };
@@ -913,7 +920,7 @@ export async function getCapaAwaitingEffectivenessReview(): Promise<GetCapaAwait
 /**
  * GET /CAPA
  * Query: PageNumber (default 1), PageSize (default 10),
- * Search?, Scope?, Status?, CapaType?, Priority?
+ * Search?, Status?, CapaType?, Priority?
  * All / empty = omit the param. Header: Authorization Bearer (required)
  */
 export async function getCapas(
@@ -927,7 +934,6 @@ export async function getCapas(
   const pageNumber = request.pageNumber ?? 1;
   const pageSize = request.pageSize ?? 10;
   const search = request.search?.trim() ?? "";
-  const scope = request.scope?.trim() ?? "";
   const status = request.status?.trim() ?? "";
   const capaType = request.capaType?.trim() ?? "";
   const priority = request.priority?.trim() ?? "";
@@ -937,7 +943,6 @@ export async function getCapas(
       PageNumber: pageNumber,
       PageSize: pageSize,
       ...(search ? { Search: search } : {}),
-      ...(scope ? { Scope: scope } : {}),
       ...(status ? { Status: status } : {}),
       ...(capaType ? { CapaType: capaType } : {}),
       ...(priority ? { Priority: priority } : {}),
@@ -1154,7 +1159,14 @@ export type GetCapaCommentsRequest = Readonly<{
   assignedId?: number;
 }>;
 
-/** GET /api/v1/capas/{capaId}/comments?userId=&assignedId= — capaId moved to the path. */
+/**
+ * GET /api/v1/capas/{capaId}/comments
+ *
+ * No userId / assignedId. Those narrowed the read to a two-party thread, so a comment only
+ * came back to the exact pair who exchanged it - which is why a director's comment never
+ * appeared for anyone else. The endpoint returns the CAPA's whole feed now, scoped by who
+ * can see the CAPA.
+ */
 export async function getCapaComments(request: GetCapaCommentsRequest) {
   const capaId = request.capaId;
   if (!Number.isFinite(capaId) || capaId <= 0) {
@@ -1166,26 +1178,9 @@ export async function getCapaComments(request: GetCapaCommentsRequest) {
     throw new Error("Sign in required to load CAPA comments.");
   }
 
-  const userId =
-    typeof request.userId === "number" &&
-    Number.isFinite(request.userId) &&
-    request.userId > 0
-      ? Math.trunc(request.userId)
-      : 0;
-  const assignedId =
-    typeof request.assignedId === "number" &&
-    Number.isFinite(request.assignedId) &&
-    request.assignedId > 0
-      ? Math.trunc(request.assignedId)
-      : 0;
-
   const { data } = await http.get<unknown>(
     `${CAPA_PATH}/${encodeURIComponent(String(Math.trunc(capaId)))}/comments`,
     {
-      params: {
-        ...(userId > 0 ? { userId } : {}),
-        ...(assignedId > 0 ? { assignedId } : {}),
-      },
       headers: {
         Authorization: `Bearer ${accessToken}`,
         "Content-Type": false,
@@ -1322,6 +1317,38 @@ export async function dropCapa(capaId: number) {
 
   const { data } = await http.delete<unknown>(
     `${CAPA_PATH}/${encodeURIComponent(String(capaId))}`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+  );
+
+  return data;
+}
+
+/**
+ * POST /api/v1/capas/{capaId}/request-verification — hands a finished CAPA to whoever
+ * signs it off, moving it from `Completed` to `Pending Verification`.
+ *
+ * This is the path for someone who does the work but cannot close it: the API accepts it
+ * on `CAPA.Update`, which a Worker holds, while `Verify & Close` needs `CAPA.Verify`,
+ * which they do not. Rejected with 400 from any status other than `Completed`, so the
+ * button must only appear once every task is done.
+ */
+export async function requestCapaVerification(capaId: number) {
+  if (!Number.isFinite(capaId) || capaId <= 0) {
+    throw new Error("CAPA id is required to request verification.");
+  }
+
+  const accessToken = getAccessToken();
+  if (!accessToken) {
+    throw new Error("Sign in required to request verification.");
+  }
+
+  const { data } = await http.post<unknown>(
+    `${CAPA_PATH}/${encodeURIComponent(String(capaId))}/request-verification`,
+    undefined,
     {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -1469,4 +1496,24 @@ export async function submitCapaVerification(
   );
 
   return normalizeCapaVerificationDto(data);
+}
+
+/**
+ * GET /api/v1/capas/by-source?sourceType=&sourceId=
+ *
+ * Every CAPA raised from one record. Returns 200 with an empty list when there are none,
+ * so an empty Related CAPAs panel is a real answer rather than a swallowed error.
+ */
+export async function getCapasBySource(sourceType: string, sourceId: number) {
+  const accessToken = getAccessToken();
+  if (!accessToken) {
+    throw new Error("Sign in required to load related CAPAs.");
+  }
+
+  const { data } = await http.get<unknown>(`${CAPA_PATH}/by-source`, {
+    params: { sourceType, sourceId },
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+
+  return normalizeCapaList(data);
 }

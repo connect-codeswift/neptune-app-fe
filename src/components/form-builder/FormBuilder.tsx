@@ -1,10 +1,14 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { cantBeFuture, cantBePast } from "@/lib/date-time-field";
+import { useRef, useState, type ReactNode } from "react";
 import { Button, type ButtonProps } from "@/components/ui/Button";
 import { FieldRenderer } from "./FormBuilderFields";
 import {
   createInitialValues,
+  dateFieldMax,
+  dateFieldMin,
+  type DateFieldConfig,
   type FieldValue,
   type FormErrors,
   type FormSchema,
@@ -57,13 +61,58 @@ function isEmpty(value: FieldValue): boolean {
   return Array.isArray(value) ? value.length === 0 : value.trim() === "";
 }
 
-/** Validate required fields; returns an error map (empty when valid). */
+/**
+ * Message for a date outside its bounds, or `null` when it is in range.
+ *
+ * `min` / `max` on the input only grey the calendar out — the form is
+ * `noValidate`, and every browser still lets a typed or pasted value through —
+ * so submit is where an out-of-range date is actually caught. ISO `YYYY-MM-DD`
+ * sorts chronologically as text, which is why these compare as strings.
+ */
+function dateRangeError(field: DateFieldConfig, value: string): string | null {
+  const selected = value.trim();
+  if (selected === "") return null;
+
+  if (field.limit === "not-past") {
+    return cantBePast(selected, field.label).error;
+  }
+
+  if (field.limit === "not-future") {
+    return cantBeFuture(selected, field.label).error;
+  }
+
+  const min = dateFieldMin(field);
+  if (min && selected < min) {
+    return `${field.label} cannot be before ${min}`;
+  }
+
+  const max = dateFieldMax(field);
+  if (max && selected > max) {
+    return `${field.label} cannot be after ${max}`;
+  }
+
+  return null;
+}
+
+/** Validate required fields and date bounds; returns an error map (empty when valid). */
 function validate(schema: FormSchema, values: FormValues): FormErrors {
   const errors: FormErrors = {};
   for (const field of schema) {
     // Neither holds a value: headings are decoration, and a custom field's
     // node owns its own value and error outside the form.
     if (field.type === "heading" || field.type === "custom") continue;
+
+    // Before the required check, because the bound applies to optional dates
+    // too: leaving a due date blank is allowed, back-dating it is not.
+    if (field.type === "date") {
+      const raw = values[field.name];
+      const message = dateRangeError(field, typeof raw === "string" ? raw : "");
+      if (message) {
+        errors[field.name] = message;
+        continue;
+      }
+    }
+
     if (!field.required) continue;
 
     if (field.type === "person") {
@@ -114,13 +163,42 @@ export function FormBuilder(props: FormBuilderProps) {
   );
   const [errors, setErrors] = useState<FormErrors>({});
 
+  /**
+   * The values the setters below merge into.
+   *
+   * `onSelectChange` is documented as being allowed to fetch first and patch
+   * afterwards, and the SDS chemical picker does exactly that. By the time its
+   * request resolves the form has re-rendered, so the `patchValues` it captured
+   * closes over a snapshot taken BEFORE the selection — merging into that put
+   * `chemicalId` back to "" and the chosen chemical vanished from the field the
+   * moment the autofill landed.
+   *
+   * Reading the ref instead always merges into the latest state, and writing it
+   * in the setters keeps two updates in the same tick composing rather than
+   * clobbering each other. Only these setters ever change `values`, so it
+   * cannot drift.
+   */
+  const latestValues = useRef(values);
+
   const setValue = (name: string, value: FieldValue) => {
-    const next = { ...values, [name]: value };
+    const next = { ...latestValues.current, [name]: value };
+    latestValues.current = next;
     setValues(next);
     onChange?.(next);
 
-    // Clear a field's error as soon as the user edits it.
+    // A date input only ever hands back a complete value — a half-typed one
+    // reads as "" — so an out-of-range date is worth flagging the moment it is
+    // entered rather than holding it back until submit. Every other field only
+    // clears here: arguing with half-written text is what makes live validation
+    // hostile, and a date has no half-written state to argue with.
+    const edited = schema.find((entry) => entry.name === name);
+    const dateError =
+      edited?.type === "date" && typeof value === "string"
+        ? dateRangeError(edited, value)
+        : null;
+
     setErrors((prev) => {
+      if (dateError) return { ...prev, [name]: dateError };
       if (!prev[name]) return prev;
       const cleared = { ...prev };
       delete cleared[name];
@@ -129,7 +207,8 @@ export function FormBuilder(props: FormBuilderProps) {
   };
 
   const patchValues = (patch: FormValues) => {
-    const next = { ...values, ...patch };
+    const next = { ...latestValues.current, ...patch };
+    latestValues.current = next;
     setValues(next);
     onChange?.(next);
 

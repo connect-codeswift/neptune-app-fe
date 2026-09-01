@@ -359,7 +359,7 @@ export function CapaListView(props: Readonly<CapaListViewProps>) {
       <ModuleSearchBar
         value={searchQuery}
         onChange={setSearchQuery}
-        placeholder="Search by code, action, owner, site..."
+        placeholder="Search by code, action, owner, status..."
         aria-label="Search CAPAs"
         resultLabel={resultLabel}
       />

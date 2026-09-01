@@ -6,8 +6,11 @@ import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { Text } from "@/components/Text";
 import { ResolvedFileImage } from "@/components/files/ResolvedFileImage";
-import { ReportFieldLabel } from "@/components/incidents/report/shared/ReportFormField";
-import type { ReportPhotoFile } from "@/components/incidents/report/shared/report-incident-data";
+import {
+  ReportFieldError,
+  ReportFieldLabel,
+} from "@/components/incidents/report/shared/ReportFormField";
+import type { ReportPhotoFile } from "@/forms/incident-module/index";
 import {
   FILE_MAX_FILES,
   getFileMaxBytes,
@@ -125,12 +128,20 @@ export function ReportPhotosField(props: Readonly<ReportPhotosFieldProps>) {
   const { photos = [], onChange, className = "" } = props;
   const inputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
+  /**
+   * Rejection reasons shown under the field rather than in a toast. These are answers about
+   * this input — too many files, wrong type, too large — so they belong beside it, where the
+   * reporter is already looking and where they stay put instead of timing out. Upload
+   * failures from the server keep their toast: that is not a fact about the field.
+   */
+  const [fileErrors, setFileErrors] = useState<readonly string[]>([]);
 
   const openPicker = () => {
     if (photos.length >= FILE_MAX_FILES) {
-      toast.error(`You can upload up to ${String(FILE_MAX_FILES)} files.`);
+      setFileErrors([`You can upload up to ${String(FILE_MAX_FILES)} files.`]);
       return;
     }
+    setFileErrors([]);
     inputRef.current?.click();
   };
 
@@ -141,24 +152,29 @@ export function ReportPhotosField(props: Readonly<ReportPhotosFieldProps>) {
 
     const remaining = FILE_MAX_FILES - photos.length;
     if (remaining <= 0) {
-      toast.error(`You can upload up to ${String(FILE_MAX_FILES)} files.`);
+      setFileErrors([`You can upload up to ${String(FILE_MAX_FILES)} files.`]);
       return;
     }
 
     const selected = Array.from(fileList).slice(0, remaining);
     const validFiles: File[] = [];
+    // Collected rather than shown one at a time: picking five files at once used to fire
+    // five toasts that stacked and expired before they could all be read.
+    const rejected: string[] = [];
 
     for (const file of selected) {
       if (!isAllowedMimeType(file.type)) {
-        toast.error(`${file.name}: use JPG, PNG, WEBP, GIF, or PDF.`);
+        rejected.push(`${file.name}: use JPG, PNG, WEBP, GIF, or PDF.`);
         continue;
       }
       if (file.size > INCIDENT_MAX_BYTES) {
-        toast.error(`${file.name}: exceeds the 25 MB limit.`);
+        rejected.push(`${file.name}: exceeds the 25 MB limit.`);
         continue;
       }
       validFiles.push(file);
     }
+
+    setFileErrors(rejected);
 
     if (validFiles.length === 0) {
       return;
@@ -294,6 +310,14 @@ export function ReportPhotosField(props: Readonly<ReportPhotosFieldProps>) {
           </Text>
         </button>
       </div>
+
+      {fileErrors.length > 0 ? (
+        <div className="flex flex-col gap-0.5" data-field-error="true">
+          {fileErrors.map((message) => (
+            <ReportFieldError key={message}>{message}</ReportFieldError>
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }

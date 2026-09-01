@@ -13,8 +13,15 @@ import type {
   WhyChainItem,
   WitnessRow,
 } from "@/components/incidents/detail/incident-detail-types";
+import {
+  AFFECTED_NAME_UNKNOWN_LABEL,
+  NO_AFFECTED_PERSON_LABEL,
+} from "@/components/incidents/detail/incident-detail-types";
 import { markRootCauses } from "@/components/incidents/detail/investigations/hrca/hrca-data";
-import { IMMEDIATE_ACTION_OPTIONS } from "@/components/incidents/report/shared/report-response";
+import {
+  IMMEDIATE_ACTION_OPTIONS,
+  splitActionTaken,
+} from "@/forms/incident-module/immediate-response";
 import type { PersonDto, IncidentDto } from "@/dtos/res/incident-response.dto";
 import {
   fileNameFromAttachmentUrl,
@@ -68,6 +75,8 @@ export type IncidentDetailViewModel = Readonly<{
   responseActions: readonly IncidentDetailResponseAction[];
   responseNotes: string;
   affectedName: string;
+  /** True when the incident records an affected person, named or not. */
+  hasAffectedPerson: boolean;
   affectedRole: string;
   affectedEmpId: string;
   affectedInitials: string;
@@ -180,8 +189,12 @@ function isAffected(person: PersonDto): boolean {
 /** Resolve affected person without mistaking a witness/reporter for the injured party. */
 function resolveAffectedPerson(incident: IncidentDto): PersonDto | null {
   const people = incident.people ?? [];
+  // Returned whether or not it carries a name. The row is the record of who was
+  // hurt — injury level, body part, the description — and requiring a name to
+  // accept it threw all of that away for an incident logged without one, which
+  // is exactly what the wizard sends when the person picker resolves no name.
   const byRole = people.find(isAffected);
-  if (byRole?.name?.trim()) {
+  if (byRole) {
     return byRole;
   }
 
@@ -195,29 +208,28 @@ function resolveAffectedPerson(incident: IncidentDto): PersonDto | null {
     return nonRouting;
   }
 
-  const affectedId = incident.affectedPersonId?.trim();
-  if (affectedId) {
-    return {
-      name: affectedId,
-      role: "Affected person",
-      injuryLevel: null,
-      bodyPartAffected: null,
-      injuryDescription: null,
-    };
-  }
-
+  // No fallback to affectedPersonId. It used to return one shaped like a person
+  // with the raw id as its name, so the People tab showed "3" as the affected
+  // person and "3" in the avatar. An id is not a name; it is surfaced as the
+  // employee id by the caller instead.
   return null;
 }
 
 function parseResponseActions(
   actionTaken: string | null | undefined,
 ): readonly IncidentDetailResponseAction[] {
-  const text = actionTaken?.toLowerCase() ?? "";
+  // Only the actions line is matched against, and each of its segments has to
+  // equal a label outright. Scanning the whole string for a substring let the
+  // free-text notes tick an action: "no first aid administered" asserted that
+  // first aid was administered.
+  const { actionLabels } = splitActionTaken(actionTaken);
 
   return IMMEDIATE_ACTION_OPTIONS.map((option) => ({
     id: option.id,
     label: option.label,
-    completed: text.includes(option.label.toLowerCase()),
+    completed: actionLabels.some(
+      (label) => label.toLowerCase() === option.label.toLowerCase(),
+    ),
   }));
 }
 
@@ -444,9 +456,18 @@ function buildTimelineEvents(
     });
   }
 
-  const actionText = incident.actionTaken?.toLowerCase() ?? "";
+  // Read the same way the Immediate response card reads it. This was the second
+  // whole-string substring scan and it was left behind when the card's was
+  // fixed, so the timeline still recorded "First aid administered" as an event
+  // off the back of a note saying it was not.
+  const { actionLabels } = splitActionTaken(incident.actionTaken);
   for (const option of IMMEDIATE_ACTION_OPTIONS) {
-    if (!actionText.includes(option.label.toLowerCase())) continue;
+    if (
+      !actionLabels.some(
+        (label) => label.toLowerCase() === option.label.toLowerCase(),
+      )
+    )
+      continue;
     push(reportedAt, {
       title: option.label,
       description: "Immediate response action recorded.",
@@ -1152,10 +1173,13 @@ export function mapIncidentDtoToDetailView(
     affected?.bodyPartAffected?.trim() ||
     incident.injuredBodyPart?.trim() ||
     "—";
+  // Reads the same field the edit path writes. It used to prefer
+  // `whatTreatmentWasGiven`, so the tile could display one field while editing it wrote
+  // another, and an edit looked like it had done nothing. `whatTreatmentWasGiven` is a
+  // separate answer with its own vocabulary and is surfaced by the treatment summary
+  // above, not here.
   const treatment =
-    meaningfulText(incident.whatTreatmentWasGiven) ||
-    meaningfulText(incident.initialTreatment) ||
-    "None required";
+    meaningfulText(incident.initialTreatment) || "None required";
   // Comes from `stage`, the backend's computed lifecycle value. Older backends
   // omit it on the single-incident read; withDetailClosedState below is how the
   // detail screen fills that gap from the closure record it already loads.
@@ -1175,15 +1199,19 @@ export function mapIncidentDtoToDetailView(
     completedActionCount: responseActions.filter((action) => action.completed)
       .length,
   });
-  const mappedWitnesses = witnesses.map((person, index) => {
+  const mappedWitnesses = witnesses.map((person) => {
     const name = person.name?.trim() || "Unknown";
-    const hasStatement = index === 0;
     return {
       name,
       role: person.role?.trim() || "Witness",
       initials: initialsFromName(name),
-      badgeLabel: hasStatement ? "Statement" : "Pending",
-      badgeTone: hasStatement ? ("green" as const) : ("gray" as const),
+      // Always "Pending". Whether a witness has given a statement is a real thing to
+      // track, but nothing records it: the Witness entity carries a name and nothing
+      // else. This used to read `index === 0`, so the first witness on every incident
+      // was shown as having given a statement purely for being first in the array —
+      // an investigator reading that badge was being told something untrue.
+      badgeLabel: "Pending",
+      badgeTone: "gray" as const,
     };
   });
   const investigation = buildInvestigationView(incident, {
@@ -1201,11 +1229,23 @@ export function mapIncidentDtoToDetailView(
   const responders = buildResponders(incident, listRecord.reporter);
   const affectedName = affected?.name?.trim() || "";
   const affectedId = incident.affectedPersonId?.trim() || "";
-  const affectedEmpId =
-    affectedId &&
-    (!affectedName || affectedId.toLowerCase() !== affectedName.toLowerCase())
-      ? affectedId
-      : "—";
+  // The dedupe this used to do — blank the id whenever it matched the name —
+  // existed only because the name *was* the id. With that fallback gone the two
+  // cannot collide, and suppressing the id was the wrong half to drop.
+  const affectedEmpId = affectedId || "—";
+  // Whether the incident records an affected person at all — a row, an id, or
+  // any injury detail. Carried explicitly because the card used to decide it by
+  // comparing the name against the placeholder it had just been handed, so a
+  // record with injury data but no name read as nobody at all.
+  const hasAffectedPerson =
+    affected !== null ||
+    affectedId !== "" ||
+    Boolean(incident.natureOfInjury?.trim());
+  const affectedDisplayName =
+    affectedName ||
+    (hasAffectedPerson
+      ? AFFECTED_NAME_UNKNOWN_LABEL
+      : NO_AFFECTED_PERSON_LABEL);
   const affectedInjuryLabel =
     affected?.injuryLevel?.trim() ||
     incident.natureOfInjury?.trim() ||
@@ -1221,7 +1261,8 @@ export function mapIncidentDtoToDetailView(
     responseActions,
     responseNotes:
       incident.otherNotes?.trim() || incident.actionTaken?.trim() || "",
-    affectedName: affectedName || "No affected person logged",
+    affectedName: affectedDisplayName,
+    hasAffectedPerson,
     affectedRole: [
       affected?.role?.trim() || "Affected person",
       listRecord.site !== "—" ? listRecord.site : null,
@@ -1233,9 +1274,10 @@ export function mapIncidentDtoToDetailView(
     affectedInjuryLabel,
     bodyPart,
     treatment,
-    // GetIncidentById carries no days-away field, so there is nothing to map.
-    // "—" rather than 0, which would read as a measured zero days away.
-    daysAway: "—",
+    // Now carried per person on the payload. Still "—" rather than 0 when the API sends
+    // null: null is "not recorded" and 0 is a measured zero days away, and showing the
+    // second for the first would invent a fact about someone's injury.
+    daysAway: affected?.daysAwayFromWork ?? "—",
     responders,
     witnesses: mappedWitnesses,
     attachments,

@@ -5,6 +5,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Icon } from "@iconify/react";
+import { Can } from "@/components/auth/Can";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import {
@@ -67,6 +68,8 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
     () => mapCapaItemsToIncidentCapas(capaQuery.data?.items ?? []),
     [capaQuery.data?.items],
   );
+
+  const isClosed = incident?.state === "Closed";
 
   if (!incident) {
     return (
@@ -202,15 +205,23 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
               ? "Corrective actions · …"
               : `Corrective actions · ${String(capas.length)}`}
           </Text>
-          <button
-            type="button"
-            onClick={() => setIsAddCapaOpen(true)}
-            disabled={incident.numericId <= 0}
-            className="border-ehs-border text-ehs-gray hover:bg-ehs-light-bg bg-ehs-surface inline-flex items-center gap-1 rounded-lg border px-2.5 py-1 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <Icon icon="mdi:plus" className="text-sm" aria-hidden="true" />
-            Add CAPA
-          </button>
+          {/* Nested inside CAPA.Create rather than folded into it: the capability is
+              what POST /capas checks, and closed is what this particular record will
+              not take. The panel is the same read of a closed incident the detail
+              screen gives, so it offers the same nothing. */}
+          {!isClosed ? (
+            <Can do="CAPA.Create">
+              <button
+                type="button"
+                onClick={() => setIsAddCapaOpen(true)}
+                disabled={incident.numericId <= 0}
+                className="border-ehs-border text-ehs-gray hover:bg-ehs-light-bg bg-ehs-surface inline-flex items-center gap-1 rounded-lg border px-2.5 py-1 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <Icon icon="mdi:plus" className="text-sm" aria-hidden="true" />
+                Add CAPA
+              </button>
+            </Can>
+          ) : null}
         </div>
 
         {capaQuery.isPending ? (
@@ -280,8 +291,8 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
 
       {isAddCapaOpen ? (
         <AddCapaModal
-          incidentId={incident.id}
-          incidentTitle={incident.title}
+          sourceLabel={incident.id}
+          sourceTitle={incident.title}
           isSubmitting={createCapaMutation.isPending}
           onClose={() => setIsAddCapaOpen(false)}
           onSubmit={handleSubmitCapa}

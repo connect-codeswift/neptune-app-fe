@@ -35,9 +35,16 @@ export const CONTRIBUTING_FACTOR_OPTIONS: readonly SelectOption[] = [
 export type NearMissReportValues = {
   dateOfEvent: string;
   hazardType: string;
+  /**
+   * The HazCom chemical chosen when `hazardType === "chemical"`. Only shown
+   * (and only sent) for a chemical hazard.
+   */
+  chemicalId?: string;
   location: string;
   whatHappened: string;
   contributingFactors: string[];
+  /** File references for the attached photo evidence; optional, up to 10. */
+  photos: string[];
 };
 
 export const nearMissReportSchema: FormSchema = [
@@ -47,6 +54,9 @@ export const nearMissReportSchema: FormSchema = [
     label: "Date of Event",
     required: true,
     colSpan: 6,
+    // A near miss is reported after it happens; nothing can have nearly
+    // happened next week.
+    limit: "not-future",
   },
   {
     type: "select",
@@ -91,5 +101,16 @@ export const nearMissReportSchema: FormSchema = [
     rows: 4,
     placeholder:
       "Describe what almost happened and what conditions were present...",
+  },
+  {
+    type: "photo",
+    name: "photos",
+    label: "Photo / Video Evidence",
+    colSpan: 12,
+    accept: "media",
+    fileModule: "NearMiss",
+    maxFiles: 10,
+    placeholder: "Attach photos or videos",
+    helperText: "Optional. Photos or videos, up to 10.",
   },
 ];

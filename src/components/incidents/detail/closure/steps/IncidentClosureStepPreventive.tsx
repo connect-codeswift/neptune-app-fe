@@ -1,21 +1,14 @@
 "use client";
 
-import { useState } from "react";
 import { Icon } from "@iconify/react";
+import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
 import { Text } from "@/components/Text";
 import type {
   ClosureLinkedCapaItem,
   IncidentClosureData,
 } from "@/components/incidents/detail/incident-detail-types";
-import {
-  IncidentModalShell,
-  IncidentModalCancelButton,
-  IncidentModalPrimaryButton,
-} from "@/components/incidents/shared/capa/IncidentModalShell";
-import {
-  FIELD_INPUT_LG_CLASS,
-  FIELD_TEXTAREA_CLASS,
-} from "@/components/ui/field-styles";
+import { FIELD_TEXTAREA_WITH_CONTROLS_CLASS } from "@/components/ui/field-styles";
+import { capaStatusPillClass } from "@/lib/capa-filters";
 
 export type IncidentClosureStepPreventiveProps = Readonly<{
   data: IncidentClosureData;
@@ -24,245 +17,48 @@ export type IncidentClosureStepPreventiveProps = Readonly<{
     value: IncidentClosureData[K],
   ) => void;
   onToggleCheckItem?: (itemId: string) => void;
-  onLinkAdditionalCapa?: () => void;
 }>;
 
+/**
+ * One source of truth for how a CAPA status looks, shared with the register and the CAPA
+ * detail page. This used to be a local switch over a three-value union, so a CAPA that came
+ * back `Pending Verification` fell through to the neutral "Planning" style.
+ */
 function capaBadgeStyle(status: ClosureLinkedCapaItem["status"]) {
-  switch (status) {
-    case "Completed":
-      return "bg-ehs-light-blue text-ehs-normal-blue";
-    case "In Progress":
-      return "bg-ehs-blue/10 text-ehs-purple";
-    case "Planning":
-    default:
-      return "bg-ehs-light-bg text-ehs-gray";
-  }
-}
-
-type LinkCapaModalProps = Readonly<{
-  onClose: () => void;
-  currentlyLinked: readonly ClosureLinkedCapaItem[];
-  onSave: (selectedCapas: ClosureLinkedCapaItem[]) => void;
-}>;
-
-function LinkCapaModal(props: Readonly<LinkCapaModalProps>) {
-  const { onClose, currentlyLinked, onSave } = props;
-
-  const [selectedIds, setSelectedIds] = useState<string[]>(() =>
-    currentlyLinked.map((item) => item.id),
-  );
-  const [searchQuery, setSearchQuery] = useState("");
-
-  // Only CAPAs actually linked to this incident are selectable. This list used
-  // to be seeded with six invented CAPAs (CAPA-012 … CAPA-030), which let a
-  // reviewer attach a CAPA that does not exist to a real closure record.
-  // There is no org-wide CAPA list endpoint yet — use-capa-queries only
-  // exposes per-incident, task and review queries — so until one exists there
-  // is nothing further to offer here.
-  const allItemsMap = new Map<string, ClosureLinkedCapaItem>();
-  currentlyLinked.forEach((item) => allItemsMap.set(item.id, item));
-
-  const allItems = Array.from(allItemsMap.values());
-
-  const filteredItems = allItems.filter(
-    (item) =>
-      item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.subtitle.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
-
-  const toggleSelect = (id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
-    );
-  };
-
-  const handleSave = () => {
-    const selectedCapas = allItems.filter((item) =>
-      selectedIds.includes(item.id),
-    );
-    onSave(selectedCapas);
-    onClose();
-  };
-
-  return (
-    <IncidentModalShell
-      title="Link CAPAs & Action Items"
-      subtitle="Select corrective and preventive action items to attach to this incident closure."
-      onClose={onClose}
-      maxWidthClassName="max-w-180"
-      footerHint={
-        <span className="text-ehs-gray text4 font-medium">
-          {selectedIds.length} {selectedIds.length === 1 ? "item" : "items"}{" "}
-          selected
-        </span>
-      }
-      footerActions={
-        <>
-          <IncidentModalCancelButton onClick={onClose} label="Cancel" />
-          <IncidentModalPrimaryButton
-            onClick={handleSave}
-            label={`Link Selected (${selectedIds.length})`}
-            icon="mdi:plus"
-          />
-        </>
-      }
-    >
-      <div className="flex flex-col gap-4">
-        {/* Search Bar */}
-        <div className={`${FIELD_INPUT_LG_CLASS} relative flex items-center`}>
-          <Icon
-            icon="mdi:magnify"
-            className="text-ehs-muted-text mr-2 size-5"
-          />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search CAPAs or action items by title or description..."
-            className="text-ehs-dark-bg placeholder:text-ehs-muted-text text4 w-full bg-transparent font-normal outline-none"
-          />
-          {searchQuery && (
-            <button
-              type="button"
-              onClick={() => setSearchQuery("")}
-              className="text-ehs-muted-text hover:text-ehs-dark-bg"
-              aria-label="Clear search"
-            >
-              <Icon icon="mdi:close-circle" className="size-4" />
-            </button>
-          )}
-        </div>
-
-        {/* List of CAPAs */}
-        <div className="flex max-h-95 flex-col gap-2.5 overflow-y-auto pr-1">
-          {filteredItems.map((item) => {
-            const isSelected = selectedIds.includes(item.id);
-            return (
-              <div
-                key={item.id}
-                onClick={() => toggleSelect(item.id)}
-                className={[
-                  "flex cursor-pointer items-center justify-between rounded-xl border p-3.5 transition-all select-none",
-                  isSelected
-                    ? "border-ehs-normal-blue bg-ehs-light-blue"
-                    : "border-ehs-border hover:border-ehs-border bg-ehs-surface",
-                ].join(" ")}
-              >
-                <div className="flex min-w-0 items-center gap-3">
-                  <div
-                    className={[
-                      "flex size-5 shrink-0 items-center justify-center rounded border transition-colors",
-                      isSelected
-                        ? "border-ehs-normal-blue bg-ehs-normal-blue text-ehs-on-accent"
-                        : "border-ehs-border bg-ehs-surface",
-                    ].join(" ")}
-                  >
-                    {isSelected && (
-                      <Icon icon="mdi:check" className="size-3.5" />
-                    )}
-                  </div>
-
-                  <div className="flex min-w-0 flex-col">
-                    <div className="flex items-center gap-2">
-                      <span className="text-ehs-dark-bg text5">
-                        {item.title}
-                      </span>
-                    </div>
-                    <span className="text-ehs-gray text4 truncate font-normal">
-                      {item.subtitle}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="ml-3 flex shrink-0 items-center gap-3">
-                  <div className="hidden items-center gap-2 sm:flex">
-                    <div className="bg-ehs-border h-1.5 w-16 overflow-hidden rounded-full">
-                      <div
-                        className="bg-ehs-normal-blue h-full rounded-full"
-                        style={{ width: `${String(item.progressPercent)}%` }}
-                      />
-                    </div>
-                    <span className="text-ehs-gray text4 font-semibold">
-                      {item.progressPercent}%
-                    </span>
-                  </div>
-
-                  <span
-                    className={[
-                      "text8 rounded-full px-2.5 py-0.5 font-bold whitespace-nowrap",
-                      capaBadgeStyle(item.status),
-                    ].join(" ")}
-                  >
-                    {item.status}
-                  </span>
-                </div>
-              </div>
-            );
-          })}
-
-          {filteredItems.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-8 text-center">
-              <Icon
-                icon="mdi:clipboard-text-off-outline"
-                className="text-ehs-muted-text size-8"
-              />
-              <span className="text-ehs-gray text4 mt-2 font-medium">
-                {allItems.length === 0
-                  ? "No CAPAs are linked to this incident yet."
-                  : "No CAPA or action items match your search."}
-              </span>
-            </div>
-          )}
-        </div>
-      </div>
-    </IncidentModalShell>
-  );
+  return capaStatusPillClass(status);
 }
 
 export function IncidentClosureStepPreventive(
   props: Readonly<IncidentClosureStepPreventiveProps>,
 ) {
-  const { data, onChangeField, onLinkAdditionalCapa } = props;
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { data, onChangeField } = props;
 
   const linkedCapas = data.closureLinkedCapas ?? [];
-
-  const handleOpenModal = () => {
-    setIsModalOpen(true);
-    onLinkAdditionalCapa?.();
-  };
-
-  const handleSaveCapas = (newLinkedCapas: ClosureLinkedCapaItem[]) => {
-    onChangeField("closureLinkedCapas", newLinkedCapas);
-  };
 
   return (
     <div className="flex flex-col gap-6">
       <Text as="h2" className="text-ehs-dark-bg text5 leading-normal font-bold">
-        Preventive Measures & CAPAs
+        Preventive Measures &amp; CAPAs
       </Text>
 
-      {/* Actions Taken */}
-      <div className="flex flex-col">
-        <label className="text-ehs-muted-text text8 mb-2 font-bold tracking-[0.5px] uppercase">
-          ACTIONS TAKEN
-        </label>
-        <textarea
-          value={data.actionsTaken}
-          onChange={(e) => onChangeField("actionsTaken", e.target.value)}
-          rows={3}
-          placeholder="Detail preventive actions taken..."
-          className={FIELD_TEXTAREA_CLASS}
-        />
-      </div>
-
-      {/* Linked CAPAs */}
+      {/* Linked CAPAs. Read-only: this list is the CAPAs raised from this incident,
+          hydrated from the per-incident CAPA query. There is no manual link control —
+          a CAPA appears here by being created against the incident, so there was
+          nothing an "attach" dialog could offer that was not already listed. */}
       <div className="flex flex-col">
         <label className="text-ehs-muted-text text8 mb-2.5 font-bold tracking-[0.5px] uppercase">
           LINKED CAPAS
         </label>
 
         <div className="flex flex-col gap-3">
+          {linkedCapas.length === 0 ? (
+            <Text
+              as="p"
+              className="text-ehs-muted-text text4 rounded-3.5 border-ehs-border bg-ehs-surface border border-dashed px-4 py-3.5 font-normal"
+            >
+              No CAPAs have been created for this incident yet.
+            </Text>
+          ) : null}
           {linkedCapas.map((capa) => (
             <div
               key={capa.id}
@@ -304,27 +100,38 @@ export function IncidentClosureStepPreventive(
             </div>
           ))}
         </div>
-
-        <button
-          type="button"
-          onClick={handleOpenModal}
-          className="text-ehs-normal-blue text4 mt-3 flex items-center gap-1.5 font-bold transition-colors hover:underline"
-        >
-          <Icon icon="mdi:plus" className="size-4" />
-          <span>Link additional CAPA or Action Item</span>
-        </button>
       </div>
 
-      {/* Link CAPA Modal — mounted only while open, so each open starts from
-          the current links via the state initialiser rather than being reset
-          by an effect. */}
-      {isModalOpen ? (
-        <LinkCapaModal
-          onClose={() => setIsModalOpen(false)}
-          currentlyLinked={linkedCapas}
-          onSave={handleSaveCapas}
-        />
-      ) : null}
+      {/* Notes. Still persisted as `actionsTaken` (the backend column is unchanged),
+          but presented last and labelled Notes: the CAPAs listed above already are
+          the action items, so a separate "actions taken" box above them invited the
+          same content twice. */}
+      <div className="flex flex-col">
+        <label className="text-ehs-muted-text text8 mb-2 font-bold tracking-[0.5px] uppercase">
+          NOTES
+        </label>
+        <div className="relative">
+          <textarea
+            value={data.actionsTaken}
+            onChange={(e) => onChangeField("actionsTaken", e.target.value)}
+            rows={3}
+            placeholder="Add any closing notes for this incident..."
+            className={FIELD_TEXTAREA_WITH_CONTROLS_CLASS}
+          />
+          {/*
+            Rewrite only, no auto-draft — same reasoning as the root-cause step:
+            there is no endpoint that invents a preventive measure, and these
+            notes act on what the closer has already written.
+          */}
+          <AiTextAssistant
+            module="incident"
+            value={data.actionsTaken}
+            onApply={(actionsTaken) =>
+              onChangeField("actionsTaken", actionsTaken)
+            }
+          />
+        </div>
+      </div>
     </div>
   );
 }

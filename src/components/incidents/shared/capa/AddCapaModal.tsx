@@ -1,15 +1,17 @@
 "use client";
 
-import { useId, useState } from "react";
-import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
-import { Text } from "@/components/Text";
+import { useState } from "react";
 import type { CapaItem } from "@/components/incidents/detail/linked-capa/capa-types";
+import { type ControlLevel } from "@/components/incidents/shared/capa/CapaHierarchySelector";
 import {
-  CapaHierarchySelector,
-  type ControlLevel,
-} from "@/components/incidents/shared/capa/CapaHierarchySelector";
-import { CapaModalFieldLabel } from "./CapaModalFieldLabel";
-import { CapaSegmentedToggle } from "@/components/incidents/shared/capa/CapaSegmentedToggle";
+  CapaControlLevelStep,
+  CapaCoreFields,
+  CapaStepHeading,
+  CAPA_PRIORITY_OPTIONS,
+  CAPA_TYPE_OPTIONS,
+  resolveCapaFooterHint,
+  type CapaCoreFieldsValue,
+} from "@/components/capa/shared/CapaFormSteps";
 import {
   AddTaskModal,
   type CapaTaskFormPayload,
@@ -20,12 +22,9 @@ import {
   IncidentModalPrimaryButton,
   IncidentModalShell,
 } from "@/components/incidents/shared/capa/IncidentModalShell";
-import { ReportPersonSearchField } from "@/components/incidents/report/shared/ReportPersonSearchField";
-import { ReportDateField } from "@/components/incidents/report/shared/ReportDateField";
-import { FIELD_TEXTAREA_WITH_CONTROLS_CLASS } from "@/components/ui/field-styles";
+import { cantBePast, mmDdYyyyToIso } from "@/lib/date-time-field";
 import type { CapaTaskDto } from "@/dtos/res/capa-task-response.dto";
 import { useCapaTasksQuery } from "@/hooks/use-capa-queries";
-import { useCurrentSite } from "@/hooks/use-current-site";
 import { getAuthContext } from "@/lib/auth-context";
 import { toast } from "@/lib/toast";
 import { toSelectorControlLevel } from "@/services/mappers/capa.mapper";
@@ -48,8 +47,8 @@ export type StagedCapaTask = CapaTaskFormPayload &
   }>;
 
 export type AddCapaModalProps = Readonly<{
-  incidentId: string;
-  incidentTitle: string;
+  sourceLabel: string;
+  sourceTitle: string;
   capaId?: string;
   capaToEdit?: CapaItem;
   isSubmitting?: boolean;
@@ -61,12 +60,12 @@ export type AddCapaModalProps = Readonly<{
   onDeleteTask?: (taskId: number) => void | Promise<void>;
 }>;
 
-const TYPE_OPTIONS = ["Corrective", "Preventive"] as const;
-const PRIORITY_OPTIONS = ["High", "Medium", "Low"] as const;
+const TYPE_OPTIONS = CAPA_TYPE_OPTIONS;
+const PRIORITY_OPTIONS = CAPA_PRIORITY_OPTIONS;
 
 type CapaModalFormProps = Readonly<{
-  incidentId: string;
-  incidentTitle: string;
+  sourceLabel: string;
+  sourceTitle: string;
   capaId: string;
   capaToEdit?: CapaItem;
   isSubmitting: boolean;
@@ -78,33 +77,19 @@ type CapaModalFormProps = Readonly<{
   stagedTasks: readonly StagedCapaTask[];
   onOpenAddTask: () => void;
   onRemoveStagedTask: (localId: string) => void;
+  onEditStagedTask: (localId: string) => void;
   onDeleteSavedTask?: (taskId: number) => void | Promise<void>;
   isCreatingTask: boolean;
   isDeletingTask: boolean;
   onClose: () => void;
   onSubmit?: (payload: CapaFormPayload) => void | Promise<void>;
+  onDueDateChange?: (dueDate: string) => void;
 }>;
-
-function StepBadge(props: Readonly<{ step: string }>) {
-  const { step } = props;
-
-  return (
-    <span className="bg-ehs-normal-blue text-ehs-on-accent inline-flex size-6 shrink-0 items-center justify-center rounded-full pt-[2px] pb-[3px] text-sm leading-5">
-      {step}
-    </span>
-  );
-}
-
-function FieldLabel(
-  props: Readonly<{ children: string; required?: boolean; htmlFor?: string }>,
-) {
-  return <CapaModalFieldLabel {...props} />;
-}
 
 function CapaModalForm(props: Readonly<CapaModalFormProps>) {
   const {
-    incidentId,
-    incidentTitle,
+    sourceLabel,
+    sourceTitle,
     capaId,
     capaToEdit,
     isSubmitting,
@@ -116,40 +101,62 @@ function CapaModalForm(props: Readonly<CapaModalFormProps>) {
     stagedTasks,
     onOpenAddTask,
     onRemoveStagedTask,
+    onEditStagedTask,
     onDeleteSavedTask,
     isCreatingTask,
     isDeletingTask,
     onClose,
     onSubmit,
+    onDueDateChange,
   } = props;
 
   const isEditMode = capaToEdit != null;
-  const descriptionFieldId = useId();
-  const site = useCurrentSite();
   const auth = getAuthContext();
   const currentUserId = auth && auth.userId > 0 ? auth.userId : null;
-  const excludeUserIds =
-    currentUserId != null ? [String(currentUserId)] : undefined;
 
   const [controlLevel, setControlLevel] = useState<ControlLevel | null>(() =>
     capaToEdit ? toSelectorControlLevel(capaToEdit.controlCategory) : null,
   );
-  const [description, setDescription] = useState(initialDescription);
-  const [type, setType] = useState<string>(
-    () => capaToEdit?.actionType ?? TYPE_OPTIONS[0],
-  );
-  const [owner, setOwner] = useState(initialOwner);
-  const [ownerUserId, setOwnerUserId] = useState(initialOwnerUserId);
-  const [dueDate, setDueDate] = useState(initialDueDate);
-  const [priority, setPriority] = useState<string>(
-    () => capaToEdit?.priority ?? PRIORITY_OPTIONS[1],
-  );
+  const [fields, setFields] = useState<CapaCoreFieldsValue>(() => ({
+    description: initialDescription,
+    type: capaToEdit?.actionType ?? TYPE_OPTIONS[0],
+    owner: initialOwner,
+    ownerUserId: initialOwnerUserId,
+    dueDate: initialDueDate,
+    priority: capaToEdit?.priority ?? PRIORITY_OPTIONS[1],
+  }));
+  const { description, type, owner, ownerUserId, dueDate, priority } = fields;
   const [isLocalSubmitting, setIsLocalSubmitting] = useState(false);
+
+  const patchFields = (patch: Partial<CapaCoreFieldsValue>) => {
+    setFields((current) => ({ ...current, ...patch }));
+    if (patch.dueDate !== undefined) {
+      // The Add Task modal is a sibling, so it needs this pushed up to cap its
+      // own date picker against it.
+      onDueDateChange?.(patch.dueDate);
+    }
+  };
 
   const busy =
     isSubmitting || isLocalSubmitting || isCreatingTask || isDeletingTask;
+  // A CAPA's status is derived from its tasks, so one with none can never leave Open. The
+  // standalone create screen has always refused to submit without a task; this modal did not,
+  // so the same rule depended on which route you came in through. Editing is exempt: the tasks
+  // already exist and are managed on the detail page.
+  const hasAtLeastOneTask = isEditMode || stagedTasks.length > 0;
+  // minDate only greys the calendar out — the field still accepts typed input,
+  // so the rule is re-checked here. An already-saved past date is left alone:
+  // editing an old CAPA must not be blocked by a deadline that has since passed.
+  const isDueDateUnchanged = dueDate === initialDueDate;
+  const dueDateError = isDueDateUnchanged
+    ? null
+    : cantBePast(mmDdYyyyToIso(dueDate), "Due date").error;
   const canSubmit =
-    controlLevel != null && description.trim().length > 0 && !busy;
+    controlLevel != null &&
+    description.trim().length > 0 &&
+    hasAtLeastOneTask &&
+    dueDateError === null &&
+    !busy;
   const modalCapaId = capaToEdit?.code ?? capaId;
 
   const handleSubmit = async () => {
@@ -201,13 +208,13 @@ function CapaModalForm(props: Readonly<CapaModalFormProps>) {
   return (
     <IncidentModalShell
       title={isEditMode ? "Edit CAPA" : "Create CAPA"}
-      subtitle={`${incidentId} · ${incidentTitle} · ${isEditMode ? modalCapaId : `new ${capaId}`}`}
+      subtitle={`${sourceLabel} · ${sourceTitle} · ${isEditMode ? modalCapaId : `new ${capaId}`}`}
       onClose={onClose}
-      footerHint={
-        controlLevel
-          ? `${controlLevel} selected`
-          : "Select a control level to continue"
-      }
+      footerHint={resolveCapaFooterHint({
+        controlLevel,
+        description,
+        hasAtLeastOneTask,
+      })}
       footerActions={
         <>
           <IncidentModalCancelButton onClick={onClose} />
@@ -229,121 +236,43 @@ function CapaModalForm(props: Readonly<CapaModalFormProps>) {
         </>
       }
     >
-      <div className="flex flex-col gap-8 md:flex-row md:items-start md:gap-8 lg:gap-12">
-        <section className="w-full shrink-0 md:w-80 lg:w-95">
-          <div className="mb-4 flex flex-col gap-1.25 sm:mb-6">
-            <div className="flex items-center gap-2.5">
-              <StepBadge step="1" />
-              <Text
-                as="h3"
-                className="text-ehs-dark-bg text-base leading-6 font-normal sm:text-base"
-              >
-                Select control level
-              </Text>
-            </div>
-            <Text
-              as="p"
-              className="text-ehs-gray text-sm leading-[19.5px] font-normal sm:text-sm"
-            >
-              Most → least effective. Prefer higher-order controls.
-            </Text>
-          </div>
-
-          <CapaHierarchySelector
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-2 md:items-start md:gap-x-8 lg:gap-x-12">
+        <section className="min-w-0">
+          <CapaControlLevelStep
             value={controlLevel}
             onChange={setControlLevel}
           />
         </section>
 
-        <section className="min-w-0 flex-1">
-          <div className="mb-4 flex items-center gap-2.5 sm:mb-6">
-            <StepBadge step="2" />
-            <Text
-              as="h3"
-              className="text-ehs-dark-bg text-base leading-6 font-normal sm:text-base"
-            >
-              What CAPA is needed?
-            </Text>
-          </div>
+        <section className="min-w-0">
+          <CapaStepHeading
+            step="2"
+            title="What CAPA is needed?"
+            className="mb-4 sm:mb-6"
+          />
 
-          <div className="flex flex-col gap-4.5">
-            <div className="flex flex-col gap-1.5">
-              <FieldLabel htmlFor={descriptionFieldId} required>
-                Action description
-              </FieldLabel>
-              <div className="relative">
-                <textarea
-                  id={descriptionFieldId}
-                  value={description}
-                  onChange={(event) => setDescription(event.target.value)}
-                  placeholder="Describe the corrective / preventive action..."
-                  rows={3}
-                  className={FIELD_TEXTAREA_WITH_CONTROLS_CLASS}
-                />
-                <AiTextAssistant
-                  module="incident"
-                  value={description}
-                  onApply={setDescription}
-                />
-              </div>
-            </div>
+          <CapaCoreFields
+            value={fields}
+            onChange={patchFields}
+            dueDateError={dueDateError}
+          />
+        </section>
 
-            <div className="flex flex-col gap-1.5">
-              <FieldLabel>Type</FieldLabel>
-              <CapaSegmentedToggle
-                ariaLabel="CAPA type"
-                options={TYPE_OPTIONS}
-                value={type}
-                onChange={setType}
-              />
-            </div>
-
-            <div className="grid min-w-0 grid-cols-1 items-start gap-4 sm:grid-cols-2">
-              <ReportPersonSearchField
-                variant="embedded"
-                label="Assigned"
-                value={owner}
-                selectedUserId={ownerUserId}
-                onChange={({ name, userId }) => {
-                  setOwner(name);
-                  setOwnerUserId(userId);
-                }}
-                siteId={site.id}
-                siteName={site.name}
-                placeholder="e.g. M. Torres"
-                excludeUserIds={excludeUserIds}
-              />
-
-              <ReportDateField
-                variant="embedded"
-                label="Due date"
-                value={dueDate}
-                onChange={setDueDate}
-                placeholder="MM/DD/YYYY"
-              />
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <FieldLabel>Priority</FieldLabel>
-              <CapaSegmentedToggle
-                ariaLabel="CAPA priority"
-                options={PRIORITY_OPTIONS}
-                value={priority}
-                onChange={setPriority}
-              />
-            </div>
-
-            <CapaModalTasksSection
-              isEditMode={isEditMode}
-              savedTasks={savedTasks}
-              stagedTasks={stagedTasks}
-              busy={busy}
-              onOpenAddTask={onOpenAddTask}
-              onRemoveStagedTask={onRemoveStagedTask}
-              onDeleteSavedTask={onDeleteSavedTask}
-              capaPriority={capaToEdit?.priority ?? priority}
-            />
-          </div>
+        {/* Its own row, as on the standalone create page: a checklist reads
+            badly in a half-width column beside the triangle. */}
+        <section className="min-w-0 md:col-span-2">
+          <CapaModalTasksSection
+            heading={<CapaStepHeading step="3" title="Tasks Checklist" />}
+            isEditMode={isEditMode}
+            savedTasks={savedTasks}
+            stagedTasks={stagedTasks}
+            busy={busy}
+            onOpenAddTask={onOpenAddTask}
+            onRemoveStagedTask={onRemoveStagedTask}
+            onEditStagedTask={onEditStagedTask}
+            onDeleteSavedTask={onDeleteSavedTask}
+            capaPriority={capaToEdit?.priority ?? priority}
+          />
         </section>
       </div>
     </IncidentModalShell>
@@ -352,8 +281,8 @@ function CapaModalForm(props: Readonly<CapaModalFormProps>) {
 
 export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
   const {
-    incidentId,
-    incidentTitle,
+    sourceLabel,
+    sourceTitle,
     capaId = "CAPA-0423",
     capaToEdit,
     isSubmitting = false,
@@ -367,6 +296,10 @@ export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
 
   const isEditMode = capaToEdit != null;
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
+  // Which staged row the task modal is correcting. Null means it is adding a new one.
+  const [editingTaskLocalId, setEditingTaskLocalId] = useState<string | null>(
+    null,
+  );
   const [stagedTasks, setStagedTasks] = useState<readonly StagedCapaTask[]>([]);
   const tasksQuery = useCapaTasksQuery({
     capaId: capaToEdit?.numericId ?? null,
@@ -379,6 +312,17 @@ export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
       return;
     }
 
+    if (editingTaskLocalId !== null) {
+      setStagedTasks((previous) =>
+        previous.map((task) =>
+          task.localId === editingTaskLocalId
+            ? { ...payload, localId: task.localId }
+            : task,
+        ),
+      );
+      return;
+    }
+
     setStagedTasks((previous) => [
       ...previous,
       {
@@ -386,6 +330,16 @@ export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
         localId: crypto.randomUUID(),
       },
     ]);
+  };
+
+  const handleEditStagedTask = (localId: string) => {
+    setEditingTaskLocalId(localId);
+    setIsAddTaskOpen(true);
+  };
+
+  const closeTaskModal = () => {
+    setIsAddTaskOpen(false);
+    setEditingTaskLocalId(null);
   };
 
   const handleRemoveStagedTask = (localId: string) => {
@@ -408,6 +362,9 @@ export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
   const initialDueDate =
     capaToEdit?.dueDate && capaToEdit.dueDate !== "—" ? capaToEdit.dueDate : "";
 
+  // Mirrored from the form below so Add Task can cap its picker at the CAPA's own date.
+  const [capaDueDate, setCapaDueDate] = useState(initialDueDate);
+
   return (
     <>
       <CapaModalForm
@@ -416,8 +373,8 @@ export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
             ? `edit-${capaToEdit.id}-${String(savedTasks.length)}`
             : "add"
         }
-        incidentId={incidentId}
-        incidentTitle={incidentTitle}
+        sourceLabel={sourceLabel}
+        sourceTitle={sourceTitle}
         capaId={capaId}
         capaToEdit={capaToEdit}
         isSubmitting={isSubmitting}
@@ -427,22 +384,42 @@ export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
         initialDueDate={initialDueDate}
         savedTasks={savedTasks}
         stagedTasks={stagedTasks}
-        onOpenAddTask={() => setIsAddTaskOpen(true)}
+        onOpenAddTask={() => {
+          // The task modal caps its own date picker against the CAPA's due date, so
+          // opening it before one is set offers an uncapped picker and lets a task be
+          // dated past its parent. The due date is required now, so this is only ever
+          // asking for it in the order the form already needs it.
+          if (capaDueDate.trim().length === 0) {
+            toast.error(
+              "Set the CAPA due date first",
+              "Tasks are scheduled against it, so it has to be chosen before adding one.",
+            );
+            return;
+          }
+          setIsAddTaskOpen(true);
+        }}
         onRemoveStagedTask={handleRemoveStagedTask}
+        onEditStagedTask={handleEditStagedTask}
         onDeleteSavedTask={isEditMode ? handleDeleteSavedTask : undefined}
         isCreatingTask={isCreatingTask}
         isDeletingTask={isDeletingTask}
         onClose={onClose}
         onSubmit={onSubmit}
+        onDueDateChange={setCapaDueDate}
       />
 
-      {isAddTaskOpen ? (
+      {isAddTaskOpen && capaDueDate.trim().length > 0 ? (
         <AddTaskModal
-          incidentId={incidentId}
-          incidentTitle={incidentTitle}
+          sourceLabel={sourceLabel}
+          sourceTitle={sourceTitle}
           capaCode={addTaskCapaCode}
+          capaDueDate={capaDueDate}
           isSubmitting={isCreatingTask}
-          onClose={() => setIsAddTaskOpen(false)}
+          initialValues={
+            stagedTasks.find((task) => task.localId === editingTaskLocalId) ??
+            undefined
+          }
+          onClose={closeTaskModal}
           onSubmit={handleAddTask}
         />
       ) : null}

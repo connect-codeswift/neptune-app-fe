@@ -1,6 +1,7 @@
 "use client";
 
 import { Icon } from "@iconify/react";
+import { CheckboxInput } from "@/components/inputs/CheckboxInput";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
@@ -8,12 +9,13 @@ import {
   ReportTextareaField,
   ReportFieldLabel,
 } from "@/components/incidents/report/shared/ReportFormField";
-import { AiInFieldDraft } from "@/components/ai/AiInFieldDraft";
+import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
+import { useIncidentFieldDraft } from "@/components/incidents/report/shared/use-incident-draft";
 import {
   markAiAssisted,
   type ReportIncidentFormState,
   IMMEDIATE_ACTION_OPTIONS,
-} from "@/components/incidents/report/shared/report-incident-data";
+} from "@/forms/incident-module/index";
 
 export type ReportIncidentStepFourProps = Readonly<{
   form: ReportIncidentFormState;
@@ -28,11 +30,7 @@ export function ReportIncidentStepFour(
 ) {
   const { form, onChange, onBack, onContinue, className = "" } = props;
 
-  // Same rule as the injury draft on step 3: no waiting state for a field the
-  // reporter has already filled, because the incoming draft is discarded
-  // rather than shown.
-  const draftPending = form.aiDraftPending && form.actionNotes.trim() === "";
-  const showsDraft = draftPending || form.aiDrafts.actionNotes !== null;
+  const draft = useIncidentFieldDraft(form, onChange, "actionNotes");
 
   const toggleAction = (id: string) => {
     const isChecked = form.immediateActions.includes(id);
@@ -79,43 +77,15 @@ export function ReportIncidentStepFour(
               }
             />
             <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-              {IMMEDIATE_ACTION_OPTIONS.map((action) => {
-                const isChecked = form.immediateActions.includes(action.id);
-                return (
-                  <button
-                    key={action.id}
-                    type="button"
-                    onClick={() => toggleAction(action.id)}
-                    className={[
-                      "rounded-2.5 flex min-h-13 cursor-pointer items-center gap-3 border px-4 py-3 text-left transition-all duration-200",
-                      isChecked
-                        ? "border-ehs-normal-blue/40 bg-ehs-normal-blue/8 shadow-[0_0_0_1px_color-mix(in_oklab,var(--ehs-normal-blue)_6%,transparent)]"
-                        : "border-ehs-border bg-ehs-surface/62 hover:border-ehs-border-strong hover:bg-ehs-surface/80",
-                    ].join(" ")}
-                  >
-                    <div
-                      className={[
-                        "rounded-1 flex size-5 shrink-0 items-center justify-center border transition-colors",
-                        isChecked
-                          ? "bg-ehs-normal-blue border-ehs-normal-blue text-ehs-on-accent"
-                          : "border-ehs-border-strong bg-ehs-surface",
-                      ].join(" ")}
-                    >
-                      {isChecked && (
-                        <Icon icon="mdi:check" className="size-3.5" />
-                      )}
-                    </div>
-                    <span
-                      className={[
-                        "text-sm leading-normal font-semibold",
-                        isChecked ? "text-ehs-dark-blue" : "text-ehs-dark-bg",
-                      ].join(" ")}
-                    >
-                      {action.label}
-                    </span>
-                  </button>
-                );
-              })}
+              {IMMEDIATE_ACTION_OPTIONS.map((action) => (
+                <CheckboxInput
+                  key={action.id}
+                  variant="tile"
+                  label={action.label}
+                  checked={form.immediateActions.includes(action.id)}
+                  onChange={() => toggleAction(action.id)}
+                />
+              ))}
             </div>
           </div>
 
@@ -129,44 +99,28 @@ export function ReportIncidentStepFour(
               trailingHint="Anything else responders should know?"
               value={form.actionNotes}
               onChange={(event) => {
-                const actionNotes = event.target.value;
-                // Their own words take over: a draft still sitting underneath
-                // while they type is an offer they have already answered.
-                onChange({
-                  actionNotes,
-                  ...(form.aiDrafts.actionNotes
-                    ? { aiDrafts: { ...form.aiDrafts, actionNotes: null } }
-                    : {}),
-                });
+                onChange({ actionNotes: event.target.value });
               }}
-              placeholder={
-                showsDraft
-                  ? ""
-                  : "List any additional actions, notifications, or follow-ups already underway…"
-              }
+              placeholder="List any additional actions, notifications, or follow-ups already underway…"
               rows={3}
               assistant={
-                showsDraft ? (
-                  <AiInFieldDraft
-                    draft={form.aiDrafts.actionNotes}
-                    pending={draftPending}
-                    onAccept={(text) =>
-                      onChange({
-                        actionNotes: text,
-                        aiAssistedFields: markAiAssisted(
-                          form.aiAssistedFields,
-                          "actionNotes",
-                        ),
-                        aiDrafts: { ...form.aiDrafts, actionNotes: null },
-                      })
-                    }
-                    onDismiss={() =>
-                      onChange({
-                        aiDrafts: { ...form.aiDrafts, actionNotes: null },
-                      })
-                    }
-                  />
-                ) : undefined
+                <AiTextAssistant
+                  module="incident"
+                  value={form.actionNotes}
+                  draftPending={draft.pending}
+                  onRegenerateDraft={draft.run}
+                  onApply={(actionNotes) => {
+                    onChange({ actionNotes });
+                  }}
+                  onAssisted={() => {
+                    onChange({
+                      aiAssistedFields: markAiAssisted(
+                        form.aiAssistedFields,
+                        "actionNotes",
+                      ),
+                    });
+                  }}
+                />
               }
             />
           </div>

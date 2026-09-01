@@ -12,8 +12,14 @@ export type CapaAddTaskInitialDraft = Readonly<{
   priority?: string;
 }>;
 
-/** FormBuilder schema for CAPA Add Task modal — Figma 5491:23536. */
-export function buildCapaAddTaskSchema(): FormSchema {
+/**
+ * FormBuilder schema for the CAPA Add Task modal — Figma 5491:23536.
+ *
+ * `capaDueDate` (ISO `yyyy-mm-dd`) caps the task picker. A task that falls due after the CAPA
+ * it belongs to cannot be completed in time to close it, so the deadline is the parent's.
+ * Omitted when the CAPA has no due date of its own, which leaves the picker open-ended.
+ */
+export function buildCapaAddTaskSchema(capaDueDate?: string): FormSchema {
   return [
     {
       type: "text",
@@ -30,6 +36,9 @@ export function buildCapaAddTaskSchema(): FormSchema {
       required: true,
       colSpan: 12,
       placeholder: "MM/DD/YYYY",
+      // Same rule the API enforces on AddTask — a task cannot open overdue.
+      limit: "not-past",
+      ...(capaDueDate ? { max: capaDueDate } : {}),
     },
     {
       type: "tiles",

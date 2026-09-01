@@ -1,5 +1,9 @@
 "use client";
 import { EmptyState } from "@/components/ui/EmptyState";
+import {
+  columnWidthStyle,
+  tableMinWidthStyle,
+} from "@/components/ui/table-width";
 
 import { useCallback, useMemo, type ReactNode } from "react";
 import {
@@ -103,13 +107,22 @@ function createIncidentColumns(
       minSize: 140,
       cell: ({ row }) => (
         <div className="flex w-full min-w-0 flex-col gap-1">
-          <Text
-            as="p"
-            className="text4 text-ehs-dark-bg line-clamp-1 first-letter:uppercase"
-            title={row.original.title}
-          >
-            {row.original.title}
-          </Text>
+          <div className="flex min-w-0 items-center gap-1.5">
+            <Text
+              as="p"
+              className="text4 text-ehs-dark-bg line-clamp-1 first-letter:uppercase"
+              title={row.original.title}
+            >
+              {row.original.title}
+            </Text>
+            {row.original.isConverted ? (
+              <IncidentBadge
+                label="Converted"
+                tone="teal"
+                className="shrink-0"
+              />
+            ) : null}
+          </div>
           <Text
             as="p"
             className="text4 text-ehs-muted-text line-clamp-1 first-letter:uppercase"
@@ -146,11 +159,13 @@ function createIncidentColumns(
       size: expanded ? 160 : 130,
       minSize: 110,
       cell: (info) => (
-        <IncidentBadge
-          label={info.getValue()}
-          tone={severityTone(info.getValue())}
-          showDot
-        />
+        <div className="flex min-w-0 items-center gap-1.5">
+          <IncidentBadge
+            label={info.getValue()}
+            tone={severityTone(info.getValue())}
+            showDot
+          />
+        </div>
       ),
     }),
     columnHelper.accessor("state", {
@@ -209,14 +224,6 @@ function createIncidentColumns(
         : null,
     getAriaLabel: (row) => `Manage incident ${row.id}`,
   }) as ColumnDef<IncidentRecord, unknown>[];
-}
-
-// Percentage widths on a `table-fixed w-full` table always fill the
-// container exactly, so `overflow-x-auto` never triggers — the columns just
-// compress instead of scrolling. Fixed px widths (plus a `min-width` on the
-// `<table>` equal to their sum) let the table actually exceed its container.
-function columnWidthStyle(size: number) {
-  return { width: `${size}px` };
 }
 
 function alignClass(align: "left" | "center" | "right" | undefined) {
@@ -322,12 +329,15 @@ export function IncidentListTable<
 
       <div className="w-full min-w-0 overflow-x-auto overscroll-x-contain">
         <table
-          className="border-collapse text-left text-sm"
-          style={{ minWidth: `${totalSize}px` }}
+          className="w-full table-fixed border-collapse text-left text-sm"
+          style={tableMinWidthStyle(totalSize)}
         >
           <colgroup>
             {table.getAllLeafColumns().map((column) => (
-              <col key={column.id} style={columnWidthStyle(column.getSize())} />
+              <col
+                key={column.id}
+                style={columnWidthStyle(column.getSize(), totalSize)}
+              />
             ))}
           </colgroup>
 
@@ -340,7 +350,7 @@ export function IncidentListTable<
                   return (
                     <th
                       key={header.id}
-                      style={columnWidthStyle(header.getSize())}
+                      style={columnWidthStyle(header.getSize(), totalSize)}
                       className={[
                         "text6 text-ehs-muted-text",
                         headerPadClass,
@@ -421,7 +431,10 @@ export function IncidentListTable<
                       return (
                         <td
                           key={cell.id}
-                          style={columnWidthStyle(cell.column.getSize())}
+                          style={columnWidthStyle(
+                            cell.column.getSize(),
+                            totalSize,
+                          )}
                           className={[
                             "min-w-0",
                             cellVerticalAlignClass(align, verticalAlign),

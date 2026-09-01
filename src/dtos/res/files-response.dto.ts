@@ -15,6 +15,8 @@ export type StoredFileResponseDto = Readonly<{
   mimeType: string;
   sizeBytes: number;
   downloadUrl: string;
+  /** Renders in the browser rather than saving. Null for types with no viewer. */
+  previewUrl: string | null;
   thumbnailUrl: string | null;
   createdDate: string;
 }>;

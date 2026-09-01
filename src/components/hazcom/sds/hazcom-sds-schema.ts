@@ -133,6 +133,8 @@ export function buildSdsUploadSchema(
       name: "revisionDate",
       label: "Revision Date",
       colSpan: 6,
+      // Printed on the sheet by the manufacturer, so it is always already past.
+      limit: "not-future",
     },
     {
       type: "text",

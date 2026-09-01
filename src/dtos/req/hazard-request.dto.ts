@@ -10,10 +10,14 @@ export type GetAllHazardRequestDto = {
 export type CreateHazardRequestDto = {
   id?: number;
   type: string;
+  /** HazCom chemical id, set only when `type === "chemical"`. */
+  chemicalId?: number | null;
   location: string;
   description: string;
-  /** Secure Cloudinary URL of the attached photo evidence. */
+  /** First of {@link attachments}; kept for the older single-photo contract. */
   image: string;
+  /** Every attached photo evidence file, up to 10. */
+  attachments: string[];
   userId: number;
   siteId: number;
   isDrop: boolean;
@@ -29,6 +33,7 @@ export type UpdateHazardRequestDto = {
   location: string;
   description: string;
   image: string;
+  attachments: string[];
   userId: number;
   siteId: number;
   isDrop: boolean;

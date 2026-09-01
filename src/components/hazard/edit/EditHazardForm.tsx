@@ -1,7 +1,13 @@
 "use client";
 
+import { useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { FormBuilder, type FormValues } from "@/components/form-builder";
+import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
+import {
+  FormBuilder,
+  type FormSchema,
+  type FormValues,
+} from "@/components/form-builder";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import type { UpdateHazardRequestDto } from "@/dtos/req/hazard-request.dto";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
@@ -29,7 +35,24 @@ export function EditHazardForm(props: Readonly<{ record: HazardRecord }>) {
   const router = useRouter();
   const saveHazard = useCreateHazardMutation();
   const { userId, siteId } = getCurrentUser();
-  const schema = buildHazardEditSchema(record);
+  const schema = useMemo<FormSchema>(
+    () =>
+      buildHazardEditSchema(record).map((field) =>
+        field.type === "textarea" && field.name === "description"
+          ? {
+              ...field,
+              assistant: (control) => (
+                <AiTextAssistant
+                  module="hazard"
+                  value={control.value}
+                  onApply={control.onChange}
+                />
+              ),
+            }
+          : field,
+      ),
+    [record],
+  );
 
   const detailRoute = `/dashboard/hazard/${encodeURIComponent(record.id)}`;
 
@@ -42,6 +65,9 @@ export function EditHazardForm(props: Readonly<{ record: HazardRecord }>) {
       location: edited.location,
       description: edited.description,
       image: record.image ?? "",
+      // Passed through untouched: the edit form has no photo field, so omitting them would
+      // read as "no photos" and wipe the gallery.
+      attachments: [...record.attachments],
       userId,
       siteId,
       isDrop: false,

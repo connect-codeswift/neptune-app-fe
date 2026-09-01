@@ -1,7 +1,11 @@
 "use client";
 
-import { ReportFieldLabel, ReportFieldError } from "./ReportFormField";
-import type { ClassificationValue } from "./report-classification";
+import {
+  ReportFieldLabel,
+  ReportFieldError,
+  ReportFieldHint,
+} from "./ReportFormField";
+import type { ClassificationValue } from "@/forms/incident-module/classification";
 
 export type ClassificationToggleOption = Readonly<{
   value: string;
@@ -90,15 +94,16 @@ export function ReportClassificationToggle(
     usesSeverityColors && hasSelection
       ? SIA_SIP_SIF_STYLES[resolvedValue as SiaSipSifValue]
       : undefined;
-  const isPrimarySelected =
-    hasSelection && selectedIndex === 0 && !usesSeverityColors;
+  // Any answer on a Yes/No toggle gets the accent pane, not just the first
+  // option — a picked "No" looked unanswered next to a picked "Yes".
+  const isPrimarySelected = hasSelection && !usesSeverityColors;
 
   return (
     <div
       className="flex flex-col gap-1.5"
       data-field-error={error ? "true" : undefined}
     >
-      <ReportFieldLabel label={label} required={required} hint={hint} />
+      <ReportFieldLabel label={label} required={required} />
       <div
         role="group"
         aria-label={label}
@@ -148,7 +153,7 @@ export function ReportClassificationToggle(
                 active
                   ? optionStyle
                     ? optionStyle.activeText
-                    : isPrimarySelected && index === 0
+                    : isPrimarySelected
                       ? "text-ehs-on-accent"
                       : "text-ehs-slate"
                   : "text-ehs-muted-text hover:text-ehs-slate",
@@ -159,6 +164,9 @@ export function ReportClassificationToggle(
           );
         })}
       </div>
+      {hint && !error ? (
+        <ReportFieldHint withIcon>{hint}</ReportFieldHint>
+      ) : null}
       {error ? <ReportFieldError>{error}</ReportFieldError> : null}
     </div>
   );

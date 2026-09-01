@@ -22,13 +22,6 @@ export const LOCATION_OPTIONS: readonly SelectOption[] = [
 ];
 
 /** Assignees offered for follow-up actions (fallback when the API is empty). */
-const ASSIGNEE_OPTIONS: readonly SelectOption[] = [
-  { value: "Alicia Chen", label: "Alicia Chen" },
-  { value: "Priya Mehra", label: "Priya Mehra" },
-  { value: "Sarah Mitchell", label: "Sarah Mitchell" },
-  { value: "Mike Reyes", label: "Mike Reyes" },
-];
-
 /** Walk-and-Talk Details card. */
 export const walkTalkDetailsSchema: FormSchema = [
   {
@@ -45,6 +38,9 @@ export const walkTalkDetailsSchema: FormSchema = [
     label: "Date",
     required: true,
     colSpan: 6,
+    // The form logs a walk that has already been done, so a future date is a
+    // typo rather than a plan.
+    limit: "not-future",
   },
   {
     type: "select",
@@ -95,16 +91,15 @@ export const walkTalkNotesSchema: FormSchema = [
 ];
 
 /** One follow-up action draft row (Assigned to / Due date / Action). */
-export function buildWalkTalkFollowUpSchema(
-  assigneeOptions: readonly SelectOption[] = ASSIGNEE_OPTIONS,
-): FormSchema {
+export function buildWalkTalkFollowUpSchema(): FormSchema {
   return [
     {
-      type: "select",
+      type: "person",
       name: "assignedTo",
       label: "Assigned to",
       colSpan: 6,
-      options: [...assigneeOptions],
+      usersSource: "org",
+      displayNameField: "assignedToName",
       placeholder: "Assigned to",
     },
     {
@@ -112,6 +107,8 @@ export function buildWalkTalkFollowUpSchema(
       name: "dueDate",
       label: "Due date",
       colSpan: 6,
+      // A follow-up is work still to do — unlike the walk it came out of.
+      limit: "not-past",
     },
     {
       type: "text",
@@ -125,6 +122,8 @@ export function buildWalkTalkFollowUpSchema(
 
 export type FollowUpAction = Readonly<{
   assignedTo: string;
+  /** Kept alongside the id so the saved-action list can label the row. */
+  assignedToName: string;
   dueDate: string;
   action: string;
 }>;
@@ -139,6 +138,7 @@ export function createWalkTalkLogValues(): FormValues {
     participants: [],
     notes: "",
     assignedTo: "",
+    assignedToName: "",
     dueDate: "",
     action: "",
   };

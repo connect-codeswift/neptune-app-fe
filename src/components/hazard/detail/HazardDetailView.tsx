@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { Text } from "@/components/Text";
+import { Can } from "@/components/auth/Can";
+import { PhotoEvidence } from "@/components/shared/PhotoEvidence";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
 import type { IncidentBadgeTone } from "@/components/near-miss/IncidentBadge";
 import type { HazardRecord } from "@/app/dashboard/hazard/hazard-data";
 
-const CAPA_NEW_ROUTE = "/dashboard/capa/new";
 const sectionHeadingClass = "text3 text-ehs-darker";
 
 function statusTone(status: string): IncidentBadgeTone {
@@ -42,8 +43,10 @@ function DetailValue(props: Readonly<{ value: string }>) {
   );
 }
 
-export function HazardDetailView(props: Readonly<{ record: HazardRecord }>) {
-  const { record } = props;
+export function HazardDetailView(
+  props: Readonly<{ record: HazardRecord; onAddCapa?: () => void }>,
+) {
+  const { record, onAddCapa } = props;
 
   return (
     <div className="grid min-w-0 items-start gap-3.5 xl:grid-cols-[minmax(0,731fr)_minmax(0,405fr)]">
@@ -55,6 +58,11 @@ export function HazardDetailView(props: Readonly<{ record: HazardRecord }>) {
           <DetailField label="Description">
             <DetailValue value={record.description || "—"} />
           </DetailField>
+          {record.attachments.length > 0 ? (
+            <DetailField label="Attachments">
+              <PhotoEvidence refs={record.attachments} />
+            </DetailField>
+          ) : null}
           <div className="grid gap-x-4 gap-y-4 sm:grid-cols-2">
             <DetailField label="Type">
               <DetailValue value={record.hazardType} />
@@ -76,6 +84,17 @@ export function HazardDetailView(props: Readonly<{ record: HazardRecord }>) {
             <DetailField label="Reporter">
               <DetailValue value={record.reporter} />
             </DetailField>
+            {record.status === "Closed" ? (
+              <DetailField label="Closed by">
+                <DetailValue
+                  value={
+                    record.closedAt
+                      ? `${record.closedBy ?? "—"} · ${record.closedAt}`
+                      : (record.closedBy ?? "—")
+                  }
+                />
+              </DetailField>
+            ) : null}
           </div>
         </IncidentGlassCard>
       </div>
@@ -86,12 +105,20 @@ export function HazardDetailView(props: Readonly<{ record: HazardRecord }>) {
             <Text as="h3" className={sectionHeadingClass}>
               Related CAPAs
             </Text>
-            <Link
-              href={CAPA_NEW_ROUTE}
-              className="text4 text-ehs-normal-blue hover:text-ehs-normal-blue-hover transition-colors"
-            >
-              Add CAPA
-            </Link>
+            {/* A modal rather than a link to /capa/new, so raising a CAPA does not leave the
+                hazard. Hidden once closed: the API refuses a CAPA against a closed record, and
+                closing already requires every related CAPA to be closed. */}
+            {onAddCapa && record.status !== "Closed" ? (
+              <Can do="CAPA.Create">
+                <button
+                  type="button"
+                  onClick={onAddCapa}
+                  className="text4 text-ehs-normal-blue hover:text-ehs-normal-blue-hover cursor-pointer transition-colors"
+                >
+                  Add CAPA
+                </button>
+              </Can>
+            ) : null}
           </div>
 
           {record.relatedCapas.length > 0 ? (
@@ -99,7 +126,7 @@ export function HazardDetailView(props: Readonly<{ record: HazardRecord }>) {
               {record.relatedCapas.map((capa) => (
                 <Link
                   key={capa.id}
-                  href="/dashboard/capa"
+                  href={`/dashboard/capa/${String(capa.numericId)}`}
                   className="bg-ehs-form-classes-bg/70 hover:bg-ehs-form-classes-bg/95 flex flex-col gap-1.5 rounded-lg p-2.5 transition-colors"
                 >
                   <Text as="span" className="text7 text-ehs-normal-blue">

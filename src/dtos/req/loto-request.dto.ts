@@ -32,6 +32,7 @@ export type LotoProcedureStepRequestDto = {
   description: string;
   isolationPoint: string | null;
   energyType: string | null;
+  isolationMethod: string | null;
   lockTagPosition: string | null;
 };
 
@@ -44,7 +45,6 @@ export type UpsertLotoEquipmentRequestDto = {
   description: string | null;
   hazardLevel: LotoHazardLevelDto | null;
   isOutOfService: boolean;
-  lastInspectionAt: string | null;
   additionalNotes: string | null;
   steps: LotoProcedureStepRequestDto[];
   authorizedUserIds: number[];

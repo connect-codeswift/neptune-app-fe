@@ -12,6 +12,7 @@ import {
   createCapaTask,
   deleteCapaTask,
   dropCapa,
+  requestCapaVerification,
   submitCapaVerification,
   updateCapa,
   updateCapaTask,
@@ -20,6 +21,7 @@ import {
 } from "@/services/capa.service";
 import {
   buildCreateCapaTaskRequest,
+  normalizePriority,
   buildCapaVerificationRequest,
   buildUpdateCapaRequest,
   buildUpdateCapaTaskRequest,
@@ -172,12 +174,21 @@ export function useCreateCapaCommentMutation() {
       });
     },
     onSuccess: async (_result, variables) => {
-      await queryClient.invalidateQueries({
-        queryKey: [...capaQueryKeys.all, "comments"],
-      });
-      await queryClient.invalidateQueries({
-        queryKey: capaQueryKeys.byId(variables.capaId),
-      });
+      // Must not reject: TanStack Query awaits onSuccess and rejects
+      // `mutateAsync` if it throws, so a failed refetch here reported an
+      // already-saved record as a failed submit and invited a retry that
+      // created a duplicate. The write is done; a stale cache is not worth
+      // that.
+      try {
+        await queryClient.invalidateQueries({
+          queryKey: [...capaQueryKeys.all, "comments"],
+        });
+        await queryClient.invalidateQueries({
+          queryKey: capaQueryKeys.byId(variables.capaId),
+        });
+      } catch {
+        // Intentionally ignored — see above.
+      }
     },
   });
 }
@@ -202,18 +213,27 @@ export function useCreateCapaTaskMutation() {
       );
     },
     onSuccess: async (_result, variables) => {
-      if (variables.incidentId && variables.incidentId > 0) {
+      // Must not reject: TanStack Query awaits onSuccess and rejects
+      // `mutateAsync` if it throws, so a failed refetch here reported an
+      // already-saved record as a failed submit and invited a retry that
+      // created a duplicate. The write is done; a stale cache is not worth
+      // that.
+      try {
+        if (variables.incidentId && variables.incidentId > 0) {
+          await queryClient.invalidateQueries({
+            queryKey: capaQueryKeys.byIncident(variables.incidentId),
+          });
+        }
         await queryClient.invalidateQueries({
-          queryKey: capaQueryKeys.byIncident(variables.incidentId),
+          queryKey: capaQueryKeys.tasks(variables.capaId),
         });
+        await queryClient.invalidateQueries({
+          queryKey: capaQueryKeys.review(variables.capaId),
+        });
+        await queryClient.invalidateQueries({ queryKey: capaQueryKeys.all });
+      } catch {
+        // Intentionally ignored — see above.
       }
-      await queryClient.invalidateQueries({
-        queryKey: capaQueryKeys.tasks(variables.capaId),
-      });
-      await queryClient.invalidateQueries({
-        queryKey: capaQueryKeys.review(variables.capaId),
-      });
-      await queryClient.invalidateQueries({ queryKey: capaQueryKeys.all });
     },
   });
 }
@@ -340,6 +360,33 @@ export function useDropCapaMutation() {
   });
 }
 
+export type RequestCapaVerificationInput = Readonly<{ capaId: number }>;
+
+/**
+ * Hands a `Completed` CAPA to a verifier — `POST /capas/{id}/request-verification`.
+ *
+ * Invalidates the whole CAPA cache rather than one key: the call moves the record to
+ * `Pending Verification`, which changes its badge in the register, its position in the
+ * Awaiting Effectiveness Review card, and the buttons on its own detail page.
+ */
+export function useRequestCapaVerificationMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (input: RequestCapaVerificationInput) => {
+      const auth = getAuthContext();
+      if (!auth) {
+        throw new Error("Sign in required to request verification.");
+      }
+
+      return requestCapaVerification(input.capaId);
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: capaQueryKeys.all });
+    },
+  });
+}
+
 export function useCreateCapaMutation() {
   const queryClient = useQueryClient();
 
@@ -350,42 +397,59 @@ export function useCreateCapaMutation() {
         throw new Error("Sign in required to create a CAPA.");
       }
 
-      const capa = await createCapa(input.payload);
-      console.log("capa", capa);
+      // One request, one transaction. This used to create the CAPA and then POST each
+      // task in a loop, so any task that failed left a saved CAPA missing part of its
+      // checklist - and a CAPA with no tasks can never reach Completed, so it could not
+      // be verified or closed either. The API takes them in the create body for exactly
+      // this reason.
+      const staged = input.tasks ?? [];
+      const tasks = staged
+        .map((task) => ({
+          task: task.task.trim(),
+          dueDate: task.dueDate,
+          priority: task.priority?.trim()
+            ? normalizePriority(task.priority)
+            : "Medium",
+        }))
+        .filter(
+          (task) => task.task.length > 0 && task.dueDate.trim().length > 0,
+        );
 
-      if (capa?.id) {
-        for (const task of input.tasks ?? []) {
-          const trimmedTask = task.task.trim();
-          if (!trimmedTask) {
-            continue;
-          }
-
-          await createCapaTask(
-            buildCreateCapaTaskRequest({
-              capaId: capa.id,
-              task: trimmedTask,
-              dueDate: task.dueDate,
-              priority: task.priority,
-            }),
-          );
-        }
+      // Dropping an incomplete task silently is how a CAPA ended up created with none at
+      // all: the filter removed the only staged row and the spread below then omitted the
+      // key entirely. Such a CAPA can never leave Open, because its status is derived from
+      // its tasks. Refusing is recoverable; a dead CAPA is not.
+      if (tasks.length !== staged.length) {
+        throw new Error("Every task needs a name and a due date.");
       }
 
-      return capa;
+      return createCapa({
+        ...input.payload,
+        ...(tasks.length > 0 ? { tasks } : {}),
+      });
     },
     onSuccess: async (result, variables) => {
-      const incidentId = variables.payload.incidentId ?? 0;
-      if (incidentId > 0) {
-        await queryClient.invalidateQueries({
-          queryKey: capaQueryKeys.byIncident(incidentId),
-        });
+      // Must not reject: TanStack Query awaits onSuccess and rejects
+      // `mutateAsync` if it throws, so a failed refetch here reported an
+      // already-saved record as a failed submit and invited a retry that
+      // created a duplicate. The write is done; a stale cache is not worth
+      // that.
+      try {
+        const incidentId = variables.payload.incidentId ?? 0;
+        if (incidentId > 0) {
+          await queryClient.invalidateQueries({
+            queryKey: capaQueryKeys.byIncident(incidentId),
+          });
+        }
+        if (result?.id) {
+          await queryClient.invalidateQueries({
+            queryKey: capaQueryKeys.tasks(result.id),
+          });
+        }
+        await queryClient.invalidateQueries({ queryKey: capaQueryKeys.all });
+      } catch {
+        // Intentionally ignored — see above.
       }
-      if (result?.id) {
-        await queryClient.invalidateQueries({
-          queryKey: capaQueryKeys.tasks(result.id),
-        });
-      }
-      await queryClient.invalidateQueries({ queryKey: capaQueryKeys.all });
     },
   });
 }
@@ -445,16 +509,25 @@ export function useSubmitCapaVerificationMutation() {
       );
     },
     onSuccess: async (_result, variables) => {
-      await queryClient.invalidateQueries({
-        queryKey: capaQueryKeys.verification(variables.capaId),
-      });
-      await queryClient.invalidateQueries({
-        queryKey: capaQueryKeys.byId(variables.capaId),
-      });
-      await queryClient.invalidateQueries({
-        queryKey: capaQueryKeys.review(variables.capaId),
-      });
-      await queryClient.invalidateQueries({ queryKey: capaQueryKeys.all });
+      // Must not reject: TanStack Query awaits onSuccess and rejects
+      // `mutateAsync` if it throws, so a failed refetch here reported an
+      // already-saved record as a failed submit and invited a retry that
+      // created a duplicate. The write is done; a stale cache is not worth
+      // that.
+      try {
+        await queryClient.invalidateQueries({
+          queryKey: capaQueryKeys.verification(variables.capaId),
+        });
+        await queryClient.invalidateQueries({
+          queryKey: capaQueryKeys.byId(variables.capaId),
+        });
+        await queryClient.invalidateQueries({
+          queryKey: capaQueryKeys.review(variables.capaId),
+        });
+        await queryClient.invalidateQueries({ queryKey: capaQueryKeys.all });
+      } catch {
+        // Intentionally ignored — see above.
+      }
     },
   });
 }

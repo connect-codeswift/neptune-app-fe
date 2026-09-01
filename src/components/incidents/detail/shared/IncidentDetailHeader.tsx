@@ -3,6 +3,7 @@
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
+import { Can } from "@/components/auth/Can";
 import { Text } from "@/components/Text";
 import { toast } from "@/lib/toast";
 
@@ -29,6 +30,8 @@ export type IncidentDetailHeaderProps = Readonly<{
   hideIncidentChrome?: boolean;
   /** When true, the Closure tab is not selectable (incident already closed). */
   closureTabDisabled?: boolean;
+  /** Tabs to drop entirely — the caller decides, from capabilities and record state. */
+  hiddenTabs?: readonly TabId[];
   className?: string;
 }>;
 
@@ -45,6 +48,7 @@ export function IncidentDetailHeader(
     readOnly = false,
     hideIncidentChrome = false,
     closureTabDisabled = false,
+    hiddenTabs = [],
     className = "",
   } = props;
   const router = useRouter();
@@ -64,6 +68,8 @@ export function IncidentDetailHeader(
     { id: "linked-capa", label: "Linked CAPA" },
     { id: "closure", label: "Closure" },
   ];
+
+  const visibleTabs = tabs.filter((tab) => !hiddenTabs.includes(tab.id));
 
   return (
     <div className={["flex flex-col", className].filter(Boolean).join(" ")}>
@@ -92,20 +98,26 @@ export function IncidentDetailHeader(
 
             {activeTab !== "closure" ? (
               <div className="flex items-center gap-2">
+                {/* Save writes PUT /incidents/{id}, which checks Incident.Update.
+                    Nested inside the readOnly check rather than replacing it: the two
+                    rules are independent, and folding them together would reopen the
+                    closed-incident hole for anyone who holds the capability. */}
                 {!readOnly ? (
-                  <Button
-                    type="button"
-                    variant={isEditing ? "primary" : "tertiary"}
-                    onClick={handleEdit}
-                    isLoading={isSaving}
-                    className={
-                      isEditing
-                        ? "bg-ehs-normal-blue text-ehs-on-accent hover:bg-ehs-normal-blue-active rounded-2.5 text4 px-4 py-2 font-medium shadow-(--ehs-shadow-button-primary-flat) transition-colors disabled:opacity-50"
-                        : "text-ehs-slate rounded-2.5 text4 border-ehs-border-strong bg-ehs-surface hover:bg-ehs-surface/70 border px-4 py-2 font-medium transition-colors disabled:opacity-50"
-                    }
-                  >
-                    {isSaving ? "Saving…" : isEditing ? "Save" : "Edit"}
-                  </Button>
+                  <Can do="Incident.Update">
+                    <Button
+                      type="button"
+                      variant={isEditing ? "primary" : "tertiary"}
+                      onClick={handleEdit}
+                      isLoading={isSaving}
+                      className={
+                        isEditing
+                          ? "bg-ehs-normal-blue text-ehs-on-accent hover:bg-ehs-normal-blue-active rounded-2.5 text4 px-4 py-2 font-medium shadow-(--ehs-shadow-button-primary-flat) transition-colors disabled:opacity-50"
+                          : "text-ehs-slate rounded-2.5 text4 border-ehs-border-strong bg-ehs-surface hover:bg-ehs-surface/70 border px-4 py-2 font-medium transition-colors disabled:opacity-50"
+                      }
+                    >
+                      {isSaving ? "Saving…" : isEditing ? "Save" : "Edit"}
+                    </Button>
+                  </Can>
                 ) : null}
               </div>
             ) : null}
@@ -114,7 +126,7 @@ export function IncidentDetailHeader(
           {/* Horizontal Tabs List */}
           <div className="border-ehs-border-ink/8 mt-4 flex scrollbar-none overflow-x-auto border-b">
             <nav className="flex gap-6 px-1 whitespace-nowrap">
-              {tabs.map((tab) => {
+              {visibleTabs.map((tab) => {
                 const isActive = activeTab === tab.id;
                 const isDisabled = tab.id === "closure" && closureTabDisabled;
 

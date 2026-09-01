@@ -16,6 +16,7 @@ import {
   useUpdateRcaWhyMutation,
 } from "@/hooks/use-rca-mutations";
 import { useRcaByIncidentQuery } from "@/hooks/use-rca-queries";
+import { useCapabilities } from "@/lib/capabilities";
 import { toast } from "@/lib/toast";
 import { mapRcaHrcaLanesToHrcaRows } from "@/services/mappers/rca.mapper";
 import { HrcaCellModal } from "@/components/incidents/detail/investigations/hrca/HrcaCellModal";
@@ -42,6 +43,12 @@ export type IncidentDetailHrcaBoardProps = Readonly<{
   queryEnabled?: boolean;
   onClose?: () => void;
   meta?: HrcaMeta;
+  /**
+   * Show the worksheet as a record only. A closed incident still has an
+   * investigation worth reading, but the API refuses every RCA write against
+   * it, so the affordances would only offer requests that fail.
+   */
+  readOnly?: boolean;
   className?: string;
 }>;
 
@@ -57,8 +64,20 @@ export function IncidentDetailHrcaBoard(
     queryEnabled = true,
     onClose,
     meta = EMPTY_HRCA_META,
+    readOnly: readOnlyProp = false,
     className = "",
   } = props;
+
+  const { can } = useCapabilities();
+
+  // The worksheet writes through three separate RCA endpoints, and every cell can
+  // reach all three: editing a factor creates or updates, a why step is created and
+  // dropped, an action likewise. A role holding only some of them would get a board
+  // that fails on half its cells, so the whole thing turns read-only unless it holds
+  // all three.
+  const canEditRca =
+    can("Rca.Create") && can("Rca.Update") && can("Rca.Delete");
+  const readOnly = readOnlyProp || !canEditRca;
 
   const [cellModal, setCellModal] = useState<HrcaCellModalState | null>(null);
   const [confirmModal, setConfirmModal] =
@@ -270,6 +289,7 @@ export function IncidentDetailHrcaBoard(
 
   const handleCellSubmit = useCallback(
     async (description: string) => {
+      if (readOnly) return;
       if (!cellModal) return;
 
       const row = findRow(rows, cellModal.rowId);
@@ -382,6 +402,7 @@ export function IncidentDetailHrcaBoard(
       createFactorMutation,
       createWhysMutation,
       incidentId,
+      readOnly,
       requireContributingFactor,
       rows,
       updateActionMutation,
@@ -391,6 +412,7 @@ export function IncidentDetailHrcaBoard(
   );
 
   const handleConfirmRemove = useCallback(async () => {
+    if (readOnly) return;
     if (!confirmModal) return;
 
     const row = findRow(rows, confirmModal.rowId);
@@ -431,7 +453,14 @@ export function IncidentDetailHrcaBoard(
       );
       throw error;
     }
-  }, [confirmModal, dropActionMutation, dropWhyMutation, incidentId, rows]);
+  }, [
+    confirmModal,
+    dropActionMutation,
+    dropWhyMutation,
+    incidentId,
+    readOnly,
+    rows,
+  ]);
 
   const handlers = useMemo(
     () => ({
@@ -490,10 +519,12 @@ export function IncidentDetailHrcaBoard(
             aria-hidden="true"
           />
           <span>
-            This is an interactive worksheet — click any cell to edit, add or
-            remove Why steps, and edit corrective actions. The last step in each
-            lane is the root cause.
-            {isSaving ? " Saving changes…" : ""}
+            {readOnlyProp
+              ? "This incident is closed, so the worksheet is read-only — the investigation on record can be reviewed but no longer changed. The last step in each lane is the root cause."
+              : readOnly
+                ? "This worksheet is read-only — your role can review the investigation but not record one. The last step in each lane is the root cause."
+                : "This is an interactive worksheet — click any cell to edit, add or remove Why steps, and edit corrective actions. The last step in each lane is the root cause."}
+            {!readOnly && isSaving ? " Saving changes…" : ""}
           </span>
         </div>
 
@@ -522,13 +553,13 @@ export function IncidentDetailHrcaBoard(
             message="Seeded RCA categories (ids 1-5) are required to render the worksheet."
           />
         ) : (
-          <HrcaTable rows={rows} handlers={handlers} />
+          <HrcaTable rows={rows} handlers={handlers} readOnly={readOnly} />
         )}
 
         <p className="text-ehs-muted-text text4 leading-4.25 font-medium">
           Read each lane left → right: the contributing factor, then ask
-          &quot;Why?&quot; until you reach the root cause (ringed). Edits
-          persist on this device.
+          &quot;Why?&quot; until you reach the root cause (ringed).
+          {readOnly ? "" : " Edits persist on this device."}
         </p>
       </div>
 

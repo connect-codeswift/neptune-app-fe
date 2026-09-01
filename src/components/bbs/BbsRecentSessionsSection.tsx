@@ -72,7 +72,11 @@ export function BbsRecentSessionsSection(props: BbsRecentSessionsSectionProps) {
   const selectedCategoryId = categoryId === "" ? undefined : Number(categoryId);
 
   const observationsQuery = useBbsObservationsQuery({
-    observe: query.trim(),
+    // `observe` is the Safe / At-Risk filter, not the search box — sending the
+    // search text here is what made every typed query 400, and it left the type
+    // filter to be applied in the browser over one page of rows.
+    observe: typeFilter === "All" ? "" : typeFilter,
+    search: query.trim(),
     categoryId: selectedCategoryId,
     pageNumber,
     pageSize: DEFAULT_BBS_PAGE_SIZE,
@@ -87,17 +91,10 @@ export function BbsRecentSessionsSection(props: BbsRecentSessionsSectionProps) {
   const currentPageSize =
     observationsQuery.data?.pageSize ?? DEFAULT_BBS_PAGE_SIZE;
 
-  const filtered = useMemo(() => {
-    if (typeFilter === "All") return sessions;
-    return sessions.filter((session) => session.type === typeFilter);
-  }, [sessions, typeFilter]);
-
   const selectedSession =
     selectedId == null
       ? null
-      : (filtered.find((session) => session.id === selectedId) ??
-        sessions.find((session) => session.id === selectedId) ??
-        null);
+      : (sessions.find((session) => session.id === selectedId) ?? null);
 
   const activeSessionId: string | null = selectedSession?.id ?? null;
 
@@ -138,8 +135,10 @@ export function BbsRecentSessionsSection(props: BbsRecentSessionsSectionProps) {
     [activeSessionId, handleToggleDetailPanel, isPanelOpen],
   );
 
-  const resultLabel = `${String(filtered.length)} ${
-    filtered.length === 1 ? "session" : "sessions"
+  // The server's total for the active filters, not the page length — otherwise
+  // a filter matching 40 rows reads as "10 sessions" on every page.
+  const resultLabel = `${String(totalRecords)} ${
+    totalRecords === 1 ? "session" : "sessions"
   }`;
 
   const handleQueryChange = (next: string) => {
@@ -156,6 +155,9 @@ export function BbsRecentSessionsSection(props: BbsRecentSessionsSectionProps) {
 
   const handleTypeChange = (next: string) => {
     setTypeFilter(next as TypeFilter);
+    // Narrowing the set can leave the current page past the end of it, which
+    // reads as "no records" for a filter that actually matched plenty.
+    setPageNumber(DEFAULT_BBS_PAGE_NUMBER);
     setSelectedId(null);
   };
 
@@ -252,7 +254,7 @@ export function BbsRecentSessionsSection(props: BbsRecentSessionsSectionProps) {
                 />
               </div>
               <div className="flex flex-col gap-3 p-3.5">
-                {filtered.length === 0 ? (
+                {sessions.length === 0 ? (
                   <EmptyState
                     variant="plain"
                     icon="mdi:eye-outline"
@@ -261,7 +263,7 @@ export function BbsRecentSessionsSection(props: BbsRecentSessionsSectionProps) {
                   />
                 ) : (
                   <ul className="flex flex-col gap-3">
-                    {filtered.map((session) => (
+                    {sessions.map((session) => (
                       <li key={session.id}>
                         <BbsObservationCard
                           session={session}
@@ -339,7 +341,7 @@ export function BbsRecentSessionsSection(props: BbsRecentSessionsSectionProps) {
           >
             <Table
               variant="compliance"
-              data={filtered}
+              data={sessions}
               columns={columns}
               getRowId={(row) => row.id}
               selectedRowId={activeSessionId}

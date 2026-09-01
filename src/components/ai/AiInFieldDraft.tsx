@@ -10,6 +10,12 @@ export type AiInFieldDraftProps = Readonly<{
   onAccept: (text: string) => void;
   onDismiss: () => void;
   /**
+   * Draft again from the answers as they now stand. Omitted while there is
+   * nothing to redraft from — the control is only offered once a first draft
+   * has come back, so it can never fire the same call twice.
+   */
+  onRegenerate?: () => void;
+  /**
    * Padding and type metrics of the textarea this sits over.
    *
    * Defaults to `FIELD_TEXTAREA_WITH_CONTROLS_CLASS`, which the incident wizard
@@ -42,6 +48,7 @@ export function AiInFieldDraft(props: Readonly<AiInFieldDraftProps>) {
     pending = false,
     onAccept,
     onDismiss,
+    onRegenerate,
     fieldPaddingClassName = "px-3.25 pt-[11px]",
     fieldTextClassName = "text-3.25 leading-[19.5px]",
   } = props;
@@ -101,6 +108,18 @@ export function AiInFieldDraft(props: Readonly<AiInFieldDraftProps>) {
         <span className="text-ehs-muted-text hidden min-w-0 flex-1 truncate text-[11px] sm:block">
           Start typing to write your own
         </span>
+
+        {onRegenerate ? (
+          <button
+            type="button"
+            onClick={onRegenerate}
+            title="Draft this again"
+            aria-label="Draft this again"
+            className="text-ehs-muted-text hover:text-ehs-dark-blue focus-visible:ring-ehs-normal-blue/30 bg-ehs-surface border-ehs-border-ink/12 inline-flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full border transition-colors focus-visible:ring-2 focus-visible:outline-none"
+          >
+            <Icon icon="mdi:refresh" className="size-4" aria-hidden="true" />
+          </button>
+        ) : null}
 
         <button
           type="button"

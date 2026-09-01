@@ -100,6 +100,7 @@ function mapStoredFile(raw: unknown): StoredFileResponseDto {
     mimeType: asString(readProp(raw, "mimeType", "MimeType")) ?? "",
     sizeBytes: asNumber(readProp(raw, "sizeBytes", "SizeBytes")) ?? 0,
     downloadUrl,
+    previewUrl: asString(readProp(raw, "previewUrl", "PreviewUrl")) || null,
     thumbnailUrl:
       asString(readProp(raw, "thumbnailUrl", "ThumbnailUrl")) || null,
     createdDate: asString(readProp(raw, "createdDate", "CreatedDate")) ?? "",
@@ -130,7 +131,7 @@ export async function putFileToSignedUrl(
   });
   if (!response.ok) {
     throw new HttpError({
-      message: "Upload was not completed",
+      message: `Upload was not completed (HTTP ${String(response.status)})`,
       status: response.status,
     });
   }

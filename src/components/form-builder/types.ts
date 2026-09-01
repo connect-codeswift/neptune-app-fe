@@ -1,3 +1,4 @@
+import { cantBeFuture, cantBePast } from "@/lib/date-time-field";
 import type { ReactNode } from "react";
 import type { FileModule } from "@/dtos/req/files-request.dto";
 
@@ -66,12 +67,41 @@ export type DateFieldConfig = BaseField &
   Readonly<{
     type: "date";
     placeholder?: string;
+    /**
+     * Earliest / latest selectable date, as `YYYY-MM-DD`. Left unset the field
+     * accepts any date, which is right for a field recording when something
+     * happened and wrong for one scheduling something: a scheduled date sets
+     * `min` to today, a date being recalled sets `max`.
+     */
+    min?: string;
+    max?: string;
+    /**
+     * The same bound expressed against today, resolved at render rather than
+     * baked into the schema — a schema declared as a module constant would
+     * otherwise pin whatever "today" was when the bundle first evaluated, and a
+     * tab left open overnight would keep yesterday's limit.
+     *
+     * - `"not-past"` — today or later. Deadlines and schedules: a due date
+     *   created in the past is born overdue.
+     * - `"not-future"` — today or earlier. Records of something that already
+     *   happened: an observation cannot be dated next week.
+     *
+     * An explicit {@link min} / {@link max} wins over this.
+     */
+    limit?: "not-past" | "not-future";
   }>;
 
 export type TimeFieldConfig = BaseField &
   Readonly<{
     type: "time";
     placeholder?: string;
+    /**
+     * Earliest / latest selectable time, as `HH:MM`. A time carries no date, so
+     * a bound here only means anything once the day is already fixed — pair it
+     * with the sibling date field rather than setting it alone.
+     */
+    min?: string;
+    max?: string;
   }>;
 
 /** Paging controls for an option list fetched one page at a time from an API. */
@@ -124,10 +154,33 @@ export type SelectFieldConfig = BaseField &
   }>;
 
 /** What a textarea hands its assistant so the assistant can write back. */
+/** Renders the AI assist controls for a textarea field. */
+export type TextareaAssistant = (field: TextareaAssistantField) => ReactNode;
+
 export type TextareaAssistantField = Readonly<{
   value: string;
   onChange: (next: string) => void;
 }>;
+
+/**
+ * Multi-select over a fixed option list: a dropdown whose picks render as
+ * removable chips, sharing {@link SelectFieldConfig}'s field chrome.
+ *
+ * The dropdown is the point. {@link ChipsFieldConfig} renders every option as
+ * an always-visible pill, which reads well for a handful of tags and badly for
+ * a list that grows — a site's chemical inventory runs to hundreds. This is the
+ * option-list counterpart to {@link PersonMultiFieldConfig}, which solves the
+ * same problem for people.
+ *
+ * The value is a `string[]` of option values.
+ */
+export type SelectMultiFieldConfig = BaseField &
+  Readonly<{
+    type: "select-multi";
+    placeholder?: string;
+    options: readonly SelectOption[];
+    disabled?: boolean;
+  }>;
 
 export type TextareaFieldConfig = BaseField &
   Readonly<{
@@ -150,7 +203,7 @@ export type TextareaFieldConfig = BaseField &
      * textarea gains a `relative` wrapper and a reserved strip along the bottom
      * so typed text never runs under the buttons.
      */
-    assistant?: (field: TextareaAssistantField) => ReactNode;
+    assistant?: TextareaAssistant;
   }>;
 
 /** Tag picker: options render as toggleable pills, value is the chosen set. */
@@ -176,7 +229,20 @@ export type ChipsFieldConfig = BaseField &
 export type PersonMultiFieldConfig = BaseField &
   Readonly<{
     type: "person-multi";
-    options: readonly SelectOption[];
+    /** Where people are loaded from. Mirrors {@link PersonFieldConfig}. */
+    usersSource?: "site" | "org";
+    /** Site whose roster is searched when `usersSource` is `site`. `0` disables. */
+    siteId?: number;
+    siteName?: string | null;
+    /** Form value key for the display names. Defaults to `${name}Names`. */
+    displayNamesField?: string;
+    /** User ids to hide from the option list. */
+    excludeUserIds?: readonly string[];
+    /** Hide the signed-in user from the option list. Opt-in; defaults to false. */
+    excludeSelf?: boolean;
+    /** Accept a typed name that matches nobody. Opt-in; defaults to false. */
+    allowFreeText?: boolean;
+    maxSelected?: number;
     placeholder?: string;
     /** Render the control read-only — the current selection is fixed. */
     disabled?: boolean;
@@ -212,8 +278,9 @@ export type PhotoFieldConfig = BaseField &
      * `image` (default) = photos only, thumbnail grid.
      * `files` = images + PDF/DOC, Figma-style row list.
      * `pdf` = PDF only (SDS sheets).
+     * `media` = photos and videos, nothing else.
      */
-    accept?: "image" | "files" | "pdf";
+    accept?: "image" | "files" | "pdf" | "media";
     /** List presentation. Defaults to `grid` for images, `rows` for files. */
     listVariant?: "grid" | "rows";
     /** Hide the field label (e.g. tab already titles the section). */
@@ -227,6 +294,12 @@ export type PhotoFieldConfig = BaseField &
      * `cloudinary` = unsigned client upload; the field value is the secure URL.
      */
     storage?: "files" | "cloudinary";
+    /**
+     * Store `name|||sizeLabel|||ref` instead of a bare ref, so the filename survives
+     * submit — a files-API ref is a bare uuid and the name is otherwise local state.
+     * Opt-in: Hazard sends `photos[0]` straight to its endpoint and wants the ref.
+     */
+    storeFileName?: boolean;
   }>;
 
 /** Colour family for a tile — drives its tint, border and icon. */
@@ -288,9 +361,9 @@ export type PersonFieldConfig = BaseField &
     /**
      * Where the picker loads people from.
      * - `site` (default): GET /api/v1/sites/{siteId}/users
-     * - `dropdown`: GET /api/v1/users/dropdown (client-filtered)
+     * - `org`: GET /api/v1/users/dropdown (client-filtered)
      */
-    usersSource?: "site" | "dropdown";
+    usersSource?: "site" | "org";
     /** Site whose roster is searched when `usersSource` is `site`. `0` disables. */
     siteId?: number;
     siteName?: string | null;
@@ -301,12 +374,12 @@ export type PersonFieldConfig = BaseField &
     /** Hide the signed-in user from the option list. Opt-in; defaults to false. */
     excludeSelf?: boolean;
     /**
-     * Require a picked person — on blur, a typed name with no matching
-     * selection is cleared rather than kept as free text. Opt-in; defaults to
-     * false, which is the affected-person behaviour (contractors/visitors
-     * with no account still need to be recorded by name).
+     * Keep a typed name that matches nobody, rather than clearing it on blur.
+     * Opt-in, because most fields file a `userId` the backend needs; the
+     * incident report turns it on so a contractor or visitor with no account
+     * can still be recorded by name.
      */
-    selectionOnly?: boolean;
+    allowFreeText?: boolean;
   }>;
 
 /**
@@ -326,6 +399,7 @@ export type FieldConfig =
   | DateFieldConfig
   | TimeFieldConfig
   | SelectFieldConfig
+  | SelectMultiFieldConfig
   | TextareaFieldConfig
   | CheckboxGroupFieldConfig
   | ChipsFieldConfig
@@ -339,6 +413,18 @@ export type FieldConfig =
 
 export type FormSchema = readonly FieldConfig[];
 
+/** Earliest date the field accepts, once {@link DateFieldConfig.limit} is resolved. */
+export function dateFieldMin(field: DateFieldConfig): string | undefined {
+  if (field.min) return field.min;
+  return field.limit === "not-past" ? cantBePast().bound : undefined;
+}
+
+/** Latest date the field accepts, once {@link DateFieldConfig.limit} is resolved. */
+export function dateFieldMax(field: DateFieldConfig): string | undefined {
+  if (field.max) return field.max;
+  return field.limit === "not-future" ? cantBeFuture().bound : undefined;
+}
+
 /** Build the initial (empty) value map for a schema. */
 export function createInitialValues(schema: FormSchema): FormValues {
   const values: FormValues = {};
@@ -349,6 +435,7 @@ export function createInitialValues(schema: FormSchema): FormValues {
       field.type === "checkbox-group" ||
       field.type === "photo" ||
       field.type === "chips" ||
+      field.type === "select-multi" ||
       field.type === "person-multi";
 
     if (field.type === "switch") {

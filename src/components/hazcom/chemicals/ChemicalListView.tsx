@@ -1,6 +1,12 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
+import Link from "next/link";
+import { Icon } from "@iconify/react";
+import {
+  TABLE_HEADER_ACTION_ICON_CLASS,
+  TABLE_HEADER_SECONDARY_ACTION_CLASS,
+} from "@/components/ui/table-header-action";
 import { Text } from "@/components/Text";
 import {
   HazcomDetailPanel,
@@ -12,11 +18,17 @@ import {
   HazcomRegisterHeader,
 } from "@/components/hazcom/shared";
 import { ChemicalListTable } from "@/components/hazcom/chemicals/ChemicalListTable";
+import { Button } from "@/components/ui/Button";
 import { ModuleSearchBar } from "@/components/ui/ModuleSearchBar";
 import {
+  CHEMICAL_STATUS_FILTER_OPTIONS,
   chemicalMatchesSearch,
+  chemicalMatchesStatus,
   exportChemicalsToCsv,
+  type ChemicalStatusFilter,
 } from "@/components/hazcom/chemicals/chemical-utils";
+import { ModuleFilterBar } from "@/components/ui/ModuleFilterBar";
+import { isoToMmDdYyyy } from "@/lib/date-time-field";
 import {
   DEFAULT_CHEMICALS_PAGE_NUMBER,
   DEFAULT_CHEMICALS_PAGE_SIZE,
@@ -30,6 +42,7 @@ export type ChemicalListViewProps = Readonly<{
 export function ChemicalListView(props: Readonly<ChemicalListViewProps>) {
   const { className = "" } = props;
   const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<ChemicalStatusFilter>("All");
   const [pageNumber, setPageNumber] = useState(DEFAULT_CHEMICALS_PAGE_NUMBER);
   const [pageSize] = useState(DEFAULT_CHEMICALS_PAGE_SIZE);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -50,10 +63,12 @@ export function ChemicalListView(props: Readonly<ChemicalListViewProps>) {
    */
   const filteredChemicals = useMemo(
     () =>
-      chemicals.filter((chemical) =>
-        chemicalMatchesSearch(chemical, searchQuery),
+      chemicals.filter(
+        (chemical) =>
+          chemicalMatchesStatus(chemical, statusFilter) &&
+          chemicalMatchesSearch(chemical, searchQuery),
       ),
-    [chemicals, searchQuery],
+    [chemicals, searchQuery, statusFilter],
   );
 
   const selectedChemical = useMemo(
@@ -98,6 +113,12 @@ export function ChemicalListView(props: Readonly<ChemicalListViewProps>) {
           value: selectedChemical.addedOn || "—",
         },
         {
+          label: "Expiry date",
+          value: selectedChemical.expiryDate
+            ? isoToMmDdYyyy(selectedChemical.expiryDate)
+            : "None recorded",
+        },
+        {
           label: "SDS file",
           value: selectedChemical.sdsFileName ?? "Not linked",
         },
@@ -134,10 +155,24 @@ export function ChemicalListView(props: Readonly<ChemicalListViewProps>) {
         subtitle="All hazardous chemicals on-site — quantities, locations, and SDS links"
       />
 
+      <ModuleFilterBar
+        segments={[
+          {
+            label: "Status",
+            options: [...CHEMICAL_STATUS_FILTER_OPTIONS],
+            value: statusFilter,
+            onChange: (next) => {
+              setStatusFilter(next as ChemicalStatusFilter);
+              setSelectedId(null);
+            },
+          },
+        ]}
+      />
+
       <ModuleSearchBar
         value={searchQuery}
         onChange={handleSearchChange}
-        placeholder="Search by ID, name, CAS#, location..."
+        placeholder="Search by ID, name, CAS#, location, hazard..."
         aria-label="Search chemicals"
         resultLabel={resultLabel}
       />
@@ -182,7 +217,28 @@ export function ChemicalListView(props: Readonly<ChemicalListViewProps>) {
                     disabled: chemicals.length === 0,
                     onClick: () => exportChemicalsToCsv(chemicals),
                   }}
-                />
+                >
+                  {/* Export owns secondaryAction, so Import goes in the slot
+                      beside it. Adding one chemical is the primary path; adding
+                      a hundred is this. */}
+                  <Link
+                    href="/dashboard/hazcom/chemicals/import"
+                    className="shrink-0"
+                  >
+                    <Button
+                      type="button"
+                      variant="tertiary"
+                      className={TABLE_HEADER_SECONDARY_ACTION_CLASS}
+                    >
+                      <Icon
+                        icon="mdi:database-import-outline"
+                        className={TABLE_HEADER_ACTION_ICON_CLASS}
+                        aria-hidden="true"
+                      />
+                      Import
+                    </Button>
+                  </Link>
+                </HazcomRegisterHeader>
               }
             />
 

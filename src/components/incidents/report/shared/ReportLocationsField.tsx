@@ -2,8 +2,12 @@
 
 import { useId, useMemo, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
-import { ReportFieldError, ReportFieldLabel } from "./ReportFormField";
-import { INCIDENT_LOCATION_OPTIONS } from "./report-locations";
+import {
+  ReportFieldError,
+  ReportFieldHint,
+  ReportFieldLabel,
+} from "./ReportFormField";
+import { useLocationsQuery } from "@/hooks/use-location-queries";
 import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
 import { useDismissOnOutsideClick } from "@/hooks/use-dismiss-on-outside-click";
 
@@ -63,8 +67,10 @@ function isSelected(locations: readonly string[], value: string): boolean {
 }
 
 /**
- * Multi-select location picker: choose from the site list or add a custom area.
- * Kept separate from the auto-assigned plant / site field above it.
+ * Single-select location picker: choose one place from the site list or add a
+ * custom area. An incident happens in exactly one location, so picking another
+ * replaces the current choice. Kept separate from the auto-assigned plant /
+ * site field above it.
  */
 export function ReportLocationsField(
   props: Readonly<ReportLocationsFieldProps>,
@@ -101,45 +107,50 @@ export function ReportLocationsField(
     setAddError(null);
   });
 
+  // The site's own location register, not a hardcoded set of plant areas. The old
+  // constant listed "Line 1", "Press #4" and friends, so the locations a site actually
+  // configured and the ones an incident could be filed against were unrelated lists.
+  const locationsQuery = useLocationsQuery();
+
   const dropdownOptions = useMemo(() => {
-    const seedLabels = new Set(
-      INCIDENT_LOCATION_OPTIONS.map((option) => option.label.toLowerCase()),
+    const registerOptions = (locationsQuery.data ?? []).map((location) => ({
+      value: location.name,
+      label: location.name,
+    }));
+
+    const registerLabels = new Set(
+      registerOptions.map((option) => option.label.toLowerCase()),
     );
+
+    // Anything already on this report that the register does not list stays offered —
+    // a custom entry the reporter typed, or a location retired since the report was
+    // started. Dropping it would silently clear a selection they already made.
     const extras = [...customLocations, ...locations].filter(
-      (entry) => !seedLabels.has(entry.toLowerCase()),
+      (entry) => !registerLabels.has(entry.toLowerCase()),
     );
 
     return [
-      ...INCIDENT_LOCATION_OPTIONS,
+      ...registerOptions,
       ...dedupeLocations(extras).map((entry) => ({
         value: entry,
         label: entry,
       })),
     ];
-  }, [customLocations, locations]);
+  }, [customLocations, locations, locationsQuery.data]);
 
-  const toggleLocation = (value: string) => {
+  const selectLocation = (value: string) => {
     const normalized = normalizeLocationEntry(value);
     if (!normalized) {
       return;
     }
 
-    if (isSelected(locations, normalized)) {
-      onChange(
-        locations.filter(
-          (entry) => locationKey(entry) !== locationKey(normalized),
-        ),
-      );
-      return;
-    }
-
-    onChange(dedupeLocations([...locations, normalized]));
+    // Re-picking the current value clears it; picking anything else replaces it.
+    onChange(isSelected(locations, normalized) ? [] : [normalized]);
+    setOpen(false);
   };
 
-  const removeLocation = (target: string) => {
-    onChange(
-      locations.filter((entry) => locationKey(entry) !== locationKey(target)),
-    );
+  const removeLocation = () => {
+    onChange([]);
   };
 
   const commitCustom = () => {
@@ -153,27 +164,19 @@ export function ReportLocationsField(
       (option) => locationKey(option.label) === locationKey(trimmed),
     );
 
-    if (exists && isSelected(locations, trimmed)) {
-      setAddError("That location is already selected.");
-      return;
-    }
-
     if (!exists) {
       onCustomLocationsChange(dedupeLocations([...customLocations, trimmed]));
     }
 
-    onChange(dedupeLocations([...locations, trimmed]));
+    onChange([trimmed]);
     setDraft("");
     setAddError(null);
     setIsAdding(false);
+    setOpen(false);
   };
 
-  const summary =
-    locations.length === 0
-      ? placeholder
-      : locations.length === 1
-        ? locations[0]
-        : `${String(locations.length)} locations selected`;
+  const selected = locations[0] ?? null;
+  const summary = selected ?? placeholder;
 
   return (
     <div
@@ -183,37 +186,7 @@ export function ReportLocationsField(
         .join(" ")}
       data-field-error={error ? "true" : undefined}
     >
-      <ReportFieldLabel label={label} required={required} hint={hint} />
-
-      {locations.length > 0 ? (
-        <div className="flex flex-wrap gap-1.5">
-          {locations.map((entry) => (
-            <span
-              key={locationKey(entry)}
-              className="border-ehs-border bg-ehs-light-bg text-ehs-darker text-3.25 inline-flex max-w-full shrink-0 items-center gap-1 rounded-full border py-0.5 pr-1 pl-2.5 font-medium"
-            >
-              <Icon
-                icon="mdi:map-marker-outline"
-                className="text-ehs-dark-blue size-3 shrink-0"
-                aria-hidden="true"
-              />
-              <span className="truncate">{entry}</span>
-              <button
-                type="button"
-                onClick={() => removeLocation(entry)}
-                aria-label={`Remove location ${entry}`}
-                className="text-ehs-muted-text hover:text-ehs-darker inline-flex shrink-0 cursor-pointer items-center justify-center rounded-full p-0.5 transition-colors"
-              >
-                <Icon
-                  icon="mdi:close"
-                  className="size-3.5"
-                  aria-hidden="true"
-                />
-              </button>
-            </span>
-          ))}
-        </div>
-      ) : null}
+      <ReportFieldLabel label={label} required={required} />
 
       <div className="relative">
         <button
@@ -229,11 +202,12 @@ export function ReportLocationsField(
           onClick={() => setOpen((current) => !current)}
           className={[
             FIELD_INPUT_CLASS,
-            "flex w-full items-center gap-2 pr-9 text-left",
+            "flex w-full items-center gap-2 text-left",
+            selected === null ? "pr-9" : "pr-16",
             open
               ? "border-ehs-normal-blue ring-ehs-normal-blue/[0.15] ring-0.75"
               : "",
-            locations.length > 0 ? "" : "text-ehs-muted-text",
+            selected === null ? "text-ehs-muted-text" : "",
           ]
             .filter(Boolean)
             .join(" ")}
@@ -245,6 +219,17 @@ export function ReportLocationsField(
           />
           <span className="min-w-0 flex-1 truncate font-medium">{summary}</span>
         </button>
+
+        {selected !== null ? (
+          <button
+            type="button"
+            onClick={removeLocation}
+            aria-label={`Clear location ${selected}`}
+            className="text-ehs-muted-text hover:text-ehs-darker absolute top-1/2 right-8 inline-flex -translate-y-1/2 cursor-pointer items-center justify-center rounded-full p-0.5 transition-colors"
+          >
+            <Icon icon="mdi:close" className="size-3.5" aria-hidden="true" />
+          </button>
+        ) : null}
 
         <Icon
           icon="mdi:chevron-down"
@@ -261,22 +246,25 @@ export function ReportLocationsField(
               id={listboxId}
               role="listbox"
               aria-label={label}
-              aria-multiselectable="true"
               className="max-h-52 overflow-y-auto p-1"
             >
               {dropdownOptions.map((option) => {
-                const selected = isSelected(locations, option.label);
+                const isCurrent = isSelected(locations, option.label);
 
                 return (
-                  <li key={option.value} role="option" aria-selected={selected}>
+                  <li
+                    key={option.value}
+                    role="option"
+                    aria-selected={isCurrent}
+                  >
                     <button
                       type="button"
                       tabIndex={-1}
                       onMouseDown={(event) => event.preventDefault()}
-                      onClick={() => toggleLocation(option.label)}
+                      onClick={() => selectLocation(option.label)}
                       className={[
                         "rounded-2 flex w-full cursor-pointer items-center gap-2 px-2.5 py-2 text-left text-[14px] transition-colors",
-                        selected
+                        isCurrent
                           ? "text-ehs-dark-blue bg-ehs-normal-blue/10 font-semibold"
                           : "text-ehs-dark-bg hover:bg-ehs-normal-blue/6",
                       ].join(" ")}
@@ -284,7 +272,7 @@ export function ReportLocationsField(
                       <span className="min-w-0 flex-1 truncate">
                         {option.label}
                       </span>
-                      {selected ? (
+                      {isCurrent ? (
                         <Icon
                           icon="mdi:check"
                           className="size-4 shrink-0"
@@ -360,9 +348,11 @@ export function ReportLocationsField(
         ) : null}
       </div>
 
-      <p className="text-ehs-muted-text text-xs">
-        Select one or more locations from the list, or add your own.
-      </p>
+      {error ? null : (
+        <ReportFieldHint>
+          {hint ?? "Select a location from the list, or add your own."}
+        </ReportFieldHint>
+      )}
 
       {error ? <ReportFieldError id={errorId}>{error}</ReportFieldError> : null}
     </div>

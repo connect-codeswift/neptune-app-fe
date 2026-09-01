@@ -21,6 +21,8 @@ export function buildApplyLockoutSchema(): FormSchema {
       type: "date",
       label: "Expected Completion",
       colSpan: 6,
+      // The lockout starts now, so work cannot be expected to finish before it.
+      limit: "not-past",
     },
     {
       name: "purpose",

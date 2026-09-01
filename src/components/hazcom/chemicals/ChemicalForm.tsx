@@ -22,10 +22,22 @@ import { HazcomSdsAutofillPicker } from "@/components/hazcom/sds/HazcomSdsAutofi
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
 import { splitQuantity } from "@/components/hazcom/chemicals/chemical-utils";
+import {
+  CHEMICAL_STATUS_OPTIONS as STATUS_OPTIONS,
+  HAZARD_CATEGORY_OPTIONS,
+  SIGNAL_WORDS,
+} from "@/components/hazcom/chemicals/chemical-options";
 import type { ChemicalRequestDto } from "@/dtos/req/hazcom-request.dto";
+import { DateInput } from "@/components/inputs/DateInput";
+import { isoToMmDdYyyy, mmDdYyyyToIso } from "@/lib/date-time-field";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useSubmitLock } from "@/hooks/use-submit-lock";
 import { useCreateChemicalMutation } from "@/hooks/use-hazcom-mutations";
-import { fetchSdsLabel, hazcomQueryKeys } from "@/hooks/use-hazcom-queries";
+import {
+  fetchSdsLabel,
+  hazcomQueryKeys,
+  useChemicalCasLookup,
+} from "@/hooks/use-hazcom-queries";
 import { parseRecordNumericId } from "@/lib/format-record-id";
 import { toast } from "@/lib/toast";
 import type { HazcomSdsSearchResult } from "@/services/mappers/hazcom-sds.mapper";
@@ -36,27 +48,7 @@ export type ChemicalFormProps = Readonly<{
   className?: string;
 }>;
 
-const STATUS_OPTIONS = [
-  { value: "Active", label: "Active" },
-  { value: "Inactive", label: "Inactive" },
-] as const;
-
-/**
- * GHS hazard category — the severity level, where Category 1 is the most
- * severe. The *kind* of hazard is captured by the GHS Pictograms field below,
- * so this field carries the level only.
- */
-const HAZARD_CATEGORY_OPTIONS = [
-  { value: "", label: "Select category" },
-  { value: "Category 1", label: "Category 1 (most severe)" },
-  { value: "Category 2", label: "Category 2" },
-  { value: "Category 3", label: "Category 3" },
-  { value: "Category 4", label: "Category 4" },
-  { value: "Category 5", label: "Category 5 (least severe)" },
-] as const;
-
 const CHEMICALS_LIST_ROUTE = "/dashboard/hazcom/chemicals";
-const SIGNAL_WORDS = ["Danger", "Warning"] as const;
 const actionClass = "text4 h-9.5 rounded-2.5 px-4 sm:px-5";
 
 /**
@@ -94,6 +86,8 @@ type ChemicalFormValues = Readonly<{
   signalWord: HazcomSignalWord;
   sdsLink: string;
   status: string;
+  /** `MM/DD/YYYY` from the picker; converted on the way out. */
+  expiryDate: string;
   pictograms: readonly HazcomPictogram[];
   notes: string;
 }>;
@@ -153,6 +147,11 @@ function toChemicalRequest(
     // otherwise.
     status: values.status === "" ? "Active" : values.status,
     notes: values.notes.trim(),
+    // Midnight UTC, not the local moment: an expiry is a day, and a local
+    // offset would file a 1 Jan expiry as 31 Dec for anyone west of UTC.
+    expiryDate: values.expiryDate.trim()
+      ? `${mmDdYyyyToIso(values.expiryDate)}T00:00:00.000Z`
+      : null,
     linkToSdsRecord: values.sdsLink.trim(),
     isDraft: options.isDraft,
   };
@@ -189,6 +188,14 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const saveChemical = useCreateChemicalMutation();
+  // The CAS uniqueness check below needs the whole register; this is the
+  // one-page snapshot backing it. A value still loading simply skips the check
+  // (the backend remains the source of truth if it ever adds a constraint).
+  const { casToId } = useChemicalCasLookup();
+  // Held past the response: `isPending` drops when the record is saved, while
+  // the navigation away is still in flight. A click in that gap saved a
+  // duplicate.
+  const submitLock = useSubmitLock();
   const [isAutofilling, setIsAutofilling] = useState(false);
   const initialQuantity = chemical
     ? splitQuantity(chemical.quantity)
@@ -212,6 +219,47 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
     chemical?.pictograms ?? [],
   );
   const [notes, setNotes] = useState(chemical?.storageNotes ?? "");
+  const [expiryDate, setExpiryDate] = useState(
+    isoToMmDdYyyy(chemical?.expiryDate ?? ""),
+  );
+
+  // What the fields were seeded with, kept for the dirty check below.
+  const [initialValues] = useState<ChemicalFormValues>(() => ({
+    name: chemical?.name ?? "",
+    casNumber: chemical?.casNumber ?? "",
+    hazardClass: chemical?.hazardClass ?? "",
+    location: chemical?.location ?? "",
+    disposeLocation: chemical?.disposeLocation ?? "",
+    quantityAmount: initialQuantity.amount,
+    quantityUnit: initialQuantity.unit,
+    signalWord: chemical?.signalWord ?? "Danger",
+    sdsLink: chemical?.sdsFileName ?? "",
+    status: chemical?.status ?? "Active",
+    expiryDate: isoToMmDdYyyy(chemical?.expiryDate ?? ""),
+    pictograms: chemical?.pictograms ?? [],
+    notes: chemical?.storageNotes ?? "",
+  }));
+
+  const values: ChemicalFormValues = {
+    name,
+    casNumber,
+    hazardClass,
+    location,
+    disposeLocation,
+    quantityAmount,
+    quantityUnit,
+    signalWord,
+    sdsLink,
+    status,
+    expiryDate,
+    pictograms,
+    notes,
+  };
+
+  // Saving a draft that is byte-for-byte the untouched form only adds a row
+  // nobody meant to create, so the button appears once something is actually
+  // typed, toggled or picked.
+  const isDirty = JSON.stringify(values) !== JSON.stringify(initialValues);
 
   function togglePictogram(pictogram: HazcomPictogram) {
     setPictograms((current) =>
@@ -268,21 +316,6 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
    * inventory list.
    */
   function save(isDraft: boolean) {
-    const values: ChemicalFormValues = {
-      name,
-      casNumber,
-      hazardClass,
-      location,
-      disposeLocation,
-      quantityAmount,
-      quantityUnit,
-      signalWord,
-      sdsLink,
-      status,
-      pictograms,
-      notes,
-    };
-
     // A draft is allowed to be incomplete, but it still needs a name to be
     // identifiable in the drafts list.
     const missing = isDraft
@@ -304,6 +337,22 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
       return;
     }
 
+    // CAS numbers are unique: a different chemical can't reuse one. In edit
+    // mode the record's own CAS is allowed (it hasn't changed — the field is
+    // read-only here anyway), so its own id is excluded from the conflict.
+    const normalizedCas = casNumber.trim().toLowerCase();
+    if (normalizedCas !== "") {
+      const holderId = casToId.get(normalizedCas);
+      if (holderId !== undefined && holderId !== existingId) {
+        toast.error("A chemical with this CAS number already exists");
+        return;
+      }
+    }
+
+    if (!submitLock.acquire()) {
+      return;
+    }
+
     saveChemical.mutate(toChemicalRequest(values, { isDraft, existingId }), {
       onSuccess: () => {
         toast.success(
@@ -316,6 +365,7 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
         router.push(isDraft ? CHEMICALS_LIST_ROUTE : cancelHref);
       },
       onError: (error) => {
+        submitLock.release();
         toast.error(
           getMutationErrorMessage(
             error,
@@ -362,6 +412,12 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
                 value={casNumber}
                 onChange={(event) => setCasNumber(event.target.value)}
                 placeholder="e.g. 7647-01-0"
+                readOnly={mode === "edit"}
+                helperText={
+                  mode === "edit"
+                    ? "CAS number can't be edited once the chemical is created."
+                    : undefined
+                }
               />
               <HazcomTextField
                 label="Link to SDS Record"
@@ -405,6 +461,13 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
                 onChange={(value) => {
                   setStatus(value as "Active" | "Inactive");
                 }}
+              />
+              <DateInput
+                label="Expiry Date"
+                trailingHint="Optional"
+                value={expiryDate}
+                onChange={setExpiryDate}
+                placeholder="MM/DD/YYYY"
               />
             </div>
           </FormSection>
@@ -483,22 +546,24 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
           </Link>
 
           <div className="flex flex-wrap items-center gap-2">
-            <Button
-              type="button"
-              variant="secondary"
-              className={actionClass}
-              disabled={saveChemical.isPending}
-              onClick={() => save(true)}
-            >
-              Save as Draft
-            </Button>
+            {isDirty ? (
+              <Button
+                type="button"
+                variant="secondary"
+                className={actionClass}
+                disabled={submitLock.isLocked}
+                onClick={() => save(true)}
+              >
+                Save as Draft
+              </Button>
+            ) : null}
             <Button
               type="submit"
               variant="primary"
               className={actionClass}
-              isLoading={saveChemical.isPending}
+              isLoading={submitLock.isLocked}
             >
-              {saveChemical.isPending ? "Saving..." : primaryLabel}
+              {submitLock.isLocked ? "Saving..." : primaryLabel}
             </Button>
           </div>
         </div>

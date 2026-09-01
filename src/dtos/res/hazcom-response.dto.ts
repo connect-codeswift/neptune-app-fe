@@ -61,6 +61,8 @@ export type ChemicalDto = PersistedEntityDto & {
   status: string | null;
   ghsPictograms: string | null;
   notes: string | null;
+  /** ISO-8601 date-time, or null when the chemical has no expiry on file. */
+  expiryDate: string | null;
   isDraft: boolean;
   /** Soft delete. Every read already filters `!IsDrop`, so this is always false. */
   isDrop: boolean;

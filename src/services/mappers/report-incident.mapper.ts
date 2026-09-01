@@ -1,15 +1,15 @@
 import {
   applySeverityFieldDefaults,
   type ReportIncidentFormState,
-} from "@/components/incidents/report/shared/report-incident-state";
+} from "@/forms/incident-module/form-state";
 import {
   formatBodyPartSelection,
   BODY_PART_OPTIONS,
-} from "@/components/incidents/report/shared/report-body-parts";
-import { INJURY_LEVEL_OPTIONS } from "@/components/incidents/report/shared/report-injury-level";
-import { SEVERITY_OPTIONS } from "@/components/incidents/report/shared/report-severity";
-import { isSeriousIncidentClassification } from "@/components/incidents/report/shared/report-classification";
-import type { ClassificationValue } from "@/components/incidents/report/shared/report-classification";
+} from "@/forms/incident-module/body-parts";
+import { INJURY_LEVEL_OPTIONS } from "@/forms/incident-module/injury-level";
+import { SEVERITY_OPTIONS } from "@/forms/incident-module/severity";
+import { isSeriousIncidentClassification } from "@/forms/incident-module/classification";
+import type { ClassificationValue } from "@/forms/incident-module/classification";
 import {
   CASE_DISPOSITION_OPTIONS,
   INITIAL_TREATMENT_OPTIONS,
@@ -18,8 +18,11 @@ import {
   TREATMENT_LOCATION_OPTIONS,
   TREATMENT_PROVIDER_OPTIONS,
   WHAT_TREATMENT_GIVEN_OPTIONS,
-} from "@/components/incidents/report/shared/report-treatment";
-import { IMMEDIATE_ACTION_OPTIONS } from "@/components/incidents/report/shared/report-response";
+} from "@/forms/incident-module/treatment";
+import {
+  IMMEDIATE_ACTION_OPTIONS,
+  buildActionTaken as buildStoredActionTaken,
+} from "@/forms/incident-module/immediate-response";
 import type { PersonDto } from "@/dtos/res/incident-response.dto";
 import type { IncidentWritePayloadDto } from "@/dtos/req/incident-request.dto";
 import { formatIncidentLocationsLabel } from "@/components/incidents/report/shared/ReportLocationsField";
@@ -198,23 +201,20 @@ function buildActionTaken(form: ReportIncidentFormState): string {
     )
     .filter(Boolean);
 
-  const notes = form.actionNotes.trim();
-  if (labels.length === 0) {
-    return notes;
-  }
-
-  if (!notes) {
-    return labels.join("; ");
-  }
-
-  return `${labels.join("; ")}\n${notes}`;
+  // Same shape as before — the detail screen reads it back through
+  // splitActionTaken, so the two ends share one definition of the format.
+  return buildStoredActionTaken(labels, form.actionNotes);
 }
 
 function buildOtherNotes(form: ReportIncidentFormState): string {
   const parts: string[] = [];
 
-  if (form.witnesses.trim()) {
-    parts.push(`Witnesses: ${form.witnesses.trim()}`);
+  const witnessNames = form.witnesses
+    .map((witness) => witness.name.trim())
+    .filter(Boolean)
+    .join(", ");
+  if (witnessNames) {
+    parts.push(`Witnesses: ${witnessNames}`);
   }
 
   if (form.gender.trim()) {
@@ -286,15 +286,20 @@ function buildPeople(form: ReportIncidentFormState): PersonDto[] {
     });
   }
 
-  const witnesses = form.witnesses
-    .split(",")
-    .map((entry) => entry.trim())
-    .filter(Boolean);
+  for (const witness of form.witnesses) {
+    const name = witness.name.trim();
+    if (!name) {
+      continue;
+    }
 
-  for (const witness of witnesses) {
+    const userId = Number(witness.userId);
+
     people.push({
-      name: witness,
+      name,
       role: "Witness",
+      // The account is what makes a witness contactable. Sent as null rather than 0
+      // when absent, so the API refuses it instead of filing a witness against user 0.
+      userId: Number.isInteger(userId) && userId > 0 ? userId : null,
       injuryLevel: null,
       bodyPartAffected: null,
       injuryDescription: null,

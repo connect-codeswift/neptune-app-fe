@@ -76,6 +76,8 @@ export function buildObservationInfoSchema(args: {
       label: "Date",
       required: true,
       colSpan: 6,
+      // The date an observation was made — always already past.
+      limit: "not-future",
     },
     {
       type: "time",

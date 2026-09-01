@@ -1,6 +1,8 @@
 /** Request body for POST /api/v1/rca-contributing-factors */
 export type CreateContributingFactorRequestDto = Readonly<{
   incidentId: number;
+  /** CAPA parent for a CAPA-scoped RCA; mutually exclusive with `incidentId`. */
+  capaId?: number;
   rcaCategoryId: number;
   description: string;
   userId: number;

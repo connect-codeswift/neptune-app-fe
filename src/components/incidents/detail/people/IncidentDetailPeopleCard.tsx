@@ -2,33 +2,49 @@
 
 import { EmptyState } from "@/components/ui/EmptyState";
 
+import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
+import { UserAvatar } from "@/components/ui/UserAvatar";
+import {
+  EMPTY_PEOPLE_PHOTO_INDEX,
+  lookupPeoplePhoto,
+  type PeoplePhotoIndex,
+} from "@/components/incidents/detail/people/people-photos";
 import type { ResponderMember } from "@/components/incidents/detail/incident-detail-types";
+import { isAffectedNamePlaceholder } from "@/components/incidents/detail/incident-detail-types";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
+import { INITIAL_TREATMENT_OPTIONS } from "@/forms/incident-module/treatment";
 
 export type { ResponderMember };
 
 export type IncidentDetailPeopleCardProps = Readonly<{
   affectedName?: string;
+  /** The affected person's profile photo, when their user record carries one. */
+  affectedProfileUrl?: string | null;
+  /** Roster photos for the responders, keyed by name. */
+  peoplePhotos?: PeoplePhotoIndex;
+  /**
+   * Whether the incident records an affected person at all. Decided by the
+   * mapper, which has the record; this was inferred here by comparing the name
+   * against the placeholder the mapper had just supplied, so an incident with
+   * injury details but no name rendered as though nobody was involved.
+   */
+  hasAffectedPerson?: boolean;
   affectedRole?: string;
   affectedEmpId?: string;
-  affectedInitials?: string;
   affectedInjuryLabel?: string;
   bodyPart?: string;
   treatment?: string;
   daysAway?: string | number;
   responders?: readonly ResponderMember[];
   isEditing?: boolean;
-  onChangeAffectedName?: (value: string) => void;
-  onChangeAffectedEmpId?: (value: string) => void;
-  onChangeAffectedInjuryLabel?: (value: string) => void;
   onChangeBodyPart?: (value: string) => void;
   onChangeTreatment?: (value: string) => void;
-  onChangeResponder?: (
-    index: number,
-    patch: Partial<Pick<ResponderMember, "name" | "role" | "empId">>,
-  ) => void;
+  onChangeDaysAway?: (value: string) => void;
+  bodyPartError?: string | null;
+  treatmentError?: string | null;
+  daysAwayError?: string | null;
   className?: string;
 }>;
 
@@ -45,33 +61,90 @@ function editableDisplayValue(value: string): string {
   return value === "—" ? "" : value;
 }
 
+function FieldError(props: Readonly<{ message?: string | null }>) {
+  const { message } = props;
+  if (!message) {
+    return null;
+  }
+  return (
+    <span className="text-ehs-red text6 leading-normal" role="alert">
+      {message}
+    </span>
+  );
+}
+
 export function IncidentDetailPeopleCard(
   props: Readonly<IncidentDetailPeopleCardProps>,
 ) {
   const {
     affectedName = "",
+    affectedProfileUrl = null,
+    peoplePhotos = EMPTY_PEOPLE_PHOTO_INDEX,
+    hasAffectedPerson = false,
     affectedRole = "Affected person",
     affectedEmpId = "—",
-    affectedInitials = "—",
     affectedInjuryLabel = "—",
     bodyPart = "—",
     treatment = "None required",
     daysAway = "—",
     responders = [],
     isEditing = false,
-    onChangeAffectedName,
-    onChangeAffectedEmpId,
-    onChangeAffectedInjuryLabel,
     onChangeBodyPart,
     onChangeTreatment,
-    onChangeResponder,
+    onChangeDaysAway,
+    bodyPartError = null,
+    treatmentError = null,
+    daysAwayError = null,
     className = "",
   } = props;
 
-  const hasAffected =
-    isEditing ||
-    (Boolean(affectedName.trim()) &&
-      affectedName !== "No affected person logged");
+  /**
+   * The wizard writes this field from a fixed vocabulary (`first-aid-on-site`,
+   * `emergency`, and so on) while this card offered a free text box, so the same
+   * treatment could be stored three different ways and nothing downstream could group
+   * it. A stored value that is not in the list — a custom option added in the wizard,
+   * or free text typed here before this change — is kept as its own option so editing
+   * an unrelated field cannot silently discard it.
+   */
+  const treatmentSelectValue = editableDisplayValue(treatment);
+  const treatmentOptions = (() => {
+    const base = INITIAL_TREATMENT_OPTIONS.map((option) => ({
+      value: option.value,
+      label: option.label,
+    }));
+
+    const known = new Set(base.map((option) => option.value.toLowerCase()));
+    const current = treatmentSelectValue.trim();
+
+    return current && !known.has(current.toLowerCase())
+      ? [...base, { value: current, label: current }]
+      : base;
+  })();
+
+  // Identity fields come from the incident report module and stay read-only in
+  // this scope — the People tab edits the injury outcome, not who was involved.
+  // While editing the card must render regardless: body part, treatment and
+  // days away are editable even on a record that carries no person name.
+  //
+  // A real name still counts on its own, so a caller that predates the
+  // `hasAffectedPerson` flag does not lose the card.
+  const hasRecordedName =
+    Boolean(affectedName.trim()) && !isAffectedNamePlaceholder(affectedName);
+  const hasAffected = isEditing || hasAffectedPerson || hasRecordedName;
+
+  // A photo always wins. Failing that, initials need a name with letters in it
+  // — an employee number has none, and "90" sliced off "9005" says nothing, so
+  // that case falls through to the person glyph instead.
+  const hasPhotoOrInitials =
+    Boolean(affectedProfileUrl?.trim()) ||
+    (/\p{L}/u.test(affectedName) && !isAffectedNamePlaceholder(affectedName));
+  // The mapper no longer falls the name back to the id, so the two should not
+  // collide — this stays as a guard against an empty dash row and against a
+  // caller still supplying the old shape.
+  const showEmpIdRow =
+    affectedEmpId.trim().length > 0 &&
+    affectedEmpId !== "—" &&
+    affectedEmpId.trim().toLowerCase() !== affectedName.trim().toLowerCase();
 
   return (
     <div
@@ -89,83 +162,59 @@ export function IncidentDetailPeopleCard(
         {hasAffected ? (
           <>
             <div className="flex items-center gap-3.5">
-              <div className="bg-ehs-dark-blue-bg-light text-ehs-dark-blue text5 flex size-12 shrink-0 items-center justify-center rounded-[14px]">
-                {affectedInitials}
-              </div>
-              <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-                {isEditing ? (
-                  <>
-                    <input
-                      type="text"
-                      value={editableDisplayValue(
-                        affectedName === "No affected person logged"
-                          ? ""
-                          : affectedName,
-                      )}
-                      onChange={(event) =>
-                        onChangeAffectedName?.(event.target.value)
-                      }
-                      placeholder="Affected person name"
-                      className={fieldInputClass}
-                      aria-label="Affected person name"
-                    />
-                    <span className="text-ehs-gray text4 truncate leading-normal">
-                      {affectedRole}
-                    </span>
-                    <input
-                      type="text"
-                      value={editableDisplayValue(affectedEmpId)}
-                      onChange={(event) =>
-                        onChangeAffectedEmpId?.(event.target.value)
-                      }
-                      placeholder="Employee / person ID"
-                      className={fieldInputClass}
-                      aria-label="Employee ID"
-                    />
-                  </>
-                ) : (
-                  <>
-                    <span className="text-ehs-dark-bg text4 leading-normal font-bold">
-                      {affectedName}
-                    </span>
-                    <span className="text-ehs-gray text4 truncate leading-normal">
-                      {affectedRole}
-                    </span>
-                    <span className="text-ehs-muted-text text4 leading-normal">
-                      {affectedEmpId}
-                    </span>
-                  </>
-                )}
-              </div>
-              {isEditing ? (
-                <input
-                  type="text"
-                  value={editableDisplayValue(affectedInjuryLabel)}
-                  onChange={(event) =>
-                    onChangeAffectedInjuryLabel?.(event.target.value)
-                  }
-                  placeholder="Injury"
-                  className={`${fieldInputClass} max-w-35 shrink-0`}
-                  aria-label="Injury level"
+              {hasPhotoOrInitials ? (
+                <UserAvatar
+                  name={affectedName}
+                  profileUrl={affectedProfileUrl}
+                  sizeClassName="size-12 rounded-[14px]"
+                  sizes="48px"
                 />
               ) : (
-                <span className="bg-ehs-surface-inverse/14 text-ehs-gray text4 shrink-0 rounded-full px-2.25 pt-[3px] pb-[3px] leading-normal font-bold tracking-wide">
-                  {affectedInjuryLabel}
-                </span>
+                <div className="bg-ehs-dark-blue-bg-light text-ehs-dark-blue flex size-12 shrink-0 items-center justify-center rounded-[14px]">
+                  <Icon
+                    icon="mdi:account-outline"
+                    className="size-6"
+                    aria-hidden="true"
+                  />
+                </div>
               )}
+              <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                <span className="text-ehs-dark-bg text4 leading-normal font-bold">
+                  {affectedName}
+                </span>
+                <span className="text-ehs-gray text4 truncate leading-normal">
+                  {affectedRole}
+                </span>
+                {showEmpIdRow ? (
+                  <span className="text-ehs-muted-text text4 leading-normal">
+                    {affectedEmpId}
+                  </span>
+                ) : null}
+              </div>
+              <span className="bg-ehs-surface-inverse/14 text-ehs-gray text4 shrink-0 rounded-full px-2.25 pt-[3px] pb-[3px] leading-normal font-bold tracking-wide">
+                {affectedInjuryLabel}
+              </span>
             </div>
 
             <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-3">
               <div className="rounded-2.5 border-ehs-border-ink/8 bg-ehs-surface/62 flex flex-col gap-0.75 border p-3.25">
                 <span className="text-ehs-muted-text text6">Body part</span>
                 {isEditing ? (
-                  <input
-                    type="text"
-                    value={editableDisplayValue(bodyPart)}
-                    onChange={(event) => onChangeBodyPart?.(event.target.value)}
-                    className={fieldInputClass}
-                    aria-label="Body part"
-                  />
+                  <>
+                    <input
+                      type="text"
+                      value={editableDisplayValue(bodyPart)}
+                      onChange={(event) =>
+                        onChangeBodyPart?.(event.target.value)
+                      }
+                      placeholder="e.g. Head / face"
+                      className={fieldInputClass}
+                      aria-label="Body part"
+                      aria-invalid={bodyPartError != null}
+                      required
+                    />
+                    <FieldError message={bodyPartError} />
+                  </>
                 ) : (
                   <span className="text-ehs-dark-bg text4 leading-normal">
                     {bodyPart}
@@ -173,17 +222,35 @@ export function IncidentDetailPeopleCard(
                 )}
               </div>
               <div className="rounded-2.5 border-ehs-border-ink/8 bg-ehs-surface/62 flex flex-col gap-0.75 border p-3.25">
-                <span className="text-ehs-muted-text text6">Treatment</span>
+                <span className="text-ehs-muted-text text6">
+                  Initial treatment
+                </span>
                 {isEditing ? (
-                  <input
-                    type="text"
-                    value={editableDisplayValue(treatment)}
-                    onChange={(event) =>
-                      onChangeTreatment?.(event.target.value)
-                    }
-                    className={fieldInputClass}
-                    aria-label="Treatment"
-                  />
+                  <>
+                    {/*
+                      A select, not the free text box dev grew here. The wizard writes this
+                      field from a fixed vocabulary, so free text let the same treatment be
+                      stored three different ways with nothing downstream able to group it.
+                      The error rendering from dev is kept.
+                    */}
+                    <select
+                      value={treatmentSelectValue}
+                      onChange={(event) =>
+                        onChangeTreatment?.(event.target.value)
+                      }
+                      className={fieldInputClass}
+                      aria-label="Initial treatment"
+                      aria-invalid={treatmentError != null}
+                      required
+                    >
+                      {treatmentOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                    <FieldError message={treatmentError} />
+                  </>
                 ) : (
                   <span className="text-ehs-dark-bg text4 leading-normal">
                     {treatment}
@@ -192,9 +259,34 @@ export function IncidentDetailPeopleCard(
               </div>
               <div className="rounded-2.5 border-ehs-border-ink/8 bg-ehs-surface/62 flex flex-col gap-0.75 border p-3.25">
                 <span className="text-ehs-muted-text text6">Days away</span>
-                <span className="text-ehs-dark-bg text4 leading-normal">
-                  {daysAway}
-                </span>
+                {isEditing ? (
+                  <>
+                    {/*
+                      Empty is a real state, not zero: it means nobody has recorded a figure
+                      yet, which the API stores as null and the card shows as a dash.
+                    */}
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      min={0}
+                      step={1}
+                      value={editableDisplayValue(String(daysAway))}
+                      onChange={(event) =>
+                        onChangeDaysAway?.(event.target.value)
+                      }
+                      placeholder="0"
+                      className={fieldInputClass}
+                      aria-label="Days away from work"
+                      aria-invalid={daysAwayError != null}
+                      required
+                    />
+                    <FieldError message={daysAwayError} />
+                  </>
+                ) : (
+                  <span className="text-ehs-dark-bg text4 leading-normal">
+                    {daysAway}
+                  </span>
+                )}
               </div>
             </div>
           </>
@@ -229,69 +321,33 @@ export function IncidentDetailPeopleCard(
         ) : (
           responders.map((person, index) => (
             <div
-              // Index, not the person's fields: `name` is edited in place here,
-              // so keying on it remounted the row and dropped the caret on
-              // every keystroke. ResponderMember carries no stable id, and the
-              // list is not reordered or filtered while editing.
+              // ResponderMember carries no stable id and the list is never
+              // reordered or filtered, so the index is the key. Rows are
+              // read-only now, so there is no caret to lose on a remount.
               key={index}
               className="border-ehs-border-ink/8 flex items-center gap-3 border-t pt-3.25 pb-3"
             >
-              <div className="bg-ehs-dark-blue-bg-light text-ehs-dark-blue text5 rounded-2.5 flex size-8.5 shrink-0 items-center justify-center">
-                {person.initials}
-              </div>
-              <div className="flex min-w-0 flex-1 flex-col gap-px">
-                {isEditing ? (
-                  <>
-                    <input
-                      type="text"
-                      value={person.name}
-                      onChange={(event) =>
-                        onChangeResponder?.(index, {
-                          name: event.target.value,
-                        })
-                      }
-                      className={fieldInputClass}
-                      aria-label={`${person.role} name`}
-                    />
-                    <input
-                      type="text"
-                      value={person.role}
-                      onChange={(event) =>
-                        onChangeResponder?.(index, {
-                          role: event.target.value,
-                        })
-                      }
-                      className={`${fieldInputClass} text4 mt-1`}
-                      aria-label="Role"
-                    />
-                  </>
-                ) : (
-                  <>
-                    <span className="text-ehs-dark-bg text4 leading-normal font-bold">
-                      {person.name}
-                    </span>
-                    <span className="text-ehs-gray text4 truncate leading-normal">
-                      {person.role}
-                    </span>
-                  </>
+              <UserAvatar
+                name={person.name}
+                profileUrl={lookupPeoplePhoto(
+                  peoplePhotos,
+                  person.name,
+                  person.empId,
                 )}
-              </div>
-              {isEditing ? (
-                <input
-                  type="text"
-                  value={editableDisplayValue(person.empId)}
-                  onChange={(event) =>
-                    onChangeResponder?.(index, { empId: event.target.value })
-                  }
-                  placeholder="ID / email"
-                  className={`${fieldInputClass} text4 max-w-35 shrink-0`}
-                  aria-label="Employee ID or email"
-                />
-              ) : (
-                <span className="text-ehs-muted-text text4 shrink-0 leading-normal">
-                  {person.empId}
+                sizeClassName="rounded-2.5 size-8.5"
+                sizes="34px"
+              />
+              <div className="flex min-w-0 flex-1 flex-col gap-px">
+                <span className="text-ehs-dark-bg text4 leading-normal font-bold">
+                  {person.name}
                 </span>
-              )}
+                <span className="text-ehs-gray text4 truncate leading-normal">
+                  {person.role}
+                </span>
+              </div>
+              <span className="text-ehs-muted-text text4 shrink-0 leading-normal">
+                {person.empId}
+              </span>
               <span
                 className={[
                   "text4 shrink-0 rounded-full px-2.25 pt-[3px] pb-[3px] leading-normal font-bold tracking-wide",

@@ -16,7 +16,7 @@ import {
   normalizeHhMm,
   nowHhMm,
   parseTimeInput,
-} from "@/components/incidents/report/shared/report-date-time";
+} from "@/lib/date-time-field";
 
 export type ReportTimeFieldProps = Readonly<{
   label: string;
@@ -50,6 +50,13 @@ export function ReportTimeField(props: Readonly<ReportTimeFieldProps>) {
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
+  // The minute Now last wrote, so the chip can show itself as the current choice
+  // the way Today and Yesterday do. Comparing against the live clock instead would
+  // switch the chip off a minute after the click, which reads as the pick not
+  // having taken; anything the user types afterwards no longer matches, so the
+  // chip drops out on its own.
+  const [nowPickedValue, setNowPickedValue] = useState<string | null>(null);
+  const isNowActive = nowPickedValue !== null && value === nowPickedValue;
 
   useDismissOnOutsideClick(rootRef, open, () => setOpen(false));
 
@@ -140,10 +147,23 @@ export function ReportTimeField(props: Readonly<ReportTimeFieldProps>) {
 
       {showNow ? (
         <div className="flex flex-wrap items-center gap-1.5">
+          {/* Same shape as DateInput's Today / Yesterday chips — this sits beside
+              them in the form, and a shortcut that never looks chosen reads as one
+              that did not fire. */}
           <button
             type="button"
-            onClick={() => onChange(nowHhMm())}
-            className="text-ehs-muted-text hover:bg-ehs-light-bg hover:text-ehs-dark-bg text-2.75 border-ehs-border-ink/10 cursor-pointer rounded-full border px-2 py-px font-semibold transition-colors"
+            aria-pressed={isNowActive}
+            onClick={() => {
+              const next = nowHhMm();
+              setNowPickedValue(next);
+              onChange(next);
+            }}
+            className={[
+              "text-2.75 cursor-pointer rounded-full px-2 py-px font-semibold transition-colors",
+              isNowActive
+                ? "bg-ehs-light-blue text-ehs-dark-blue"
+                : "text-ehs-muted-text hover:bg-ehs-light-bg hover:text-ehs-dark-bg border-ehs-border-ink/10 border",
+            ].join(" ")}
           >
             Now
           </button>

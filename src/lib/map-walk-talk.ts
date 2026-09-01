@@ -99,6 +99,7 @@ export function toCreateWalkTalkRequest(
   const date = toWalkTalkIsoDate(dateRaw);
   const draft = {
     assignedTo: asString(values.assignedTo),
+    assignedToName: asString(values.assignedToName),
     dueDate: asString(values.dueDate),
     action: asString(values.action),
   };

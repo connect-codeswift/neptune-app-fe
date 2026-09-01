@@ -16,6 +16,7 @@ import {
   getCapaWorkloadByOwner,
   getCapas,
   getCapasByIncidentId,
+  getCapasBySource,
   getCapaTasksByCapaId,
   getCapaVerificationByCapaId,
 } from "@/services/capa.service";
@@ -43,11 +44,12 @@ export const capaQueryKeys = {
   openedVsClosed: ["capas", "opened-vs-closed"] as const,
   workloadByOwner: ["capas", "workload-by-owner"] as const,
   awaitingReview: ["capas", "awaiting-review"] as const,
+  bySource: (sourceType: string, sourceId: number) =>
+    ["capas", "by-source", sourceType, sourceId] as const,
   list: (params: {
     pageNumber: number;
     pageSize: number;
     search: string;
-    scope: string;
     status: string;
     capaType: string;
     priority: string;
@@ -173,7 +175,6 @@ export type UseCapasListQueryOptions = Readonly<{
   pageNumber?: number;
   pageSize?: number;
   search?: string;
-  scope?: string;
   status?: string;
   capaType?: string;
   priority?: string;
@@ -183,7 +184,7 @@ export type UseCapasListQueryOptions = Readonly<{
 
 /**
  * Loads CAPAs via GET /api/v1/capas
- * query: PageNumber=1, PageSize=10, Search="", Scope="", Status="",
+ * query: PageNumber=1, PageSize=10, Search="", Status="",
  * CapaType="", Priority="" — empty = All = omit
  */
 export function useCapasListQuery(options: UseCapasListQueryOptions = {}) {
@@ -191,7 +192,6 @@ export function useCapasListQuery(options: UseCapasListQueryOptions = {}) {
   const pageSize = options.pageSize ?? DEFAULT_CAPAS_PAGE_SIZE;
   const enabled = options.enabled ?? false;
   const search = options.search?.trim() ?? "";
-  const scope = options.scope?.trim() ?? "";
   const status = options.status?.trim() ?? "";
   const capaType = options.capaType?.trim() ?? "";
   const priority = options.priority?.trim() ?? "";
@@ -203,7 +203,6 @@ export function useCapasListQuery(options: UseCapasListQueryOptions = {}) {
       pageNumber,
       pageSize,
       search,
-      scope,
       status,
       capaType,
       priority,
@@ -215,7 +214,6 @@ export function useCapasListQuery(options: UseCapasListQueryOptions = {}) {
         pageNumber,
         pageSize,
         search,
-        scope,
         status,
         capaType,
         priority,
@@ -492,5 +490,24 @@ export function useCapaDetailQuery(options: UseCapaDetailQueryOptions) {
         lifecycleStages: detail.lifecycleStages,
       });
     },
+  });
+}
+
+/**
+ * CAPAs raised from one record — the Related CAPAs panel on a hazard or near miss, and the
+ * check that gates closing one. Both read the same query, so the panel always shows exactly
+ * what the gate is counting.
+ */
+export function useCapasBySourceQuery(params: {
+  sourceType: string;
+  sourceId: number;
+  enabled?: boolean;
+}) {
+  const { sourceType, sourceId, enabled = true } = params;
+
+  return useQuery({
+    queryKey: capaQueryKeys.bySource(sourceType, sourceId),
+    queryFn: () => getCapasBySource(sourceType, sourceId),
+    enabled: enabled && sourceType.trim().length > 0 && sourceId > 0,
   });
 }

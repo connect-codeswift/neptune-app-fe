@@ -18,6 +18,10 @@ import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useUpdateCapaTaskStatusMutation } from "@/hooks/use-capa-mutations";
 import { useCapaTasksQuery } from "@/hooks/use-capa-queries";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
+import {
+  isCapaStatusClosed,
+  isCapaStatusPendingVerification,
+} from "@/lib/capa-filters";
 import { toast } from "@/lib/toast";
 
 function statusTone(status: string): IncidentBadgeTone {
@@ -55,6 +59,13 @@ export type CapaDetailPanelProps = Readonly<{
 /** Selected CAPA detail — Figma 7123:42184. */
 export function CapaDetailPanel(props: Readonly<CapaDetailPanelProps>) {
   const { item, onOpenDetail, className = "" } = props;
+
+  // Nothing left to update once a CAPA is closed or waiting on a verifier - the panel is a
+  // record at that point, not a worklist, and "Update progress" promised something the API
+  // would refuse.
+  const isSettled =
+    isCapaStatusClosed(item.status) ||
+    isCapaStatusPendingVerification(item.status);
   const hasToken = useHasAccessToken();
   const capaId = parseCapaId(item.id);
   const updateTaskStatusMutation = useUpdateCapaTaskStatusMutation();
@@ -151,6 +162,7 @@ export function CapaDetailPanel(props: Readonly<CapaDetailPanelProps>) {
 
       <div className="border-ehs-border grid grid-cols-2 gap-x-4 gap-y-3.5 border-b px-5 py-4">
         <MetaField label="Assigned To" value={item.owner} />
+        <MetaField label="Assigned By" value={item.assignedBy} />
         <MetaField label="Due" value={item.dueDate} />
         <MetaField label="Priority" value={item.priority} />
         <MetaField label="Days left" value={item.dueLabel} />
@@ -237,11 +249,15 @@ export function CapaDetailPanel(props: Readonly<CapaDetailPanelProps>) {
               onOpenDetail();
               return;
             }
-            toast.info("Open this CAPA to update progress.");
+            toast.info("Open this CAPA to see its detail.");
           }}
         >
-          <Icon icon="mdi:check" className="size-3.5 shrink-0" aria-hidden />
-          Update progress
+          <Icon
+            icon={isSettled ? "mdi:file-document-outline" : "mdi:check"}
+            className="size-3.5 shrink-0"
+            aria-hidden
+          />
+          {isSettled ? "View details" : "Update progress"}
         </Button>
       </div>
     </IncidentGlassCard>

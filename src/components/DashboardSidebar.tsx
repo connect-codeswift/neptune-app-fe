@@ -127,6 +127,15 @@ function SidebarNavLink(
           .join(" ")}
         aria-hidden="true"
       />
+      {/* Hidden outright on the mini rail, in one frame, and deliberately so.
+          A `transition-discrete` fade was tried here and made closing worse
+          than opening: `display` flips at the START of the transition when
+          showing but at the END when hiding, so collapsing dropped the labels
+          out of the flow mid-slide and the rail visibly hitched three quarters
+          of the way through. Flipping at frame 0 in both directions lets the
+          panel's `overflow-hidden` do the work — the rail slides over settled
+          content instead of reflowing it, which is what makes opening
+          smooth. */}
       <span
         className={["min-w-0 flex-1 truncate", collapsed ? "lg:hidden" : ""]
           .filter(Boolean)

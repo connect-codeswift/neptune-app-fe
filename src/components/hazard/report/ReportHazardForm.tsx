@@ -14,7 +14,12 @@ import { useNarrativeDraft } from "@/hooks/use-narrative-draft";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import type { CreateHazardRequestDto } from "@/dtos/req/hazard-request.dto";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useSubmitLock } from "@/hooks/use-submit-lock";
 import { useCreateHazardMutation } from "@/hooks/use-hazard-mutations";
+import {
+  useChemicalNamesQuery,
+  useSdsListQuery,
+} from "@/hooks/use-hazcom-queries";
 import { getCurrentUser } from "@/lib/current-user";
 import { toast } from "@/lib/toast";
 import {
@@ -46,12 +51,18 @@ function toCreateRequest(report: HazardReportValues): CreateHazardRequestDto {
   // userId / siteId come from the signed-in user's access-token claims.
   const { userId, siteId } = getCurrentUser();
 
+  // Only a chemical hazard carries a chemical; the id is the HazCom row id.
+  const chemicalId = Number(String(report.chemicalId ?? "").trim());
+
   return {
     type: report.hazardType,
+    ...(Number.isFinite(chemicalId) && chemicalId > 0 ? { chemicalId } : {}),
     location: report.location,
     description: report.description,
-    // The endpoint takes a single URL; the field is capped at one photo.
+    // Both are sent: `attachments` is the list the endpoint stores, `image` keeps the first so an
+    // older reader still finds a photo where it expects one.
     image: report.photos[0] ?? "",
+    attachments: report.photos,
     userId,
     siteId,
     isDrop: false,
@@ -61,7 +72,39 @@ function toCreateRequest(report: HazardReportValues): CreateHazardRequestDto {
 export function ReportHazardForm() {
   const router = useRouter();
   const createHazard = useCreateHazardMutation();
+  // Held past the response: `isPending` drops as soon as the record is
+  // created, while the push to the list is still in flight, and a click in
+  // that gap filed a duplicate report.
+  const submitLock = useSubmitLock();
   const [values, setValues] = useState<FormValues>({});
+
+  const { chemicals } = useChemicalNamesQuery();
+  const { items: sdsRecords } = useSdsListQuery({ pageSize: 500 });
+
+  // Chemical:SDS is 1:1 — only offer chemicals that already have an SDS, so a
+  // "which chemical" pick always points at a record the viewer can open.
+  const chemicalIdsWithSds = useMemo(
+    () =>
+      new Set(
+        sdsRecords
+          .map((sds) => sds.chemicalId)
+          .filter((id): id is number => id !== null),
+      ),
+    [sdsRecords],
+  );
+
+  const chemicalOptions: readonly SelectOption[] = useMemo(
+    () =>
+      chemicals
+        .filter((chemical) => chemicalIdsWithSds.has(chemical.id))
+        .map((chemical) => ({
+          value: String(chemical.id),
+          label: chemical.name,
+        })),
+    [chemicals, chemicalIdsWithSds],
+  );
+
+  const isChemicalHazard = String(values.hazardType ?? "") === "chemical";
 
   const description = String(values.description ?? "");
   const consequence = toLabel(
@@ -69,62 +112,103 @@ export function ReportHazardForm() {
     String(values.potentialConsequence ?? ""),
   );
 
+  // Keyed by the label the form shows, because the model reads the keys as
+  // prose alongside the values.
   const draftInput = useMemo(
     () => ({
-      hazardType: toLabel(HAZARD_TYPE_OPTIONS, String(values.hazardType ?? "")),
-      location: toLabel(LOCATION_OPTIONS, String(values.location ?? "")),
-      potentialConsequence: consequence,
+      "Hazard type": toLabel(
+        HAZARD_TYPE_OPTIONS,
+        String(values.hazardType ?? ""),
+      ),
+      Location: toLabel(LOCATION_OPTIONS, String(values.location ?? "")),
+      "Potential consequence if not addressed": consequence,
     }),
     [values.hazardType, values.location, consequence],
   );
 
-  const { draft, pending, dismiss } = useNarrativeDraft({
-    module: "hazard",
-    input: draftInput,
-    // The consequence is the backend's threshold — type and location alone
-    // return null. Never while the reporter has written their own account.
-    enabled: consequence !== "" && description.trim() === "",
-  });
+  const { draft, pending, dismiss, regenerate, canRegenerate } =
+    useNarrativeDraft({
+      module: "hazard",
+      input: draftInput,
+      // The consequence is the backend's threshold — type and location alone
+      // return null. Never while the reporter has written their own account.
+      enabled: consequence !== "" && description.trim() === "",
+    });
 
   const showsDraft = pending || draft !== null;
 
-  const schema = useMemo<FormSchema>(
-    () =>
-      hazardReportSchema.map((field) =>
-        field.type === "textarea" && field.name === "description"
-          ? {
-              ...field,
-              placeholder: showsDraft ? "" : field.placeholder,
-              assistant: (control) =>
-                showsDraft ? (
-                  <AiInFieldDraft
-                    draft={draft}
-                    pending={pending}
-                    // FormBuilder's textarea skin, not the incident wizard's.
-                    fieldPaddingClassName="px-3 pt-2.5"
-                    fieldTextClassName="text4 text-ehs-darker leading-normal"
-                    onAccept={(text) => {
-                      control.onChange(text);
-                      dismiss();
-                    }}
-                    onDismiss={dismiss}
-                  />
-                ) : (
-                  <AiTextAssistant
-                    module="hazard"
-                    value={control.value}
-                    onApply={control.onChange}
-                  />
-                ),
-            }
-          : field,
-      ),
-    [showsDraft, draft, pending, dismiss],
-  );
+  const schema = useMemo<FormSchema>(() => {
+    const mapped: FormSchema = hazardReportSchema.map((field) =>
+      field.type === "textarea" && field.name === "description"
+        ? {
+            ...field,
+            placeholder: showsDraft ? "" : field.placeholder,
+            assistant: (control) =>
+              showsDraft ? (
+                <AiInFieldDraft
+                  draft={draft}
+                  pending={pending}
+                  onRegenerate={canRegenerate ? regenerate : undefined}
+                  // FormBuilder's textarea skin, not the incident wizard's.
+                  fieldPaddingClassName="px-3 pt-2.5"
+                  fieldTextClassName="text4 text-ehs-darker leading-normal"
+                  onAccept={(text) => {
+                    control.onChange(text);
+                    dismiss();
+                  }}
+                  onDismiss={dismiss}
+                />
+              ) : (
+                <AiTextAssistant
+                  module="hazard"
+                  value={control.value}
+                  onApply={control.onChange}
+                  onRegenerateDraft={canRegenerate ? regenerate : undefined}
+                />
+              ),
+          }
+        : field,
+    );
+
+    if (!isChemicalHazard) {
+      return mapped;
+    }
+
+    // Insert the chemical picker directly after "Hazard Type".
+    const hazardTypeIndex = mapped.findIndex(
+      (field) => field.name === "hazardType",
+    );
+
+    return [
+      ...mapped.slice(0, hazardTypeIndex + 1),
+      {
+        type: "select",
+        name: "chemicalId",
+        label: "Which chemical",
+        colSpan: 6,
+        placeholder: "Select a chemical",
+        options: chemicalOptions,
+      } as const,
+      ...mapped.slice(hazardTypeIndex + 1),
+    ];
+  }, [
+    showsDraft,
+    draft,
+    pending,
+    dismiss,
+    regenerate,
+    canRegenerate,
+    isChemicalHazard,
+    chemicalOptions,
+  ]);
 
   const handleSubmit = (values: FormValues) => {
     // Values are keyed by the schema field names, matching HazardReportValues.
     const payload = toCreateRequest(values as HazardReportValues);
+
+    if (!submitLock.acquire()) {
+      return;
+    }
 
     createHazard.mutate(payload, {
       onSuccess: () => {
@@ -132,6 +216,7 @@ export function ReportHazardForm() {
         router.push(HAZARD_LIST_ROUTE);
       },
       onError: (error) => {
+        submitLock.release();
         toast.error(
           getMutationErrorMessage(
             error,
@@ -157,10 +242,10 @@ export function ReportHazardForm() {
         onChange={setValues}
         className={hazardFormFieldClass}
         submitLabel={
-          createHazard.isPending ? "Submitting..." : "Submit Hazard Report"
+          submitLock.isLocked ? "Submitting..." : "Submit Hazard Report"
         }
         cancelLabel="Cancel"
-        isSubmitting={createHazard.isPending}
+        isSubmitting={submitLock.isLocked}
         onSubmit={handleSubmit}
         onCancel={() => router.push(HAZARD_LIST_ROUTE)}
       />

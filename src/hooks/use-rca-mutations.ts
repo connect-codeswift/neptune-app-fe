@@ -2,7 +2,9 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { rcaQueryKeys } from "@/hooks/use-rca-queries";
+import { capaQueryKeys } from "@/hooks/use-capa-queries";
 import {
+  createCapaContributingFactor,
   createContributingFactor,
   createRcaCategory,
   createRcaCorrectiveAction,
@@ -64,9 +66,18 @@ export function useCreateRcaCategoryMutation() {
       return mapRcaCategoryDtoToView(dto);
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: rcaQueryKeys.categories,
-      });
+      // Must not reject: TanStack Query awaits onSuccess and rejects
+      // `mutateAsync` if it throws, so a failed refetch here reported an
+      // already-saved record as a failed submit and invited a retry that
+      // created a duplicate. The write is done; a stale cache is not worth
+      // that.
+      try {
+        await queryClient.invalidateQueries({
+          queryKey: rcaQueryKeys.categories,
+        });
+      } catch {
+        // Intentionally ignored — see above.
+      }
     },
   });
 }
@@ -83,9 +94,48 @@ export function useCreateContributingFactorMutation() {
       return mapRcaContributingFactorDtoToView(dto);
     },
     onSuccess: async (_result, input) => {
-      await queryClient.invalidateQueries({
-        queryKey: rcaQueryKeys.byIncident(input.incidentId),
+      // Must not reject: TanStack Query awaits onSuccess and rejects
+      // `mutateAsync` if it throws, so a failed refetch here reported an
+      // already-saved record as a failed submit and invited a retry that
+      // created a duplicate. The write is done; a stale cache is not worth
+      // that.
+      try {
+        await queryClient.invalidateQueries({
+          queryKey: rcaQueryKeys.byIncident(input.incidentId ?? 0),
+        });
+      } catch {
+        // Intentionally ignored — see above.
+      }
+    },
+  });
+}
+
+export function useCreateCapaContributingFactorMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (input: {
+      capaId: number;
+      rcaCategoryId: number;
+      description: string;
+    }): Promise<RcaContributingFactorViewModel> => {
+      const payload = buildCreateContributingFactorRequest({
+        capaId: input.capaId,
+        rcaCategoryId: input.rcaCategoryId,
+        description: input.description,
       });
+      const dto = await createCapaContributingFactor(input.capaId, payload);
+      return mapRcaContributingFactorDtoToView(dto);
+    },
+    onSuccess: async (_result, input) => {
+      try {
+        await queryClient.invalidateQueries({
+          queryKey: capaQueryKeys.rca(input.capaId),
+        });
+      } catch {
+        // Intentionally ignored — write is done; a stale cache is not worth
+        // re-reporting an already-saved record as a failed submit.
+      }
     },
   });
 }
@@ -103,7 +153,7 @@ export function useUpdateContributingFactorMutation() {
     },
     onSuccess: async (_result, input) => {
       await queryClient.invalidateQueries({
-        queryKey: rcaQueryKeys.byIncident(input.incidentId),
+        queryKey: rcaQueryKeys.byIncident(input.incidentId ?? 0),
       });
     },
   });
@@ -121,9 +171,18 @@ export function useCreateRcaWhysMutation() {
       return mapRcaWhyDtosToView(dtos);
     },
     onSuccess: async (_result, input) => {
-      await queryClient.invalidateQueries({
-        queryKey: rcaQueryKeys.byIncident(input.incidentId),
-      });
+      // Must not reject: TanStack Query awaits onSuccess and rejects
+      // `mutateAsync` if it throws, so a failed refetch here reported an
+      // already-saved record as a failed submit and invited a retry that
+      // created a duplicate. The write is done; a stale cache is not worth
+      // that.
+      try {
+        await queryClient.invalidateQueries({
+          queryKey: rcaQueryKeys.byIncident(input.incidentId),
+        });
+      } catch {
+        // Intentionally ignored — see above.
+      }
     },
   });
 }
@@ -141,7 +200,7 @@ export function useUpdateRcaWhyMutation() {
     },
     onSuccess: async (_result, input) => {
       await queryClient.invalidateQueries({
-        queryKey: rcaQueryKeys.byIncident(input.incidentId),
+        queryKey: rcaQueryKeys.byIncident(input.incidentId ?? 0),
       });
     },
   });
@@ -175,9 +234,18 @@ export function useCreateRcaCorrectiveActionMutation() {
       return mapRcaCorrectiveActionDtoToViewModel(dto);
     },
     onSuccess: async (_result, input) => {
-      await queryClient.invalidateQueries({
-        queryKey: rcaQueryKeys.byIncident(input.incidentId),
-      });
+      // Must not reject: TanStack Query awaits onSuccess and rejects
+      // `mutateAsync` if it throws, so a failed refetch here reported an
+      // already-saved record as a failed submit and invited a retry that
+      // created a duplicate. The write is done; a stale cache is not worth
+      // that.
+      try {
+        await queryClient.invalidateQueries({
+          queryKey: rcaQueryKeys.byIncident(input.incidentId),
+        });
+      } catch {
+        // Intentionally ignored — see above.
+      }
     },
   });
 }
@@ -195,7 +263,7 @@ export function useUpdateRcaCorrectiveActionMutation() {
     },
     onSuccess: async (_result, input) => {
       await queryClient.invalidateQueries({
-        queryKey: rcaQueryKeys.byIncident(input.incidentId),
+        queryKey: rcaQueryKeys.byIncident(input.incidentId ?? 0),
       });
     },
   });

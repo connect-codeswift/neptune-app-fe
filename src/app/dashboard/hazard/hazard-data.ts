@@ -13,7 +13,10 @@ export const HAZARD_WORKFLOW_STAGES = [
 export type HazardStage = (typeof HAZARD_WORKFLOW_STAGES)[number];
 
 export type HazardCapa = Readonly<{
+  /** Display code, e.g. "CAPA-96". */
   id: string;
+  /** Numeric id behind {@link id}; the detail route keys on this, not the code. */
+  numericId: number;
   title: string;
   status: string;
 }>;
@@ -35,8 +38,16 @@ export type HazardRecord = Readonly<{
   description: string;
   dateReported: string;
   location: string;
-  /** Cloudinary URL of the attached photo evidence, when one was uploaded. */
+  /** First of {@link attachments}; kept for callers that predate multiple photos. */
   image?: string;
+  /** Every attached photo. Falls back to `[image]` for rows written before the list existed. */
+  attachments: readonly string[];
+  /** Raw user id of whoever closed it; resolved to a name via /User/dropdown. */
+  closedById?: number;
+  /** Resolved display name behind {@link closedById}. */
+  closedBy?: string;
+  /** ISO date it was closed, when it has been. */
+  closedAt?: string;
   relatedCapas: readonly HazardCapa[];
 }>;
 
@@ -56,9 +67,11 @@ const HAZARD_RECORDS: readonly HazardRecord[] = [
       "Power cable run left unprotected across the forklift aisle. Traffic crosses it on every pallet move, risking abrasion and arc flash.",
     dateReported: "2025-03-06",
     location: "Warehouse 1 / Forklift Aisle B",
+    attachments: [],
     relatedCapas: [
       {
         id: "CAPA-2025-014",
+        numericId: 14,
         title: "Install overhead cable tray across aisle B",
         status: "In Progress",
       },
@@ -79,14 +92,17 @@ const HAZARD_RECORDS: readonly HazardRecord[] = [
       "Fixed guard absent from the pedestal grinder. Rotating wheel is exposed at the operator position.",
     dateReported: "2025-03-05",
     location: "Plant B / Fab 1 · Tool Room",
+    attachments: [],
     relatedCapas: [
       {
         id: "CAPA-2025-001",
+        numericId: 1,
         title: "Install machine guard on grinder #3",
         status: "In Progress",
       },
       {
         id: "CAPA-2025-002",
+        numericId: 2,
         title: "Re-run guarding audit across Fab 1",
         status: "Open",
       },
@@ -107,6 +123,7 @@ const HAZARD_RECORDS: readonly HazardRecord[] = [
       "Coolant seeping from the return line leaves a persistent film on the walkway beside Line 2.",
     dateReported: "2025-03-05",
     location: "Plant A / Line 2 · Walkway",
+    attachments: [],
     relatedCapas: [],
   },
   {
@@ -124,9 +141,11 @@ const HAZARD_RECORDS: readonly HazardRecord[] = [
       "Staged pallets blocked the east fire exit for a full shift. Egress route restored and re-marked.",
     dateReported: "2025-03-04",
     location: "Plant A / Warehouse A · East Exit",
+    attachments: [],
     relatedCapas: [
       {
         id: "CAPA-2025-009",
+        numericId: 9,
         title: "Floor-mark keep-clear zones at all egress doors",
         status: "Closed",
       },

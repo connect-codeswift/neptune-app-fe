@@ -48,10 +48,23 @@ function formatPriorityLabel(priority: string): string {
 }
 
 function isOverdue(item: CapaDashboardItem): boolean {
-  return (
-    item.status.trim().toLowerCase() === "overdue" ||
-    item.dueLabel.trim().toLowerCase() === "overdue"
-  );
+  return item.isOverdue;
+}
+
+/**
+ * What the badge says, which is not always the stored status.
+ *
+ * Overdue wins whenever the API flags it. That is not a style choice - it is what keeps the
+ * filter and the column honest. The Overdue filter is "past due and not Closed", so a
+ * Pending Verification CAPA that is late is *in* those results; letting the stage win the
+ * badge meant filtering by Overdue returned a row labelled "Pending Verification", and a
+ * filter that disagrees with what it returns is worse than no filter.
+ *
+ * Closed never reads Overdue - the API stops counting one the moment it closes, so
+ * `isOverdue` is already false by then and this needs no special case for it.
+ */
+function statusLabel(item: CapaDashboardItem): string {
+  return item.isOverdue ? CAPA_API_STATUS.overdue : item.status;
 }
 
 function shortName(value: string): string {
@@ -215,14 +228,17 @@ export function createCapaColumns(
       size: expanded ? 128 : 112,
       minSize: 96,
       meta: { align: "left" as const, verticalAlign: "middle" as const },
-      cell: (info) => (
-        <IncidentBadge
-          label={info.getValue()}
-          tone={statusTone(info.getValue())}
-          showDot
-          className="text5 w-fit rounded-md px-2 py-0.5 tracking-normal"
-        />
-      ),
+      cell: (info) => {
+        const label = statusLabel(info.row.original);
+        return (
+          <IncidentBadge
+            label={label}
+            tone={statusTone(label)}
+            showDot
+            className="text5 w-fit rounded-md px-2 py-0.5 tracking-normal"
+          />
+        );
+      },
     }),
     columnHelper.accessor("dueDate", {
       header: "Due",

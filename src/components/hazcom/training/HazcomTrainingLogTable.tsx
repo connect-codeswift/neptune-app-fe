@@ -1,6 +1,10 @@
 "use client";
 
 import { EmptyState } from "@/components/ui/EmptyState";
+import {
+  columnWidthStyle,
+  tableMinWidthStyle,
+} from "@/components/ui/table-width";
 
 import { useMemo, type ReactNode } from "react";
 import { Icon } from "@iconify/react";
@@ -39,6 +43,26 @@ const COLUMN_ALIGN: Readonly<Record<string, "left" | "center" | "right">> = {
 };
 
 const columnHelper = createColumnHelper<HazcomTrainingSession>();
+
+/**
+ * The chemical a session covered, for display and for search.
+ *
+ * `chemicalName` is what the API resolves from the `chemicalId` foreign key
+ * and is the field to trust. `chemicals` comes from the legacy free-text
+ * `chemicalsCovered` column, which the form stopped sending once the picker
+ * became a real FK — so it is empty on every session created since, and this
+ * column rendered "—" for all of them. Reading the FK first and falling back
+ * keeps rows written before that migration readable too.
+ *
+ * Returns "" when a row carries neither; callers supply their own placeholder.
+ */
+export function trainingChemicalsLabel(session: HazcomTrainingSession): string {
+  if (session.chemicalNames.length > 0) {
+    return session.chemicalNames.join(", ");
+  }
+
+  return session.chemicalName.trim() || session.chemicals.join(", ");
+}
 
 const NO_STATUS_LABEL = "No status found";
 
@@ -125,13 +149,13 @@ function createTrainingLogColumns(
     }),
     ...(expanded
       ? [
-          columnHelper.accessor("chemicals", {
+          columnHelper.accessor(trainingChemicalsLabel, {
+            id: "chemicals",
             header: "Chemicals",
             size: 160,
             minSize: 120,
             cell: (info) => {
-              const chemicals = info.getValue();
-              const label = chemicals.length > 0 ? chemicals.join(", ") : "—";
+              const label = info.getValue() || "—";
 
               return (
                 <Text
@@ -217,20 +241,6 @@ function createTrainingLogColumns(
   ] as ColumnDef<HazcomTrainingSession, unknown>[];
 }
 
-// Percentage widths on a `table-fixed w-full` table always fill the
-// container exactly, so `overflow-x-auto` never triggers — the columns just
-// compress instead of scrolling. Fixed px widths (plus a `min-width` on the
-// `<table>` equal to their sum) let the table actually exceed its container.
-//
-// This is applied to a `<col>` element, which only honours `width` — a
-// browser silently ignores `min-width`/`max-width` set on `<col>` — so this
-// stays a `width`, not a `minWidth`, even though it functions as a floor
-// here (the table's own `min-width` plus `overflow-x-auto` mean a column
-// can only grow from this size, never shrink below it).
-function columnWidthStyle(size: number) {
-  return { width: `${size}px` };
-}
-
 function alignClass(align: "left" | "center" | "right" | undefined) {
   if (align === "center") return "text-center";
   if (align === "right") return "text-right";
@@ -284,12 +294,15 @@ export function HazcomTrainingLogTable(
 
       <div className="w-full min-w-0 overflow-x-auto overscroll-x-contain">
         <table
-          className="border-collapse text-left"
-          style={{ minWidth: `${totalSize}px` }}
+          className="w-full table-fixed border-collapse text-left"
+          style={tableMinWidthStyle(totalSize)}
         >
           <colgroup>
             {table.getAllLeafColumns().map((column) => (
-              <col key={column.id} style={columnWidthStyle(column.getSize())} />
+              <col
+                key={column.id}
+                style={columnWidthStyle(column.getSize(), totalSize)}
+              />
             ))}
           </colgroup>
 
@@ -302,7 +315,7 @@ export function HazcomTrainingLogTable(
                   return (
                     <th
                       key={headerCell.id}
-                      style={columnWidthStyle(headerCell.getSize())}
+                      style={columnWidthStyle(headerCell.getSize(), totalSize)}
                       className={[
                         "text6 text-ehs-muted-text py-3 select-none",
                         cellPad,
@@ -357,7 +370,10 @@ export function HazcomTrainingLogTable(
                       return (
                         <td
                           key={cell.id}
-                          style={columnWidthStyle(cell.column.getSize())}
+                          style={columnWidthStyle(
+                            cell.column.getSize(),
+                            totalSize,
+                          )}
                           className={[
                             "h-14 min-w-0 align-middle",
                             cellPad,

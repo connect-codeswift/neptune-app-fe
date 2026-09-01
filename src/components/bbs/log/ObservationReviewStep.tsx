@@ -1,7 +1,11 @@
 "use client";
 
-import Image from "next/image";
 import { Icon } from "@iconify/react";
+import { ResolvedFileImage } from "@/components/files/ResolvedFileImage";
+import {
+  canPreviewResolvedFile,
+  useResolvedFileUrl,
+} from "@/hooks/use-file-queries";
 import type { FormValues } from "@/components/form-builder";
 import { OBSERVATION_TYPE_OPTIONS } from "./observation-form-schema";
 
@@ -19,10 +23,54 @@ function ReviewRow(props: Readonly<{ label: string; value: string }>) {
   );
 }
 
-/** Filename from a Cloudinary URL, so the row reads like a file listing. */
-function fileNameOf(url: string): string {
-  const withoutQuery = url.split("?")[0];
-  return withoutQuery.split("/").pop() ?? "attachment";
+/**
+ * One just-uploaded photo. The value is a files-API id, so both the preview and the name
+ * come from resolving it — rendering the id directly showed a broken frame above a uuid.
+ */
+function ReviewPhotoRow(props: Readonly<{ photo: string }>) {
+  const { photo } = props;
+  const { url, thumbnailUrl, fileName, mimeType } = useResolvedFileUrl(photo);
+  const name = fileName?.trim() || "Attachment";
+
+  return (
+    <li className="border-ehs-border bg-ehs-form-classes-bg/70 flex items-center gap-3 rounded-xl border p-3">
+      {canPreviewResolvedFile(mimeType, thumbnailUrl) ? (
+        <span className="relative size-11 shrink-0 overflow-hidden rounded-lg">
+          <ResolvedFileImage
+            fileRef={photo}
+            alt={name}
+            sizes="44px"
+            className="object-cover"
+          />
+        </span>
+      ) : (
+        <span
+          className="bg-ehs-normal-blue/10 flex size-11 shrink-0 items-center justify-center rounded-lg"
+          aria-hidden="true"
+        >
+          <Icon icon="lucide:image" className="text-ehs-normal-blue size-5" />
+        </span>
+      )}
+
+      <div className="flex min-w-0 flex-1 flex-col">
+        {url ? (
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-ehs-normal-blue hover:text-ehs-normal-blue-hover min-w-0 truncate font-semibold transition-colors"
+          >
+            {name}
+          </a>
+        ) : (
+          <span className="text-ehs-dark-bg min-w-0 truncate font-semibold">
+            {name}
+          </span>
+        )}
+        <span className="text-ehs-muted-text text-sm">Attached</span>
+      </div>
+    </li>
+  );
 }
 
 export type ObservationReviewStepProps = Readonly<{
@@ -64,37 +112,7 @@ export function ObservationReviewStep(props: ObservationReviewStepProps) {
       {photos.length > 0 ? (
         <ul className="flex flex-col gap-2">
           {photos.map((photo) => (
-            <li
-              key={photo}
-              className="border-ehs-border bg-ehs-form-classes-bg/70 flex items-center gap-3 rounded-xl border p-3"
-            >
-              <span className="relative size-11 shrink-0 overflow-hidden rounded-lg">
-                <Image
-                  src={photo}
-                  alt=""
-                  fill
-                  sizes="44px"
-                  className="object-cover"
-                />
-              </span>
-
-              <div className="flex min-w-0 flex-1 flex-col">
-                <span className="text-ehs-dark-bg min-w-0 truncate font-semibold">
-                  {fileNameOf(photo)}
-                </span>
-                <span className="text-ehs-muted-text text-sm">Attached</span>
-              </div>
-
-              <span
-                className="flex size-7 shrink-0 items-center justify-center rounded-md"
-                aria-hidden="true"
-              >
-                <Icon
-                  icon="lucide:image"
-                  className="text-ehs-muted-text size-5"
-                />
-              </span>
-            </li>
+            <ReviewPhotoRow key={photo} photo={photo} />
           ))}
         </ul>
       ) : null}

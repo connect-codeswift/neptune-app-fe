@@ -4,11 +4,11 @@ import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { CreatableSelectInput } from "@/components/inputs/CreatableSelectInput";
-import { MultiSelectInput } from "@/components/inputs/MultiSelectInput";
 import { TextInput } from "@/components/inputs/TextInput";
 import { SelectInput } from "@/components/inputs/SelectInput";
 import { UploadDocumentDropzone } from "@/components/policy-maker/upload/UploadDocumentDropzone";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useSubmitLock } from "@/hooks/use-submit-lock";
 import {
   useAddDocumentCategoryMutation,
   useCreateDocumentMutation,
@@ -16,14 +16,14 @@ import {
 import { useDocumentCategoriesQuery } from "@/hooks/use-document-queries";
 import { useDepartmentsQuery } from "@/hooks/use-department-queries";
 import { useAddDepartmentMutation } from "@/hooks/use-department-mutations";
-import { useUserDropdownQuery } from "@/hooks/use-user-queries";
+import { MultipleUsersPickerInput } from "@/components/inputs/MultipleUsersPickerInput";
+import { useResolvedUserValues } from "@/hooks/use-user-options";
 import {
   categoryOptionLabel,
   departmentOptionLabel,
 } from "@/services/mappers/document-list.mapper";
 import { getAuthContext } from "@/lib/auth-context";
 import { getFileMaxBytes, isPdfMimeType } from "@/lib/files";
-import { toAssigneeOptions } from "@/lib/map-user";
 import { toast } from "@/lib/toast";
 import { uploadFile } from "@/lib/upload-file";
 
@@ -52,11 +52,14 @@ function isPdfFile(file: File): boolean {
 export function UploadDocumentForm() {
   const router = useRouter();
   const createDocumentMutation = useCreateDocumentMutation();
+  // Held past the response: `isPending` drops when the record is created,
+  // while the push to the next page is still in flight. A click in that gap
+  // saved a duplicate.
+  const submitLock = useSubmitLock();
   const addCategoryMutation = useAddDocumentCategoryMutation();
   const addDepartmentMutation = useAddDepartmentMutation();
   const categoriesQuery = useDocumentCategoriesQuery();
   const departmentsQuery = useDepartmentsQuery();
-  const usersQuery = useUserDropdownQuery();
 
   const [file, setFile] = useState<File | null>(null);
   const [pdfSecureUrl, setPdfSecureUrl] = useState<string | null>(null);
@@ -90,10 +93,9 @@ export function UploadDocumentForm() {
     [departmentsQuery.data],
   );
 
-  const userOptions = useMemo(
-    () => toAssigneeOptions(usersQuery.data?.dataModel ?? []),
-    [usersQuery.data?.dataModel],
-  );
+  // Ids are what the payload carries; the pickers need names to label chips.
+  const ackUsers = useResolvedUserValues(ackUserIds, { source: "org" });
+  const approvers = useResolvedUserValues(approverIds, { source: "org" });
 
   useEffect(() => {
     if (categoriesQuery.isError) {
@@ -283,6 +285,10 @@ export function UploadDocumentForm() {
       return;
     }
 
+    if (!submitLock.acquire()) {
+      return;
+    }
+
     createDocumentMutation.mutate(
       {
         id: 1,
@@ -306,6 +312,7 @@ export function UploadDocumentForm() {
           router.push("/dashboard/policy-maker");
         },
         onError: (error) => {
+          submitLock.release();
           toast.error(
             "Could not upload document",
             getMutationErrorMessage(error, "Please try again."),
@@ -315,15 +322,13 @@ export function UploadDocumentForm() {
     );
   };
 
-  const isSubmitting = createDocumentMutation.isPending;
+  const isSubmitting = submitLock.isLocked;
   const isAddingCategory = addCategoryMutation.isPending;
   const isAddingDepartment = addDepartmentMutation.isPending;
   const busy =
     isSubmitting || isUploadingPdf || isAddingCategory || isAddingDepartment;
   const lookupsLoading =
-    categoriesQuery.isLoading ||
-    departmentsQuery.isLoading ||
-    usersQuery.isLoading;
+    categoriesQuery.isLoading || departmentsQuery.isLoading;
 
   return (
     <form onSubmit={handleSubmit} className={glassCardClass} noValidate>
@@ -405,38 +410,27 @@ export function UploadDocumentForm() {
               labelClassName={fieldLabelClass}
               wrapperClassName={fieldWrapperClass}
             />
-            <MultiSelectInput
-              label={
-                <>
-                  <span className="sm:hidden">Audience *</span>
-                  <span className="hidden sm:inline">
-                    Audience (for acknowledgment tracking) *
-                  </span>
-                </>
-              }
-              placeholder={
-                usersQuery.isLoading ? "Loading users…" : "Select audience"
-              }
-              options={userOptions}
-              value={ackUserIds}
-              onChange={setAckUserIds}
+            <MultipleUsersPickerInput
+              label="Audience (for acknowledgment tracking)"
               required
-              disabled={busy || userOptions.length === 0}
-              labelClassName={fieldLabelClass}
-              wrapperClassName={fieldWrapperClass}
+              source="org"
+              placeholder="Search people…"
+              value={ackUsers}
+              onChange={(next) => {
+                setAckUserIds(next.map((entry) => entry.userId));
+              }}
+              disabled={busy}
             />
-            <MultiSelectInput
-              label="Approvers *"
-              placeholder={
-                usersQuery.isLoading ? "Loading users…" : "Select approvers"
-              }
-              options={userOptions}
-              value={approverIds}
-              onChange={setApproverIds}
+            <MultipleUsersPickerInput
+              label="Approvers"
               required
-              disabled={busy || userOptions.length === 0}
-              labelClassName={fieldLabelClass}
-              wrapperClassName={fieldWrapperClass}
+              source="org"
+              placeholder="Search people…"
+              value={approvers}
+              onChange={(next) => {
+                setApproverIds(next.map((entry) => entry.userId));
+              }}
+              disabled={busy}
             />
           </div>
 

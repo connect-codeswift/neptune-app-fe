@@ -20,6 +20,7 @@ import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { useLotoEquipmentDetailQuery } from "@/hooks/use-loto-queries";
 import { useApplyLotoLockoutMutation } from "@/hooks/use-loto-mutations";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useSubmitLock } from "@/hooks/use-submit-lock";
 import {
   withLockPrefix,
   withEquipmentPrefix,
@@ -139,28 +140,47 @@ function LotoApplyLockoutForm(
   const detailHref = lotoEquipmentDetailRoute(context.equipmentId);
   const schema = useMemo(() => buildApplyLockoutSchema(), []);
   const [confirmed, setConfirmed] = useState(false);
+  // Purpose is required and lives inside FormBuilder, so the button could not
+  // see it. Mirrored out here for the enable check below.
+  const [purpose, setPurpose] = useState("");
   const applyMutation = useApplyLotoLockoutMutation();
+  // Held past the response: `isPending` drops when the record is saved, while
+  // the navigation away is still in flight. A click in that gap saved a
+  // duplicate.
+  const submitLock = useSubmitLock();
 
-  const canSubmit = confirmed && context.canApply && !applyMutation.isPending;
+  // Every condition that can refuse the submit, so the button's appearance and
+  // what a click actually does agree. Before, this knew about the checkbox but
+  // not the required Purpose field: ticking the box alone lit the button, and
+  // the click then bounced off form validation; filling the form in full left
+  // it grey until the box was ticked. Same control, two different lies.
+  const canSubmit =
+    confirmed &&
+    purpose.trim() !== "" &&
+    context.canApply &&
+    !submitLock.isLocked;
 
   const handleValid = (values: FormValues) => {
+    // Not redundant with the disabled button: a form submits on Enter from any
+    // input, which never consults it. Purpose is not re-checked — FormBuilder
+    // enforces `required` and shows the error on the field itself.
     if (!confirmed) {
       toast.error("Confirm you have followed the LOTO procedure");
       return;
     }
 
-    const purpose = fieldString(values, "purpose").trim();
-    if (!purpose) {
-      toast.error("Purpose of work is required");
+    const expectedCompletion = fieldString(values, "expectedCompletion").trim();
+
+    if (!submitLock.acquire()) {
       return;
     }
-
-    const expectedCompletion = fieldString(values, "expectedCompletion").trim();
 
     applyMutation.mutate(
       {
         lotoEquipmentId: context.equipmentId,
-        purpose,
+        // Read from the submitted values, not the mirrored state: these are
+        // what the form validated.
+        purpose: fieldString(values, "purpose").trim(),
         expectedCompletionAt:
           expectedCompletion === "" ? null : expectedCompletion,
         confirmationAccepted: true,
@@ -176,6 +196,7 @@ function LotoApplyLockoutForm(
           router.push(`${LOTO_ROUTE}?tab=active-lockouts`);
         },
         onError: (error) => {
+          submitLock.release();
           toast.error(
             getMutationErrorMessage(error, "Failed to apply the lockout."),
           );
@@ -202,6 +223,9 @@ function LotoApplyLockoutForm(
                 initialValues={toApplyLockoutFormValues(context.operatorName)}
                 hideActions
                 className={fieldClass}
+                onChange={(values) => {
+                  setPurpose(fieldString(values, "purpose"));
+                }}
                 onSubmit={handleValid}
               />
             </div>
@@ -251,12 +275,10 @@ function LotoApplyLockoutForm(
                   ? (context.cannotApplyReason ?? undefined)
                   : undefined
               }
-              className="text4 rounded-2.5 gap-1.75 px-4 py-2.5 font-semibold shadow-[0px_4px_7px_color-mix(in_oklab,var(--ehs-red)_40%,transparent)] disabled:opacity-50"
+              className="text4 rounded-2.5 gap-1.75 px-4 py-2.5 font-semibold shadow-[0px_4px_7px_color-mix(in_oklab,var(--ehs-red)_40%,transparent)]"
             >
               <Icon icon="mdi:lock-outline" className="size-3.5 shrink-0" />
-              {applyMutation.isPending
-                ? "Applying…"
-                : "Confirm Lockout Applied"}
+              {submitLock.isLocked ? "Applying…" : "Confirm Lockout Applied"}
             </Button>
           </div>
         </div>

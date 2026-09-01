@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { Text } from "@/components/Text";
+import { Can } from "@/components/auth/Can";
+import { PhotoEvidence } from "@/components/shared/PhotoEvidence";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
 import type {
@@ -8,7 +10,6 @@ import type {
 } from "@/app/dashboard/near-miss/near-miss-data";
 import type { IncidentBadgeTone } from "@/components/near-miss/IncidentBadge";
 
-const CAPA_NEW_ROUTE = "/dashboard/capa/new";
 const sectionHeadingClass = "text3 text-ehs-darker";
 
 const statusTone: Record<NearMissStatus, IncidentBadgeTone> = {
@@ -41,9 +42,9 @@ function DetailValue(props: Readonly<{ value: string }>) {
 }
 
 export function NearMissDetailView(
-  props: Readonly<{ record: NearMissRecord }>,
+  props: Readonly<{ record: NearMissRecord; onAddCapa?: () => void }>,
 ) {
-  const { record } = props;
+  const { record, onAddCapa } = props;
 
   return (
     <div className="grid min-w-0 items-start gap-3.5 xl:grid-cols-[minmax(0,731fr)_minmax(0,405fr)]">
@@ -55,6 +56,11 @@ export function NearMissDetailView(
           <DetailField label="What happened">
             <DetailValue value={record.description || "—"} />
           </DetailField>
+          {record.attachments.length > 0 ? (
+            <DetailField label="Attachments">
+              <PhotoEvidence refs={record.attachments} />
+            </DetailField>
+          ) : null}
           <DetailField label="Contributing Factors">
             {record.contributingFactors.length > 0 ? (
               <div className="flex flex-wrap items-center gap-2">
@@ -93,6 +99,27 @@ export function NearMissDetailView(
             <DetailField label="Reporter">
               <DetailValue value={record.reporter} />
             </DetailField>
+            {record.status === "Closed" ? (
+              <DetailField label="Closed by">
+                <DetailValue
+                  value={
+                    record.closedAt
+                      ? `${record.closedBy ?? "—"} · ${record.closedAt}`
+                      : (record.closedBy ?? "—")
+                  }
+                />
+              </DetailField>
+            ) : null}
+            {record.incidentId ? (
+              <DetailField label="Linked Incident">
+                <Link
+                  href={`/dashboard/incidents/${String(record.incidentId)}`}
+                  className="text-ehs-normal-blue hover:text-ehs-normal-blue-hover text4 font-medium underline"
+                >
+                  {`INC-${String(record.incidentId)}`}
+                </Link>
+              </DetailField>
+            ) : null}
           </div>
         </IncidentGlassCard>
       </div>
@@ -103,12 +130,20 @@ export function NearMissDetailView(
             <Text as="h3" className={sectionHeadingClass}>
               Related CAPAs
             </Text>
-            <Link
-              href={CAPA_NEW_ROUTE}
-              className="text4 text-ehs-normal-blue hover:text-ehs-normal-blue-hover transition-colors"
-            >
-              Add CAPA
-            </Link>
+            {/* A modal rather than a link to /capa/new, so raising a CAPA does not leave the
+                near miss. Hidden once closed: the API refuses a CAPA against a closed record,
+                and closing already requires every related CAPA to be closed. */}
+            {onAddCapa && record.status !== "Closed" ? (
+              <Can do="CAPA.Create">
+                <button
+                  type="button"
+                  onClick={onAddCapa}
+                  className="text4 text-ehs-normal-blue hover:text-ehs-normal-blue-hover cursor-pointer transition-colors"
+                >
+                  Add CAPA
+                </button>
+              </Can>
+            ) : null}
           </div>
 
           {record.relatedCapas.length > 0 ? (
@@ -116,7 +151,7 @@ export function NearMissDetailView(
               {record.relatedCapas.map((capa) => (
                 <Link
                   key={capa.id}
-                  href="/dashboard/capa"
+                  href={`/dashboard/capa/${String(capa.numericId)}`}
                   className="bg-ehs-form-classes-bg/70 hover:bg-ehs-form-classes-bg/95 flex flex-col gap-0.5 rounded-lg p-2.5 transition-colors"
                 >
                   <Text as="span" className="text7 text-ehs-normal-blue">

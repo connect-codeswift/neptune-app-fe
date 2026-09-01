@@ -149,13 +149,14 @@ function detailToFormState(
               description: step.description,
               isolationPoint: step.isolationPoint ?? "",
               energyType: step.energyType ?? "",
+              isolationMethod: step.isolationMethod ?? "",
               lockTagPosition: step.lockTagPosition ?? "",
             }),
           )
-        : [
-            createEmptyIsolationStep({ id: "step-1" }),
-            createEmptyIsolationStep({ id: "step-2" }),
-          ],
+        : // Same single-step floor as a new procedure: a stored record with no
+          // steps is legacy data, and the author should be shown one to fill in
+          // rather than two, one of which they must delete.
+          [createEmptyIsolationStep({ id: "step-1" })],
     verificationMethod: "",
     additionalNotes: detail.additionalNotes ?? "",
     selectedPpe: [],
@@ -271,17 +272,42 @@ function LotoProcedureEditor(props: LotoProcedureEditorProps) {
           ? fieldString(stepValues, "isolationPoint")
           : "",
         energyType: stepValues ? fieldString(stepValues, "energyType") : "",
+        isolationMethod: stepValues
+          ? fieldString(stepValues, "isolationMethod")
+          : "",
         lockTagPosition: stepValues
           ? fieldString(stepValues, "lockTagPosition")
           : "",
       };
     });
 
+    // A procedure with no isolation steps isolates nothing. The delete control
+    // is hidden on the last step so the UI cannot reach zero, but this is the
+    // rule rather than a side effect of that, and the API enforces it too.
+    if (stepPayloads.length === 0) {
+      toast.error(
+        "Add at least one isolation step",
+        "A procedure needs at least one step to isolate the equipment.",
+      );
+      return;
+    }
+
     for (const step of stepPayloads) {
       if (!step.description.trim()) {
         toast.error("Each isolation step needs a description");
         return;
       }
+    }
+
+    // A procedure nobody is authorized to perform cannot be applied — the
+    // Apply screen refuses it — so saving one produces a machine that looks
+    // ready and is not. The API enforces the same rule.
+    if (personnel.length === 0) {
+      toast.error(
+        "Authorize at least one person",
+        "Only listed personnel can perform this LOTO procedure.",
+      );
+      return;
     }
 
     const payload: UpsertLotoEquipmentRequestDto = {
@@ -297,7 +323,6 @@ function LotoProcedureEditor(props: LotoProcedureEditorProps) {
       // Not editable from this form yet — preserved from the loaded record on
       // edit, defaulted for a brand-new machine on create.
       isOutOfService: isEdit ? props.detail.isOutOfService : false,
-      lastInspectionAt: isEdit ? props.detail.lastInspectionAt : null,
       additionalNotes:
         additionalNotes.trim() === "" ? null : additionalNotes.trim(),
       steps: stepPayloads.map((step) => ({
@@ -306,6 +331,10 @@ function LotoProcedureEditor(props: LotoProcedureEditorProps) {
           step.isolationPoint.trim() === "" ? null : step.isolationPoint.trim(),
         energyType:
           step.energyType.trim() === "" ? null : step.energyType.trim(),
+        isolationMethod:
+          step.isolationMethod.trim() === ""
+            ? null
+            : step.isolationMethod.trim(),
         lockTagPosition:
           step.lockTagPosition.trim() === ""
             ? null
@@ -413,11 +442,12 @@ function LotoProcedureEditor(props: LotoProcedureEditorProps) {
         equipmentCode={
           isEdit ? withEquipmentPrefix(props.detail.equipmentCode) : undefined
         }
+      />
+      <LotoProcedureForm
+        mode={isEdit ? "edit" : "create"}
         onCancel={handleCancel}
         onSubmit={saveAll}
         isSubmitting={isSubmitting}
-      />
-      <LotoProcedureForm
         initial={initial}
         steps={steps}
         onStepsChange={setSteps}
