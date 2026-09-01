@@ -4,6 +4,7 @@ import { Icon } from "@iconify/react";
 import { useRef, useState } from "react";
 import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
 import { useIncidentFieldDraft } from "@/components/incidents/report/shared/use-incident-draft";
+import { buildDraftAssistInput } from "@/components/incidents/report/shared/report-ai-draft";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
@@ -337,6 +338,7 @@ export function ReportIncidentStepTwo(
             assistant={
               <AiTextAssistant
                 module="incident"
+                contextFields={buildDraftAssistInput(form)}
                 value={form.description}
                 draftPending={draft.pending}
                 onRegenerateDraft={draft.run}

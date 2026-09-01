@@ -11,6 +11,7 @@ import {
 } from "@/components/incidents/report/shared/ReportFormField";
 import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
 import { useIncidentFieldDraft } from "@/components/incidents/report/shared/use-incident-draft";
+import { buildDraftAssistInput } from "@/components/incidents/report/shared/report-ai-draft";
 import {
   markAiAssisted,
   type ReportIncidentFormState,
@@ -106,6 +107,7 @@ export function ReportIncidentStepFour(
               assistant={
                 <AiTextAssistant
                   module="incident"
+                  contextFields={buildDraftAssistInput(form)}
                   value={form.actionNotes}
                   draftPending={draft.pending}
                   onRegenerateDraft={draft.run}

@@ -11,6 +11,8 @@ import {
   type SelectOption,
 } from "@/components/form-builder";
 import { useNarrativeDraft } from "@/hooks/use-narrative-draft";
+import { useDraftMutation } from "@/hooks/use-ai-text-mutations";
+import { logAiAssistFailure } from "@/services/ai-text.service";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import type { CreateHazardRequestDto } from "@/dtos/req/hazard-request.dto";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
@@ -137,6 +139,54 @@ export function ReportHazardForm() {
 
   const showsDraft = pending || draft !== null;
 
+  // A Draft button, alongside the automatic ghost above.
+  //
+  // The ghost only ever appears on an empty description, and `useNarrativeDraft`
+  // gates its result on that too — so once the reporter has written something,
+  // regenerating through that hook produces a draft with nowhere to go. This
+  // path writes straight into the field instead, which is what "Redraft" has to
+  // mean once there are words to replace.
+  const [buttonDraftPending, setButtonDraftPending] = useState(false);
+  const draftMutation = useDraftMutation("hazard");
+
+  const runButtonDraft = (apply: (next: string) => void) => {
+    if (consequence === "") {
+      toast.info(
+        "Answer a little more first",
+        "Pick what could happen if this isn't fixed — a type and a location alone only restate the dropdowns.",
+      );
+      return;
+    }
+
+    setButtonDraftPending(true);
+    draftMutation
+      .mutateAsync({ fields: draftInput })
+      .then((results) => {
+        // These forms draft one field, and the prompt calls it the narrative.
+        const narrative = results.narrative ?? null;
+
+        if (narrative === null) {
+          toast.info(
+            "Nothing to draft yet",
+            "The answers given do not support a description. Add a little more and try again.",
+          );
+          return;
+        }
+
+        apply(narrative);
+      })
+      .catch((error: unknown) => {
+        logAiAssistFailure("hazard-draft", error);
+        toast.error(
+          "Couldn't draft a description",
+          "Your text is unchanged. Try again in a moment.",
+        );
+      })
+      .finally(() => {
+        setButtonDraftPending(false);
+      });
+  };
+
   const schema = useMemo<FormSchema>(() => {
     const mapped: FormSchema = hazardReportSchema.map((field) =>
       field.type === "textarea" && field.name === "description"
@@ -163,7 +213,9 @@ export function ReportHazardForm() {
                   module="hazard"
                   value={control.value}
                   onApply={control.onChange}
-                  onRegenerateDraft={canRegenerate ? regenerate : undefined}
+                  contextFields={draftInput}
+                  draftPending={buttonDraftPending}
+                  onRegenerateDraft={() => runButtonDraft(control.onChange)}
                 />
               ),
           }
