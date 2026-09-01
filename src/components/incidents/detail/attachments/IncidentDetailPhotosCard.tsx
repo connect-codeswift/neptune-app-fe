@@ -58,16 +58,7 @@ function PhotosContent(
               : `${String(attachments.length)} files attached`}
           </span>
         </div>
-        {!readOnly && !isEditing ? (
-          <button
-            type="button"
-            onClick={onAddFile}
-            className="text-ehs-dark-bg rounded-2.5 text5 backdrop-blur-1.5 border-ehs-hairline/90 bg-ehs-surface/62 hover:bg-ehs-surface/80 inline-flex shrink-0 items-center gap-2 border px-3.75 pt-2.5 pb-[11px] transition-colors"
-          >
-            <Icon icon="mdi:plus" className="size-3.25" aria-hidden="true" />
-            Add file
-          </button>
-        ) : null}
+        
       </div>
 
       {displayItems.length === 0 ? (
