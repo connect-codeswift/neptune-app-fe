@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { Text } from "@/components/Text";
 import { CreatableMultiSelectInput } from "@/components/inputs/CreatableMultiSelectInput";
-import { FIELD_TEXTAREA_CLASS } from "@/components/ui/field-styles";
+import { FIELD_TEXTAREA_WITH_CONTROLS_CLASS } from "@/components/ui/field-styles";
 import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
 import type { SelectOption } from "@/components/inputs/SelectInput";
 import type { IncidentClosureData } from "@/components/incidents/detail/incident-detail-types";
@@ -146,15 +146,25 @@ export function IncidentClosureStepRootCause(
         <label className="text8 text-ehs-muted-text mb-2 font-bold tracking-[0.5px] uppercase">
           ROOT CAUSE DESCRIPTION
         </label>
-        <textarea
-          value={data.rootCauseSummary}
-          onChange={(e) => onChangeField("rootCauseSummary", e.target.value)}
-          rows={4}
-          maxLength={1000}
-          placeholder="Describe the root cause details..."
-          className={FIELD_TEXTAREA_CLASS}
-        />
-        <div className="mt-1.5 flex items-center justify-between gap-3">
+        {/*
+          `relative`, and the textarea reserves a bottom strip.
+
+          AiTextAssistant positions itself `absolute right-3 bottom-3.5`, so it
+          anchors to the nearest positioned ancestor. Sitting in a plain flex
+          row below the field, that ancestor was a card several levels up and
+          the buttons floated to its corner instead of the box they belong to.
+          Same arrangement as the CAPA completion note, which already does this
+          correctly.
+        */}
+        <div className="relative">
+          <textarea
+            value={data.rootCauseSummary}
+            onChange={(e) => onChangeField("rootCauseSummary", e.target.value)}
+            rows={4}
+            maxLength={1000}
+            placeholder="Describe the root cause details..."
+            className={FIELD_TEXTAREA_WITH_CONTROLS_CLASS}
+          />
           {/*
             Rewrite only, no auto-draft. The report form can offer to draft an empty
             description because draft-assist exists for intake; there is no endpoint that
@@ -168,8 +178,9 @@ export function IncidentClosureStepRootCause(
               onChangeField("rootCauseSummary", rootCauseSummary)
             }
           />
-          <span className="text8 text-ehs-muted-text shrink-0 font-normal">
-            {`${String(data.rootCauseSummary.length)} / 1000 min`}
+          {/* Shares the reserved strip with the buttons, opposite corner. */}
+          <span className="text8 text-ehs-muted-text absolute bottom-3.5 left-3.25 font-normal">
+            {`${String(data.rootCauseSummary.length)} / 1000`}
           </span>
         </div>
       </div>

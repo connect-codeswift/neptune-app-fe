@@ -5,7 +5,9 @@ import { useEffect, useState } from "react";
 import { useRewriteMutation } from "@/hooks/use-ai-text-mutations";
 import { toast } from "@/lib/toast";
 import {
+  getAiAssistFailureKind,
   logAiAssistFailure,
+  type AiAssistFailureKind,
   type AiModule,
   type RewriteOperation,
 } from "@/services/ai-text.service";
@@ -54,6 +56,29 @@ export type AiTextAssistantProps = Readonly<{
 
 /** Below this there isn't enough for the model to work with. */
 const MIN_CHARS = 20;
+
+/** Chosen by status, so only a genuinely transient failure invites a retry. */
+const FAILURE_COPY: Record<
+  AiAssistFailureKind,
+  Readonly<{ title: string; body: string }>
+> = {
+  unconfigured: {
+    title: "Assistant unavailable here",
+    body: "It isn't switched on for this environment. Your text is unchanged — ask an administrator.",
+  },
+  forbidden: {
+    title: "No access to the assistant",
+    body: "Your role can't use writing assistance on this module. Your text is unchanged.",
+  },
+  "rate-limited": {
+    title: "Too many requests",
+    body: "You've hit the per-minute limit. Your text is unchanged — wait a minute and retry.",
+  },
+  transient: {
+    title: "Couldn't generate a suggestion",
+    body: "Your text is unchanged. Try again in a moment.",
+  },
+};
 
 const REWRITE_COPY: Record<
   RewriteOperation,
@@ -156,14 +181,14 @@ export function AiTextAssistant(props: Readonly<AiTextAssistantProps>) {
         "Not what you wanted? Use Undo next to the buttons.",
       );
     } catch (error) {
-      // Never surfaces the backend's own text. A timeout is not thrown as an
+      // Still never the backend's own text — a timeout is not thrown as an
       // AppException, so its message is a raw .NET string. The cause goes to
-      // the console instead, so this toast is not the end of the trail.
+      // the console. But the status picks the copy, because "try again in a
+      // moment" is wrong advice for a 503: the key is not set on this
+      // environment and the next click will fail identically.
       logAiAssistFailure(operation, error);
-      toast.error(
-        "Couldn't generate a suggestion",
-        "Your text is unchanged. Try again in a moment.",
-      );
+      const failure = FAILURE_COPY[getAiAssistFailureKind(error)];
+      toast.error(failure.title, failure.body);
     } finally {
       setRunning(null);
     }

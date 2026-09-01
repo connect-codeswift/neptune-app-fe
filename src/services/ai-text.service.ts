@@ -143,6 +143,33 @@ function readString(source: unknown, key: string): string | null {
  * Logs why an assist call failed. The reporter is shown fixed copy either way,
  * so this is the only place the cause is recoverable from a running app.
  */
+/**
+ * Why an assist call failed, in the only terms the UI needs.
+ *
+ * The diagnostic above stays console-only — it names env vars and permission
+ * strings. But the reporter still has to be told whether retrying is worth it,
+ * and the single "try again in a moment" toast said yes even when the answer
+ * was permanently no: on an environment with no `Ai__ApiKey` every click
+ * returned 503 and every toast invited another one. That is what "the AI is
+ * not working" looks like from the outside.
+ */
+export type AiAssistFailureKind =
+  "unconfigured" | "forbidden" | "rate-limited" | "transient";
+
+export function getAiAssistFailureKind(error: unknown): AiAssistFailureKind {
+  switch (toStatus(error)) {
+    case 503:
+      return "unconfigured";
+    case 401:
+    case 403:
+      return "forbidden";
+    case 429:
+      return "rate-limited";
+    default:
+      return "transient";
+  }
+}
+
 export function logAiAssistFailure(label: string, error: unknown): void {
   if (error instanceof AiAssistError) {
     console.warn(

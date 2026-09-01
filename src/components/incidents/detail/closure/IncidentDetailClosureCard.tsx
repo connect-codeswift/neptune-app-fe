@@ -134,10 +134,20 @@ export function IncidentDetailClosureCard(
 
       {/* Center Column: Active Step Form & Action Bar */}
       <div className="flex min-w-0 flex-col gap-4">
+        {/*
+          `z-10` so the Final Incident Type menu can escape upward.
+
+          IncidentGlassCard carries `backdrop-blur`, and a backdrop filter
+          creates a stacking context — which traps GlassSelect's `absolute
+          z-20` menu inside this card. The action bar below is a sibling card
+          with its own backdrop filter and no z-index, so DOM order decided and
+          it painted over the open list. Ordering the two cards fixes it for
+          every field on every step, rather than for this one dropdown.
+        */}
         <IncidentGlassCard
           paddingClassName="p-5.5"
           incidentGlassCardClassName="gap-4.5"
-          className="backdrop-blur-2.5 bg-ehs-surface/[0.62] shadow-none"
+          className="backdrop-blur-2.5 bg-ehs-surface/[0.62] z-10 shadow-none"
         >
           {currentStep === 1 && (
             <IncidentClosureStepClassification
@@ -169,10 +179,11 @@ export function IncidentDetailClosureCard(
           )}
         </IncidentGlassCard>
 
-        {/* Bottom Action Bar */}
+        {/* Bottom Action Bar — `z-0` is stated rather than left to DOM order,
+            so the pairing with the step card above reads as deliberate. */}
         <IncidentGlassCard
           paddingClassName="p-5"
-          className="rounded-4 backdrop-blur-2.5 border-t-ehs-border bg-ehs-surface/[0.62] shadow-none"
+          className="rounded-4 backdrop-blur-2.5 border-t-ehs-border bg-ehs-surface/[0.62] z-0 shadow-none"
         >
           <div className="flex flex-wrap items-center justify-between gap-3">
             {currentStep > 1 ? (
