@@ -95,9 +95,11 @@ export type AuditAttachmentDto = {
   auditId: number;
   /** Null when the file was attached to the run rather than to one question. */
   templateItemId: number | null;
+  /** Handle for GET /files/{fileId}. Null only on rows predating file storage. */
+  fileId: string | null;
   fileName: string;
-  /** Server-relative, e.g. `upload/AuditEvidence/<guid>.png`. */
-  filePath: string;
+  /** Legacy on-disk path. Null on everything written since file storage. */
+  filePath: string | null;
   mimeType: string | null;
   sizeBytes: number;
   createdDate: string;
@@ -186,7 +188,8 @@ export type SubmitAuditResponseDto =
 export type ReopenAuditResponseDto = ApiEnvelopeDto<unknown>;
 
 /** Matches the backend response for POST /api/v1/audits/{id}/attachments. */
-export type AddAuditAttachmentResponseDto = ApiEnvelopeDto<{
-  id: number;
-  filePath: string;
-} | null>;
+export type AddAuditAttachmentResponseDto =
+  ApiEnvelopeDto<AuditAttachmentDto | null>;
+
+/** Matches the backend response for DELETE /api/v1/audits/{id}/attachments/{attachmentId}. */
+export type DeleteAuditAttachmentResponseDto = ApiEnvelopeDto<unknown>;

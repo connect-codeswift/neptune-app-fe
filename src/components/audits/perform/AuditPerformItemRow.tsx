@@ -15,9 +15,12 @@ import {
   PENDING_ANSWER,
 } from "./audit-perform-state";
 
-/** What the backend accepts as evidence — mirrors AuditService.AllowedEvidenceExtensions. */
-export const EVIDENCE_ACCEPT = ".jpg,.jpeg,.png,.gif,.webp,.pdf";
-export const EVIDENCE_MAX_BYTES = 10 * 1024 * 1024;
+/**
+ * A hint for the file picker, not a rule. The rule is `validateFileForModule`,
+ * which mirrors what the server enforces at upload-intent; duplicating the list
+ * as a constraint here would just drift from it.
+ */
+export const EVIDENCE_ACCEPT = "image/*,application/pdf,video/mp4,video/webm";
 
 type GradeOption = Readonly<{
   value: AuditSeverity;
@@ -97,6 +100,7 @@ export type AuditPerformItemRowProps = Readonly<{
   isUploading: boolean;
   onChange: (next: AnswerDraft) => void;
   onAttach: (file: File) => void;
+  onRemoveAttachment: (attachmentId: number) => void;
 }>;
 
 /**
@@ -113,6 +117,7 @@ export function AuditPerformItemRow(props: AuditPerformItemRowProps) {
     isUploading,
     onChange,
     onAttach,
+    onRemoveAttachment,
   } = props;
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -261,7 +266,7 @@ export function AuditPerformItemRow(props: AuditPerformItemRowProps) {
               {attachments.map((attachment) => (
                 <li
                   key={attachment.id}
-                  className="text8 text-ehs-gray bg-ehs-form-classes-bg/70 rounded-2.5 flex items-center gap-1.5 px-2.5 py-1"
+                  className="text8 text-ehs-gray bg-ehs-form-classes-bg/70 rounded-2.5 flex items-center gap-1.5 py-1 pr-1 pl-2.5"
                 >
                   <Icon
                     icon={
@@ -275,6 +280,18 @@ export function AuditPerformItemRow(props: AuditPerformItemRowProps) {
                   <span className="max-w-48 truncate">
                     {attachment.fileName}
                   </span>
+                  {disabled ? null : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onRemoveAttachment(attachment.id);
+                      }}
+                      aria-label={`Remove ${attachment.fileName}`}
+                      className="hover:bg-ehs-red/10 hover:text-ehs-red cursor-pointer rounded-full p-1 transition-colors"
+                    >
+                      <Icon icon="mdi:close" className="size-3.5" aria-hidden />
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>

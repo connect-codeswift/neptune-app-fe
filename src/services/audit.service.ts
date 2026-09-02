@@ -10,12 +10,14 @@ import type {
   GetAuditByIdResponseDto,
   GetAuditFindingsResponseDto,
   GetAuditReportResponseDto,
+  DeleteAuditAttachmentResponseDto,
   ReopenAuditResponseDto,
   SaveAuditResponsesResponseDto,
   SubmitAuditResponseDto,
 } from "@/dtos/res/audit-response.dto";
 import type {
   CreateAuditRequestDto,
+  LinkAuditAttachmentRequestDto,
   ReopenAuditRequestDto,
   SaveAuditResponsesRequestDto,
   SubmitAuditRequestDto,
@@ -146,33 +148,32 @@ export async function reopenAudit(
 }
 
 /**
- * Attaches one photo or PDF as evidence, pinned to a question when
- * `templateItemId` is given. Multipart: the field names match the controller's
- * `IFormFile file` plus its `[FromForm]` parameters.
+ * Links evidence that is already in the bucket.
  *
- * The Content-Type header is deliberately not set — the browser has to add the
- * multipart boundary itself, and naming the type strips it.
+ * The bytes do not come through here: the caller runs `uploadFile` first
+ * (intent → PUT to the presigned url → commit) and passes the resulting handle.
+ * Evidence used to be posted here as multipart and written to the API node's own
+ * disk, where it did not survive a deploy.
  */
 export async function addAuditAttachment(
   auditId: string,
-  params: Readonly<{
-    file: File;
-    templateItemId: number | null;
-    userId: number;
-    siteId: number;
-  }>,
+  payload: LinkAuditAttachmentRequestDto,
 ) {
-  const body = new FormData();
-  body.append("file", params.file);
-  if (params.templateItemId !== null) {
-    body.append("templateItemId", String(params.templateItemId));
-  }
-  body.append("userId", String(params.userId));
-  body.append("siteId", String(params.siteId));
-
   const { data } = await http.post<AddAuditAttachmentResponseDto>(
     `${AUDIT_PATH}/${encodeURIComponent(auditId)}/attachments`,
-    body,
+    payload,
+  );
+
+  return data;
+}
+
+/** Unlinks evidence. The stored file itself is left in place. */
+export async function deleteAuditAttachment(
+  auditId: string,
+  attachmentId: number,
+) {
+  const { data } = await http.delete<DeleteAuditAttachmentResponseDto>(
+    `${AUDIT_PATH}/${encodeURIComponent(auditId)}/attachments/${String(attachmentId)}`,
   );
 
   return data;

@@ -11,6 +11,7 @@ import { SkeletonTable } from "@/components/ui/skeletons";
 import type { AuditItemResponseRequestDto } from "@/dtos/req/audit-request.dto";
 import {
   useAddAuditAttachmentMutation,
+  useDeleteAuditAttachmentMutation,
   useSaveAuditResponsesMutation,
   useSubmitAuditMutation,
 } from "@/hooks/use-audit-mutations";
@@ -21,7 +22,7 @@ import { getCurrentUser } from "@/lib/current-user";
 import { formatRecordDisplayId } from "@/lib/format-record-id";
 import { toast } from "@/lib/toast";
 import { AuditPerformHeader } from "./AuditPerformHeader";
-import { AuditPerformItemRow, EVIDENCE_MAX_BYTES } from "./AuditPerformItemRow";
+import { AuditPerformItemRow } from "./AuditPerformItemRow";
 import { AuditPerformTally } from "./AuditPerformTally";
 import { ReopenAuditDialog } from "./ReopenAuditDialog";
 import {
@@ -57,6 +58,7 @@ export function AuditPerformContent(props: AuditPerformContentProps) {
   const saveResponses = useSaveAuditResponsesMutation();
   const submitAudit = useSubmitAuditMutation();
   const addAttachment = useAddAuditAttachmentMutation();
+  const deleteAttachment = useDeleteAuditAttachmentMutation();
 
   const [answers, setAnswers] = useState<AnswerMap>({});
   const [saveState, setSaveState] = useState<SaveState>("idle");
@@ -155,16 +157,13 @@ export function AuditPerformContent(props: AuditPerformContentProps) {
 
   const handleAttach = useCallback(
     (itemId: number, file: File) => {
-      if (file.size > EVIDENCE_MAX_BYTES) {
-        toast.error("Evidence must be 10 MB or smaller.");
-        return;
-      }
-
-      const { userId, siteId } = getCurrentUser();
+      // No size or type check here: `uploadFile` validates against the same
+      // module rules the server enforces at upload-intent, so a second copy of
+      // those numbers here would only drift from them.
       setUploadingItemId(itemId);
 
       addAttachment.mutate(
-        { auditId, file, templateItemId: itemId, userId, siteId },
+        { auditId, file, templateItemId: itemId },
         {
           onSuccess: () => {
             toast.success("Evidence attached");
@@ -181,6 +180,25 @@ export function AuditPerformContent(props: AuditPerformContentProps) {
       );
     },
     [addAttachment, auditId],
+  );
+
+  const handleRemoveAttachment = useCallback(
+    (attachmentId: number) => {
+      deleteAttachment.mutate(
+        { auditId, attachmentId },
+        {
+          onSuccess: () => {
+            toast.success("Evidence removed");
+          },
+          onError: (error) => {
+            toast.error(
+              getMutationErrorMessage(error, "Could not remove that file."),
+            );
+          },
+        },
+      );
+    },
+    [auditId, deleteAttachment],
   );
 
   /** Scrolls the first offending question into view and outlines them all. */
@@ -381,6 +399,7 @@ export function AuditPerformContent(props: AuditPerformContentProps) {
                 onAttach={(file) => {
                   handleAttach(item.id, file);
                 }}
+                onRemoveAttachment={handleRemoveAttachment}
               />
             ))}
           </ul>
