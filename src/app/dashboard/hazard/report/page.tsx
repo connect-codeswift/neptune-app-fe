@@ -1,4 +1,4 @@
-﻿import { ReportHazardForm } from "@/components/hazard/report/ReportHazardForm";
+import { ReportHazardForm } from "@/components/hazard/report/ReportHazardForm";
 import { ReportHazardHeader } from "@/components/hazard/report/ReportHazardHeader";
 
 export default function ReportHazardPage() {

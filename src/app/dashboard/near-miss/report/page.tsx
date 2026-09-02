@@ -1,4 +1,4 @@
-﻿import { ReportNearMissForm } from "@/components/near-miss/report/ReportNearMissForm";
+import { ReportNearMissForm } from "@/components/near-miss/report/ReportNearMissForm";
 import { ReportNearMissHeader } from "@/components/near-miss/report/ReportNearMissHeader";
 
 export default function ReportNearMissPage() {

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { AcknowledgeDocumentForm } from "@/components/policy-maker/acknowledge/AcknowledgeDocumentForm";
 import { AcknowledgeDocumentHeader } from "@/components/policy-maker/acknowledge/AcknowledgeDocumentHeader";

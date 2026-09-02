@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { UploadDocumentForm } from "@/components/policy-maker/upload/UploadDocumentForm";
 import { UploadDocumentHeader } from "@/components/policy-maker/upload/UploadDocumentHeader";

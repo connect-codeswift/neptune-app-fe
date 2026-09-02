@@ -1,4 +1,4 @@
-﻿import { Suspense } from "react";
+import { Suspense } from "react";
 import { StartAuditForm } from "@/components/audits/start/StartAuditForm";
 import { StartAuditHeader } from "@/components/audits/start/StartAuditHeader";
 
