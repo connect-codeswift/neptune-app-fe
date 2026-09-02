@@ -15,6 +15,17 @@ import { mapFindingDtoToFinding } from "@/lib/map-audit";
 
 type DetailTab = "checklist" | "findings";
 
+/** Statuses whose answers are locked — the checklist opens read-only. */
+const LOCKED_STATUSES = new Set(["submitted", "completed", "cancelled"]);
+
+/** What the checklist button offers, given where the run has got to. */
+function performLabelFor(status: string): string {
+  const normalized = status.trim().toLowerCase();
+  if (LOCKED_STATUSES.has(normalized)) return "View Checklist";
+  if (normalized === "inprogress") return "Continue Audit";
+  return "Start Audit";
+}
+
 export default function AuditDetailPage() {
   const router = useRouter();
   const params = useParams();
@@ -39,12 +50,23 @@ export default function AuditDetailPage() {
     );
   };
 
+  const handlePerform = () => {
+    router.push(`/dashboard/audits/${encodeURIComponent(auditRunId)}/perform`);
+  };
+
+  // The report endpoint answers 400 until the run is submitted, so offering it
+  // earlier only ever produced an error page.
+  const canGenerateReport =
+    audit !== null && LOCKED_STATUSES.has(audit.status.trim().toLowerCase());
+
   return (
     <div className="flex min-h-screen flex-1 flex-col gap-3.5 px-4 pt-4 pb-8">
       <AuditDetailHeader
         auditId={audit ? `A-${String(audit.id)}` : `A-${auditRunId}`}
         subtitle={audit?.auditTitle ?? audit?.snapshot?.templateName ?? ""}
-        onGenerateReport={handleGenerateReport}
+        onGenerateReport={canGenerateReport ? handleGenerateReport : undefined}
+        onPerform={audit ? handlePerform : undefined}
+        performLabel={audit ? performLabelFor(audit.status) : undefined}
       />
 
       <Tabs
