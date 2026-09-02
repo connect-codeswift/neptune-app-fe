@@ -13,19 +13,32 @@ import {
 } from "@/forms/incident-module/index";
 import { ReportTextareaField } from "@/components/incidents/report/shared/ReportFormField";
 import { ReportBodyPartField } from "@/components/incidents/report/steps/step-3/ReportBodyPartField";
+import { ReportIncidentDraftButton } from "@/components/incidents/report/shared/ReportIncidentDraftButton";
 
 export type ReportIncidentStepThreeProps = Readonly<{
   form: ReportIncidentFormState;
   onChange: (next: Partial<ReportIncidentFormState>) => void;
   onBack?: () => void;
   onContinue?: () => void;
+  /** Saves the report as a draft in place, without navigating away. */
+  onSaveDraft?: () => void;
+  /** True while the draft is being written. Blocks a second click mid-save. */
+  isSavingDraft?: boolean;
   className?: string;
 }>;
 
 export function ReportIncidentStepThree(
   props: Readonly<ReportIncidentStepThreeProps>,
 ) {
-  const { form, onChange, onBack, onContinue, className = "" } = props;
+  const {
+    form,
+    onChange,
+    onBack,
+    onContinue,
+    onSaveDraft,
+    isSavingDraft = false,
+    className = "",
+  } = props;
 
   const draft = useIncidentFieldDraft(form, onChange, "injuryDescription");
 
@@ -131,6 +144,11 @@ export function ReportIncidentStepThree(
               Required fields marked with{" "}
               <span className="text-ehs-red">*</span>
             </p>
+
+            <ReportIncidentDraftButton
+              onSaveDraft={onSaveDraft}
+              isSavingDraft={isSavingDraft}
+            />
 
             <Button
               type="button"

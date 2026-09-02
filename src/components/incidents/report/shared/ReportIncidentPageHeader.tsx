@@ -2,13 +2,9 @@
 
 import Link from "next/link";
 import { Icon } from "@iconify/react";
-import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
 
 export type ReportIncidentPageHeaderProps = Readonly<{
-  onSaveExit?: () => void;
-  /** True while the draft is being written. Blocks a second click mid-save. */
-  isSavingExit?: boolean;
   className?: string;
   backHref?: string;
   backLabel?: string;
@@ -19,8 +15,6 @@ export function ReportIncidentPageHeader(
   props: Readonly<ReportIncidentPageHeaderProps>,
 ) {
   const {
-    onSaveExit,
-    isSavingExit = false,
     className = "",
     backHref = "/dashboard/incidents/list",
     backLabel = "Incidents",
@@ -60,16 +54,6 @@ export function ReportIncidentPageHeader(
           {title}
         </Text>
       </div>
-
-      <Button
-        type="button"
-        variant="tertiary"
-        onClick={onSaveExit}
-        disabled={isSavingExit}
-        className="text-ehs-dark-bg rounded-2.5 border-ehs-border-ink/14 relative z-1 px-3.75 py-2.5 text-sm font-bold"
-      >
-        {isSavingExit ? "Saving…" : "Save & exit"}
-      </Button>
     </div>
   );
 }

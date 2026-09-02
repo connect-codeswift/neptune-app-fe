@@ -30,6 +30,7 @@ import { useSubmitLock } from "@/hooks/use-submit-lock";
 import { useCreateIncidentMutation } from "@/hooks/use-incident-mutations";
 import { getAccessToken } from "@/lib/axios";
 import { toast } from "@/lib/toast";
+import { ReportIncidentDraftButton } from "@/components/incidents/report/shared/ReportIncidentDraftButton";
 
 export type ReportIncidentStepFiveProps = Readonly<{
   form: ReportIncidentFormState;
@@ -44,6 +45,10 @@ export type ReportIncidentStepFiveProps = Readonly<{
    * link the near miss to the incident via POST …/convert-to-incident.
    */
   onAfterCreateIncident?: (incidentId: number) => Promise<void> | void;
+  /** Saves the report as a draft in place, without navigating away. */
+  onSaveDraft?: () => void;
+  /** True while the draft is being written. Blocks a second click mid-save. */
+  isSavingDraft?: boolean;
   className?: string;
 }>;
 
@@ -176,6 +181,8 @@ export function ReportIncidentStepFive(
     onBack,
     onGoToStep,
     onAfterCreateIncident,
+    onSaveDraft,
+    isSavingDraft = false,
     className = "",
   } = props;
   const router = useRouter();
@@ -595,6 +602,12 @@ export function ReportIncidentStepFive(
               Required fields marked with{" "}
               <span className="text-ehs-red">*</span>
             </p>
+
+            <ReportIncidentDraftButton
+              onSaveDraft={onSaveDraft}
+              isSavingDraft={isSavingDraft}
+              disabled={submitLock.isLocked}
+            />
 
             <Button
               type="button"
