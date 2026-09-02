@@ -8,10 +8,12 @@ import type {
 import {
   addAuditAttachment,
   createAudit,
+  deleteAuditAttachment,
   reopenAudit,
   saveAuditResponses,
   submitAudit,
 } from "@/services/audit.service";
+import { uploadFile } from "@/lib/upload-file";
 
 /** Records an audit's answers via POST /api/v1/audits/{id}/responses. */
 export function useSaveAuditResponsesMutation() {
@@ -75,26 +77,45 @@ export function useReopenAuditMutation() {
   });
 }
 
-/** Attaches evidence via POST /api/v1/audits/{id}/attachments. */
+/**
+ * Uploads evidence and links it to the run.
+ *
+ * Two steps behind one mutation: the bytes go straight from the browser to the
+ * private bucket via `uploadFile`, then the returned handle is linked. The API
+ * never sees the file — it used to, and wrote it to a disk that was wiped on
+ * every deploy.
+ */
 export function useAddAuditAttachmentMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (vars: {
+    mutationFn: async (vars: {
       auditId: string;
       file: File;
       templateItemId: number | null;
-      userId: number;
-      siteId: number;
-    }) =>
-      addAuditAttachment(vars.auditId, {
-        file: vars.file,
+    }) => {
+      const uploaded = await uploadFile(vars.file, { module: "Audit" });
+
+      return addAuditAttachment(vars.auditId, {
+        fileId: uploaded.fileId,
         templateItemId: vars.templateItemId,
-        userId: vars.userId,
-        siteId: vars.siteId,
-      }),
+      });
+    },
     onSuccess: () => {
       // The detail carries `attachments`, and submit checks them for requirePhoto.
+      queryClient.invalidateQueries({ queryKey: ["audit"] });
+    },
+  });
+}
+
+/** Unlinks evidence via DELETE /api/v1/audits/{id}/attachments/{attachmentId}. */
+export function useDeleteAuditAttachmentMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (vars: { auditId: string; attachmentId: number }) =>
+      deleteAuditAttachment(vars.auditId, vars.attachmentId),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["audit"] });
     },
   });

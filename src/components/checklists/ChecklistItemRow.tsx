@@ -3,24 +3,25 @@
 import { useRef } from "react";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
-import type { AuditSeverity } from "@/dtos/req/audit-request.dto";
-import type {
-  AuditAttachmentDto,
-  AuditSnapshotItemDto,
-} from "@/dtos/res/audit-response.dto";
 import {
   type AnswerDraft,
+  type ChecklistEvidence,
+  type ChecklistGrade,
+  type ChecklistItem,
   isAnswered,
   needsNote,
   PENDING_ANSWER,
-} from "./audit-perform-state";
+} from "./checklist-state";
 
-/** What the backend accepts as evidence — mirrors AuditService.AllowedEvidenceExtensions. */
-export const EVIDENCE_ACCEPT = ".jpg,.jpeg,.png,.gif,.webp,.pdf";
-export const EVIDENCE_MAX_BYTES = 10 * 1024 * 1024;
+/**
+ * A hint for the file picker, not a rule. The rule is `validateFileForModule`,
+ * which mirrors what the server enforces at upload-intent; duplicating the list
+ * as a constraint here would just drift from it.
+ */
+export const EVIDENCE_ACCEPT = "image/*,application/pdf,video/mp4,video/webm";
 
 type GradeOption = Readonly<{
-  value: AuditSeverity;
+  value: ChecklistGrade;
   label: string;
   icon: string;
   /** Classes for the button once it is the chosen grade. */
@@ -86,10 +87,10 @@ function GradeButton(
   );
 }
 
-export type AuditPerformItemRowProps = Readonly<{
-  item: AuditSnapshotItemDto;
+export type ChecklistItemRowProps = Readonly<{
+  item: ChecklistItem;
   answer: AnswerDraft | undefined;
-  attachments: readonly AuditAttachmentDto[];
+  attachments: readonly ChecklistEvidence[];
   /** Read-only once the run is submitted — the backend refuses writes anyway. */
   disabled: boolean;
   /** True when a rejected submit named this question. */
@@ -97,13 +98,19 @@ export type AuditPerformItemRowProps = Readonly<{
   isUploading: boolean;
   onChange: (next: AnswerDraft) => void;
   onAttach: (file: File) => void;
+  onRemoveAttachment: (attachmentId: number) => void;
 }>;
+
+/** The dom id a rejected submit scrolls to. */
+export function checklistRowId(itemId: number): string {
+  return `checklist-item-${String(itemId)}`;
+}
 
 /**
  * One checklist question: its grade, the note explaining that grade, and any
- * evidence pinned to it.
+ * evidence pinned to it. Shared by audits and inspections.
  */
-export function AuditPerformItemRow(props: AuditPerformItemRowProps) {
+export function ChecklistItemRow(props: ChecklistItemRowProps) {
   const {
     item,
     answer,
@@ -113,6 +120,7 @@ export function AuditPerformItemRow(props: AuditPerformItemRowProps) {
     isUploading,
     onChange,
     onAttach,
+    onRemoveAttachment,
   } = props;
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -121,21 +129,12 @@ export function AuditPerformItemRow(props: AuditPerformItemRowProps) {
   const noteRequired = needsNote(item, answer);
 
   // The note only earns its space once there is a grade to explain.
-  const showNote = answered && !draft.isNA;
+  const showNote = answered;
 
-  const handleGrade = (severity: AuditSeverity) => {
+  const handleGrade = (severity: ChecklistGrade) => {
     // Tapping the chosen grade again clears it, back to Pending.
-    const isSame = draft.severity === severity && !draft.isNA;
-    onChange({
-      ...draft,
-      severity: isSame ? null : severity,
-      isNA: false,
-    });
-  };
-
-  const handleNA = () => {
-    const next = !draft.isNA;
-    onChange({ ...draft, isNA: next, severity: next ? null : draft.severity });
+    const isSame = draft.severity === severity;
+    onChange({ ...draft, severity: isSame ? null : severity });
   };
 
   const handleFile = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -147,7 +146,7 @@ export function AuditPerformItemRow(props: AuditPerformItemRowProps) {
 
   return (
     <li
-      id={`audit-item-${String(item.id)}`}
+      id={checklistRowId(item.id)}
       className={[
         "border-ehs-border-ink/10 flex flex-col gap-3 border-b px-5 py-4 last:border-b-0",
         isBlocked ? "bg-ehs-red/5 border-l-ehs-red border-l-2" : "",
@@ -182,39 +181,20 @@ export function AuditPerformItemRow(props: AuditPerformItemRowProps) {
             <GradeButton
               key={option.value}
               option={option}
-              isSelected={!draft.isNA && draft.severity === option.value}
+              isSelected={draft.severity === option.value}
               disabled={disabled}
               onSelect={() => {
                 handleGrade(option.value);
               }}
             />
           ))}
-
-          {item.allowNA ? (
-            <button
-              type="button"
-              role="radio"
-              aria-checked={draft.isNA}
-              disabled={disabled}
-              onClick={handleNA}
-              className={[
-                "text8 rounded-2.5 cursor-pointer border px-3 py-1.5 transition-colors",
-                "disabled:cursor-not-allowed disabled:opacity-60",
-                draft.isNA
-                  ? "bg-ehs-gray text-ehs-on-accent border-ehs-gray"
-                  : UNSELECTED_GRADE_CLASS,
-              ].join(" ")}
-            >
-              N/A
-            </button>
-          ) : null}
         </div>
       </div>
 
       {showNote ? (
         <div className="flex flex-col gap-1.5">
           <label
-            htmlFor={`audit-note-${String(item.id)}`}
+            htmlFor={`checklist-note-${String(item.id)}`}
             className="text8 text-ehs-gray"
           >
             {draft.severity === "Pass"
@@ -228,7 +208,7 @@ export function AuditPerformItemRow(props: AuditPerformItemRowProps) {
           </label>
 
           <textarea
-            id={`audit-note-${String(item.id)}`}
+            id={`checklist-note-${String(item.id)}`}
             rows={2}
             disabled={disabled}
             value={draft.note}
@@ -289,7 +269,7 @@ export function AuditPerformItemRow(props: AuditPerformItemRowProps) {
               {attachments.map((attachment) => (
                 <li
                   key={attachment.id}
-                  className="text8 text-ehs-gray bg-ehs-form-classes-bg/70 rounded-2.5 flex items-center gap-1.5 px-2.5 py-1"
+                  className="text8 text-ehs-gray bg-ehs-form-classes-bg/70 rounded-2.5 flex items-center gap-1.5 py-1 pr-1 pl-2.5"
                 >
                   <Icon
                     icon={
@@ -303,6 +283,18 @@ export function AuditPerformItemRow(props: AuditPerformItemRowProps) {
                   <span className="max-w-48 truncate">
                     {attachment.fileName}
                   </span>
+                  {disabled ? null : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onRemoveAttachment(attachment.id);
+                      }}
+                      aria-label={`Remove ${attachment.fileName}`}
+                      className="hover:bg-ehs-red/10 hover:text-ehs-red cursor-pointer rounded-full p-1 transition-colors"
+                    >
+                      <Icon icon="mdi:close" className="size-3.5" aria-hidden />
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>

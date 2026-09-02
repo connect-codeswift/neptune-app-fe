@@ -8,14 +8,14 @@ import { Button } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { SkeletonTable } from "@/components/ui/skeletons";
-import type { AuditItemResponseRequestDto } from "@/dtos/req/audit-request.dto";
+import type { InspectionItemResponseRequestDto } from "@/dtos/req/inspection-request.dto";
 import {
-  useAddAuditAttachmentMutation,
-  useDeleteAuditAttachmentMutation,
-  useSaveAuditResponsesMutation,
-  useSubmitAuditMutation,
-} from "@/hooks/use-audit-mutations";
-import { useAuditDetailQuery } from "@/hooks/use-audit-queries";
+  useAddInspectionAttachmentMutation,
+  useDeleteInspectionAttachmentMutation,
+  useSaveInspectionResponsesMutation,
+  useSubmitInspectionMutation,
+} from "@/hooks/use-inspection-mutations";
+import { useInspectionDetailQuery } from "@/hooks/use-inspection-queries";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { readSubmitBlockers } from "@/lib/audit-inspection-errors";
 import { getCurrentUser } from "@/lib/current-user";
@@ -36,13 +36,13 @@ import {
   tallyAnswers,
   ungradedItemIds,
 } from "@/components/checklists/checklist-state";
-import { ReopenAuditDialog } from "./ReopenAuditDialog";
+import { ReopenInspectionDialog } from "./ReopenInspectionDialog";
 import {
   hydrateAnswers,
   toChecklistEvidence,
   toChecklistSections,
   toResponsePayload,
-} from "./audit-perform-state";
+} from "./inspection-perform-state";
 
 /** A grade is one tap and wants to feel committed; a note is still being typed. */
 const GRADE_SAVE_DELAY_MS = 400;
@@ -50,19 +50,19 @@ const NOTE_SAVE_DELAY_MS = 900;
 
 type SaveState = "idle" | "saving" | "saved" | "error";
 
-export type AuditPerformContentProps = Readonly<{ auditId: string }>;
+export type InspectionPerformContentProps = Readonly<{ inspectionId: string }>;
 
-export function AuditPerformContent(props: AuditPerformContentProps) {
-  const { auditId } = props;
+export function InspectionPerformContent(props: InspectionPerformContentProps) {
+  const { inspectionId } = props;
   const router = useRouter();
 
-  const detailQuery = useAuditDetailQuery(auditId);
-  const audit = detailQuery.data?.dataModel ?? null;
+  const detailQuery = useInspectionDetailQuery(inspectionId);
+  const inspection = detailQuery.data?.dataModel ?? null;
 
-  const saveResponses = useSaveAuditResponsesMutation();
-  const submitAudit = useSubmitAuditMutation();
-  const addAttachment = useAddAuditAttachmentMutation();
-  const deleteAttachment = useDeleteAuditAttachmentMutation();
+  const saveResponses = useSaveInspectionResponsesMutation();
+  const submitInspection = useSubmitInspectionMutation();
+  const addAttachment = useAddInspectionAttachmentMutation();
+  const deleteAttachment = useDeleteInspectionAttachmentMutation();
 
   const [answers, setAnswers] = useState<AnswerMap>({});
   const [saveState, setSaveState] = useState<SaveState>("idle");
@@ -73,7 +73,7 @@ export function AuditPerformContent(props: AuditPerformContentProps) {
 
   /**
    * Answers are hydrated once per run rather than on every refetch. Saving
-   * invalidates the audit queries, so re-hydrating on each response would
+   * invalidates the inspection queries, so re-hydrating on each response would
    * overwrite whatever the auditor typed while the request was in flight.
    */
   const hydratedForRef = useRef<string | null>(null);
@@ -82,19 +82,22 @@ export function AuditPerformContent(props: AuditPerformContentProps) {
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    if (!audit || hydratedForRef.current === auditId) return;
-    hydratedForRef.current = auditId;
-    setAnswers(hydrateAnswers(audit.responses ?? []));
-  }, [audit, auditId]);
+    if (!inspection || hydratedForRef.current === inspectionId) return;
+    hydratedForRef.current = inspectionId;
+    setAnswers(hydrateAnswers(inspection.responses ?? []));
+  }, [inspection, inspectionId]);
 
-  const sections = useMemo(() => toChecklistSections(audit?.snapshot), [audit]);
+  const sections = useMemo(
+    () => toChecklistSections(inspection?.snapshot),
+    [inspection],
+  );
   const items = useMemo(
     () => sections.flatMap((section) => section.items),
     [sections],
   );
   const tally = useMemo(() => tallyAnswers(items, answers), [items, answers]);
 
-  const isLocked = isRunLocked(audit?.status);
+  const isLocked = isRunLocked(inspection?.status ?? null);
 
   /** Writes every pending change in one request — the endpoint takes a batch. */
   const flushSaves = useCallback(async () => {
@@ -106,9 +109,9 @@ export function AuditPerformContent(props: AuditPerformContentProps) {
     const pending = dirtyRef.current;
     if (pending.size === 0) return;
 
-    const responses: AuditItemResponseRequestDto[] = [...pending.entries()].map(
-      ([itemId, draft]) => toResponsePayload(itemId, draft),
-    );
+    const responses: InspectionItemResponseRequestDto[] = [
+      ...pending.entries(),
+    ].map(([itemId, draft]) => toResponsePayload(itemId, draft));
     // Cleared before awaiting so a change made during the request is not lost
     // with the batch it was never part of.
     dirtyRef.current = new Map();
@@ -118,7 +121,7 @@ export function AuditPerformContent(props: AuditPerformContentProps) {
 
     try {
       await saveResponses.mutateAsync({
-        auditId,
+        inspectionId,
         payload: { userId, siteId, responses },
       });
       setSaveState("saved");
@@ -128,7 +131,7 @@ export function AuditPerformContent(props: AuditPerformContentProps) {
         getMutationErrorMessage(error, "Could not save your last answer."),
       );
     }
-  }, [auditId, saveResponses]);
+  }, [inspectionId, saveResponses]);
 
   const queueSave = useCallback(
     (itemId: number, draft: AnswerDraft, delayMs: number) => {
@@ -167,7 +170,7 @@ export function AuditPerformContent(props: AuditPerformContentProps) {
       setUploadingItemId(itemId);
 
       addAttachment.mutate(
-        { auditId, file, templateItemId: itemId },
+        { inspectionId, file, inspectionItemId: itemId },
         {
           onSuccess: () => {
             toast.success("Evidence attached");
@@ -183,13 +186,13 @@ export function AuditPerformContent(props: AuditPerformContentProps) {
         },
       );
     },
-    [addAttachment, auditId],
+    [addAttachment, inspectionId],
   );
 
   const handleRemoveAttachment = useCallback(
     (attachmentId: number) => {
       deleteAttachment.mutate(
-        { auditId, attachmentId },
+        { inspectionId, attachmentId },
         {
           onSuccess: () => {
             toast.success("Evidence removed");
@@ -202,7 +205,7 @@ export function AuditPerformContent(props: AuditPerformContentProps) {
         },
       );
     },
-    [auditId, deleteAttachment],
+    [inspectionId, deleteAttachment],
   );
 
   /** Scrolls the first offending question into view and outlines them all. */
@@ -265,8 +268,8 @@ export function AuditPerformContent(props: AuditPerformContentProps) {
     setIsConfirmingSubmit(false);
     const { userId, siteId } = getCurrentUser();
 
-    submitAudit.mutate(
-      { auditId, payload: { userId, siteId } },
+    submitInspection.mutate(
+      { inspectionId, payload: { userId, siteId } },
       {
         onSuccess: (response) => {
           const raised = response.dataModel?.autoRaisedFindings ?? 0;
@@ -275,7 +278,9 @@ export function AuditPerformContent(props: AuditPerformContentProps) {
               ? `Audit submitted — ${String(raised)} ${raised === 1 ? "finding" : "findings"} raised.`
               : "Audit submitted",
           );
-          router.push(`/dashboard/audits/${encodeURIComponent(auditId)}`);
+          router.push(
+            `/dashboard/inspections/findings/${encodeURIComponent(inspectionId)}`,
+          );
         },
         onError: (error) => {
           const blockers = readSubmitBlockers(error);
@@ -287,12 +292,12 @@ export function AuditPerformContent(props: AuditPerformContentProps) {
 
           if (ids.length > 0) highlightBlocked(ids);
           toast.error(
-            getMutationErrorMessage(error, "Could not submit this audit."),
+            getMutationErrorMessage(error, "Could not submit this inspection."),
           );
         },
       },
     );
-  }, [auditId, highlightBlocked, router, submitAudit]);
+  }, [inspectionId, highlightBlocked, router, submitInspection]);
 
   // Losing a half-typed note to a stray back-navigation is worth one prompt.
   useEffect(() => {
@@ -322,11 +327,11 @@ export function AuditPerformContent(props: AuditPerformContentProps) {
     );
   }
 
-  if (detailQuery.isError || !audit) {
+  if (detailQuery.isError || !inspection) {
     return (
       <div className="flex flex-1 items-center justify-center px-4 pb-8">
         <Text as="p" className="text4 text-ehs-red">
-          Could not load this audit.
+          Could not load this inspection.
         </Text>
       </div>
     );
@@ -336,25 +341,29 @@ export function AuditPerformContent(props: AuditPerformContentProps) {
     return (
       <EmptyState
         icon="mdi:format-list-checks"
-        title="Nothing to audit"
-        message="The template this audit was created from has no questions."
+        title="Nothing to inspection"
+        message="The template this inspection was created from has no questions."
       />
     );
   }
 
   const blocked = new Set(blockedIds);
-  const evidence = toChecklistEvidence(audit.attachments ?? []);
+  const evidence = toChecklistEvidence(inspection.attachments ?? []);
 
   return (
     <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
       <ChecklistHeader
-        recordId={formatRecordDisplayId("A", audit.id)}
-        title="Perform Audit"
-        subtitle={audit.auditTitle || audit.snapshot?.templateName || ""}
+        recordId={formatRecordDisplayId("I", inspection.id)}
+        title="Perform Inspection"
+        subtitle={
+          inspection.inspectionTitle || inspection.snapshot?.templateName || ""
+        }
         saveState={saveState}
         isLocked={isLocked}
         onViewFindings={() => {
-          router.push(`/dashboard/audits/${encodeURIComponent(auditId)}`);
+          router.push(
+            `/dashboard/inspections/findings/${encodeURIComponent(inspectionId)}`,
+          );
         }}
         onReopen={() => {
           setIsReopening(true);
@@ -366,7 +375,7 @@ export function AuditPerformContent(props: AuditPerformContentProps) {
       {isLocked ? (
         <IncidentGlassCard paddingClassName="px-5 py-3" className="min-w-0">
           <Text as="p" className="text8 text-ehs-gray">
-            {`This audit is ${audit.status.toLowerCase()} and can no longer be edited. Reopen it to make a correction.`}
+            {`This inspection is ${(inspection.status ?? "").toLowerCase()} and can no longer be edited. Reopen it to make a correction.`}
           </Text>
         </IncidentGlassCard>
       ) : null}
@@ -416,12 +425,12 @@ export function AuditPerformContent(props: AuditPerformContentProps) {
           <Button
             type="button"
             variant="primary"
-            isLoading={submitAudit.isPending}
+            isLoading={submitInspection.isPending}
             onClick={() => {
               void handleRequestSubmit();
             }}
           >
-            Submit Audit
+            Submit Inspection
           </Button>
 
           <Text as="span" className="text8 text-ehs-gray">
@@ -434,14 +443,14 @@ export function AuditPerformContent(props: AuditPerformContentProps) {
 
       <ConfirmDialog
         open={isConfirmingSubmit}
-        title="Submit this audit?"
+        title="Submit this inspection?"
         description={
           tally.action + tally.critical > 0
             ? `All ${String(tally.total)} questions are graded. Submitting locks the answers and raises ${String(tally.action + tally.critical)} finding(s) from the questions you graded Action or Critical.`
-            : `All ${String(tally.total)} questions are graded and none needs action. Submitting locks the answers; only a lead can reopen the audit afterwards.`
+            : `All ${String(tally.total)} questions are graded and none needs action. Submitting locks the answers; only a lead can reopen the inspection afterwards.`
         }
         confirmLabel="Submit"
-        isConfirming={submitAudit.isPending}
+        isConfirming={submitInspection.isPending}
         onConfirm={handleSubmit}
         onCancel={() => {
           setIsConfirmingSubmit(false);
@@ -449,8 +458,8 @@ export function AuditPerformContent(props: AuditPerformContentProps) {
       />
 
       {isReopening ? (
-        <ReopenAuditDialog
-          auditId={auditId}
+        <ReopenInspectionDialog
+          inspectionId={inspectionId}
           onClose={() => {
             setIsReopening(false);
           }}
