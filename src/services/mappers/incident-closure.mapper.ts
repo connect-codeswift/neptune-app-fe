@@ -116,8 +116,16 @@ export function mapIncidentClosureDtoToData(
     return fallback;
   }
 
-  const currentStep = parseStepNumber(dto.currentStep) ?? fallback.currentStep;
+  // Where the closer stopped, which is not where the wizard reopens. Landing
+  // them mid-flow hides the fact that anything was restored and gives them no
+  // step 1 to check first; the "Drafts" button on step 1 is the way back in.
+  const draftStep = (parseStepNumber(dto.currentStep) ??
+    fallback.draftStep) as IncidentClosureData["draftStep"];
+  const currentStep = fallback.currentStep;
+  // The sidebar refuses any jump past this, so the saved step has to be inside
+  // it or the Drafts button would be refused by the guard it triggers.
   const maxAccessibleStep = Math.max(
+    draftStep,
     currentStep,
     fallback.maxAccessibleStep ?? 1,
   ) as IncidentClosureData["maxAccessibleStep"];
@@ -144,6 +152,7 @@ export function mapIncidentClosureDtoToData(
     maxAccessibleStep,
     closureStatus,
     draftSavedAt: dto.updatedAt ?? fallback.draftSavedAt,
+    draftStep,
     closureId: dto.closureId ?? dto.id?.toString() ?? fallback.closureId,
     closedAt: dto.closedAt ?? fallback.closedAt,
     closedBy: dto.closedBy ?? dto.closedByUserName ?? fallback.closedBy,

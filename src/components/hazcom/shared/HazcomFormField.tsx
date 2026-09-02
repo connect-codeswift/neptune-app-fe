@@ -200,11 +200,26 @@ export type HazcomTextareaFieldProps = Readonly<
     required?: boolean;
     trailingHint?: string;
     className?: string;
+    /**
+     * Controls layered inside the field box — the AI buttons. They position
+     * themselves against the wrapper below, which is why it turns `relative`
+     * only when one is present, and why the box gains bottom padding then: at
+     * the default height the controls sit on the last line of text.
+     */
+    assistant?: ReactNode;
   }
 >;
 
 export function HazcomTextareaField(props: Readonly<HazcomTextareaFieldProps>) {
-  const { label, required, trailingHint, className = "", id, ...rest } = props;
+  const {
+    label,
+    required,
+    trailingHint,
+    className = "",
+    id,
+    assistant,
+    ...rest
+  } = props;
 
   return (
     <div
@@ -221,7 +236,18 @@ export function HazcomTextareaField(props: Readonly<HazcomTextareaFieldProps>) {
           ) : undefined
         }
       />
-      <textarea id={id} className={FIELD_TEXTAREA_CLASS} {...rest} />
+      {assistant ? (
+        <div className="relative">
+          <textarea
+            id={id}
+            className={`${FIELD_TEXTAREA_CLASS} min-h-32 pb-11`}
+            {...rest}
+          />
+          {assistant}
+        </div>
+      ) : (
+        <textarea id={id} className={FIELD_TEXTAREA_CLASS} {...rest} />
+      )}
     </div>
   );
 }

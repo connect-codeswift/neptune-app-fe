@@ -77,17 +77,19 @@ export function IncidentDetailClosureCard(
   /*
    * Where a saved draft picks up again.
    *
-   * `maxAccessibleStep` rather than `currentStep`: the API restores the saved
-   * step on load, so by the time the closer has navigated back to step 1 the
-   * live step is 1 and only the furthest-reached value still remembers where
-   * they were. `draftSavedAt` is required too, so merely paging forward and
-   * back without saving does not claim there is a draft to return to.
+   * `draftStep` is the step the closer was on when they pressed Save as Draft,
+   * kept apart from `currentStep` so the wizard still reopens on Classification
+   * — that is what gives them a step 1 to see the button on.
+   *
+   * `draftSavedAt` is required as well, so paging forward and back without ever
+   * saving does not claim there is a draft to return to. Past step 1 the closer
+   * is already at or beyond the saved point, so the slot stays Save as Draft.
    */
   const hasSavedDraft =
     data.draftSavedAt.trim() !== "" && data.closureStatus !== "Closed";
   const resumeStep: ClosureStepId | null =
-    currentStep === 1 && hasSavedDraft && maxAccessibleStep > 1
-      ? maxAccessibleStep
+    currentStep === 1 && hasSavedDraft && data.draftStep > 1
+      ? data.draftStep
       : null;
 
   const savedAt = data.draftSavedAt.trim() ? new Date(data.draftSavedAt) : null;
@@ -275,7 +277,7 @@ export function IncidentDetailClosureCard(
                     className="size-4.5 shrink-0"
                     aria-hidden="true"
                   />
-                  Draft
+                  Drafts
                 </button>
               )}
 
