@@ -1,3 +1,4 @@
+import { dateFieldToInstant } from "@/lib/date-time-field";
 import type {
   CapaItem,
   CapaSummaryCounts,
@@ -695,7 +696,7 @@ function buildCapaMutationPayload(input: {
     incidentId: input.incidentId,
     rcaId: input.rcaId ?? 0,
     assignedId: input.assignedId ?? 0,
-    dueDate: input.dueDate.trim() ? input.dueDate.trim() : "",
+    dueDate: dateFieldToInstant(input.dueDate),
     isDrop: input.isDrop,
     // Omitted rather than sent empty when there is no source: the API reads the pair as
     // "raised from this record", and a blank type with an id is not a record.
@@ -796,7 +797,7 @@ export function buildCreateCapaTaskRequest(input: {
     priority: input.priority?.trim()
       ? normalizePriority(input.priority)
       : "Medium",
-    dueDate: input.dueDate.trim() ? input.dueDate.trim() : null,
+    dueDate: dateFieldToInstant(input.dueDate) || null,
     userId,
   };
 }

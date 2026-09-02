@@ -225,6 +225,37 @@ export function isoToMmDdYyyy(value: string): string {
   return `${month}/${day}/${year}`;
 }
 
+/**
+ * A date field's value as an instant the API will accept.
+ *
+ * Every DateTime on the wire must be ISO-8601 carrying an explicit offset: a naive string
+ * names no moment in time, and the backend's Utc8601Converter refuses one outright once
+ * TimeContractSettings:RejectNaiveInput is on. A form collects "MM/DD/YYYY", so something has
+ * to do this conversion, and doing it at the payload boundary keeps the field, its validation
+ * and its display all speaking the format the person typed.
+ *
+ * Midnight UTC, not local midnight: these are due *dates*, and shifting one by the sender's
+ * offset is how a date due on the 19th arrives as the 18th.
+ *
+ * Passes through anything that already carries an offset, so an edit form seeded from the API
+ * round-trips its own value unchanged.
+ */
+export function dateFieldToInstant(value: string): string {
+  const trimmed = value.trim();
+  if (trimmed === "") return "";
+
+  // Already an instant with a Z or a ±hh:mm.
+  if (/(?:Z|[+-]\d{2}:?\d{2})$/i.test(trimmed)) return trimmed;
+
+  const iso = mmDdYyyyToIso(trimmed);
+  if (iso !== "") return `${iso}T00:00:00.000Z`;
+
+  // Already YYYY-MM-DD, just missing the time half.
+  if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return `${trimmed}T00:00:00.000Z`;
+
+  return trimmed;
+}
+
 export function mmDdYyyyToIso(value: string): string {
   const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(value.trim());
   if (!match) {
