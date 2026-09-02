@@ -40,6 +40,9 @@ import {
 } from "@/hooks/use-hazcom-queries";
 import { parseRecordNumericId } from "@/lib/format-record-id";
 import { toast } from "@/lib/toast";
+import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
+import { useDraftMutation } from "@/hooks/use-ai-text-mutations";
+import { logAiAssistFailure } from "@/services/ai-text.service";
 import type { HazcomSdsSearchResult } from "@/services/mappers/hazcom-sds.mapper";
 
 export type ChemicalFormProps = Readonly<{
@@ -222,6 +225,61 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
   const [expiryDate, setExpiryDate] = useState(
     isoToMmDdYyyy(chemical?.expiryDate ?? ""),
   );
+
+  const [notesDraftPending, setNotesDraftPending] = useState(false);
+  const notesDraft = useDraftMutation("chemical");
+
+  /**
+   * What the notes are drafted from, and what a rewrite is read against.
+   *
+   * Everything here is a value already entered on this form. The prompt is
+   * barred from reaching past them for what it knows about the substance — a
+   * hazard it names would sit on the inventory as though someone had assessed
+   * it, next to an SDS where a manufacturer actually did.
+   */
+  const chemicalContext = {
+    "Chemical name": name,
+    "CAS number": casNumber,
+    "Hazard class": hazardClass,
+    "GHS signal word": signalWord,
+    "GHS pictograms": pictograms.join(", "),
+    Location: location,
+    "Dispose location": disposeLocation,
+    Quantity: quantityAmount ? `${quantityAmount} ${quantityUnit}` : "",
+    "Expiry date": expiryDate,
+    Status: status,
+  };
+
+  const runNotesDraft = (apply: (next: string) => void) => {
+    setNotesDraftPending(true);
+    notesDraft
+      .mutateAsync({ fields: chemicalContext })
+      .then((results) => {
+        const narrative = results.narrative ?? null;
+
+        // Null is an answer, and the safe one: a name and a location alone
+        // cannot produce handling notes without inventing chemistry.
+        if (narrative === null) {
+          toast.info(
+            "Nothing to draft yet",
+            "Fill in more of the record — where it is stored, its classification — and try again.",
+          );
+          return;
+        }
+
+        apply(narrative);
+      })
+      .catch((error: unknown) => {
+        logAiAssistFailure("chemical-draft", error);
+        toast.error(
+          "Couldn't draft the notes",
+          "Your text is unchanged. Try again in a moment.",
+        );
+      })
+      .finally(() => {
+        setNotesDraftPending(false);
+      });
+  };
 
   // What the fields were seeded with, kept for the dirty check below.
   const [initialValues] = useState<ChemicalFormValues>(() => ({
@@ -518,6 +576,16 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
               value={notes}
               onChange={(event) => setNotes(event.target.value)}
               placeholder="Storage conditions, special handling instructions, etc."
+              assistant={
+                <AiTextAssistant
+                  module="chemical"
+                  value={notes}
+                  onApply={setNotes}
+                  contextFields={chemicalContext}
+                  draftPending={notesDraftPending}
+                  onRegenerateDraft={() => runNotesDraft(setNotes)}
+                />
+              }
             />
           </FormSection>
         </div>
