@@ -59,6 +59,14 @@ export function LotoEquipmentDetailHeader(
   // A worker is authorized to perform a procedure, not to rewrite it.
   const { can } = useCapabilities();
   const canEdit = can("Loto.Update");
+
+  // Being on a machine's authorized list is not the same as holding the
+  // permission to lock it: the Worker preset is granted Loto.View alone, so an
+  // authorized worker was shown this button, filled in the form, and was
+  // refused by the API at submit. The permission each endpoint enforces —
+  // Loto.Apply for POST /loto/lockouts, Loto.Remove for its removal — is what
+  // decides whether the control is drawn.
+  const canLockAction = can(isLockedOut ? "Loto.Remove" : "Loto.Apply");
   const actionLabel = isLockedOut ? "Remove Lockout" : "Apply Lockout";
   const actionIcon = isLockedOut ? "mdi:lock-open-outline" : "mdi:lock-outline";
 
@@ -109,7 +117,7 @@ export function LotoEquipmentDetailHeader(
                 Edit
               </Button>
             ) : null}
-            {showsAction ? (
+            {showsAction && canLockAction ? (
               <Button
                 type="button"
                 variant={isLockedOut ? "primary" : "danger"}

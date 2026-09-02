@@ -49,6 +49,8 @@ export type LotoActiveLockout = Readonly<{
   lockNumber: string;
   startedAt: string;
   expectedEndAt: string;
+  /** The lock-and-tag photo taken on apply, as a files-API id. Null when none. */
+  attachmentFileId: string | null;
   canRemove: boolean;
 }>;
 
@@ -67,7 +69,9 @@ export type LotoHistoryRecord = Readonly<{
   result: LotoHistoryResult;
 }>;
 
-export type LotoPersonnelStatus = "Current" | "Expired";
+/** Mirrors the API's derived badge — see LotoCertificationStatus in the response dto. */
+export type LotoPersonnelStatus =
+  "Not certified" | "Current" | "Expiring" | "Expired";
 
 export type LotoPersonnel = Readonly<{
   /** Backend user id. */
@@ -76,6 +80,11 @@ export type LotoPersonnel = Readonly<{
   initials: string;
   certifiedOn: string;
   expiresOn: string;
+  /** ISO dates kept alongside the formatted ones, so the edit form can seed its inputs. */
+  certifiedAt: string | null;
+  expiresAt: string | null;
+  /** Files-API id of the certificate, when one was attached. */
+  attachmentFileId: string | null;
   /** Display equipment codes with prefix, e.g. "EQ-7". */
   equipmentIds: readonly string[];
   status: LotoPersonnelStatus;

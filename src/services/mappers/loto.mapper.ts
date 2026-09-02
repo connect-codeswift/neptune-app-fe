@@ -107,6 +107,7 @@ export function toLotoActiveLockout(dto: LotoLockoutRowDto): LotoActiveLockout {
     lockNumber: withLockPrefix(dto.lockNumber),
     startedAt: formatDateTime(dto.startedAt),
     expectedEndAt: formatDateTime(dto.expectedCompletionAt),
+    attachmentFileId: dto.attachmentFileId,
     canRemove: dto.canRemove,
   };
 }
@@ -136,6 +137,9 @@ export function toLotoPersonnel(dto: LotoPersonnelDto): LotoPersonnel {
     initials: initialsFor(dto.fullName),
     certifiedOn: formatDate(dto.certifiedAt),
     expiresOn: formatDate(dto.expiresAt),
+    certifiedAt: dto.certifiedAt,
+    expiresAt: dto.expiresAt,
+    attachmentFileId: dto.attachmentFileId,
     equipmentIds: dto.equipment.map(withEquipmentPrefix),
     status: dto.status,
   };
@@ -159,7 +163,10 @@ export function toLotoMetrics(kpis: LotoDashboardKpisDto): LotoMetric[] {
     {
       title: "Authorized Personnel",
       value: kpis.authorizedPersonnel,
-      description: "Trained and certified",
+      // Not "Trained and certified": the number is distinct people on an authorization,
+      // which says nothing about their training. The Personnel tab is where certification
+      // is read, and the two disagreeing on the same screen is what made this worth fixing.
+      description: "Authorized on equipment",
       icon: "mdi:account-check-outline",
     },
     {
@@ -197,6 +204,7 @@ export function toLotoEquipmentDetail(
     status: dto.status,
     hazardLevel: dto.hazardLevel ?? "",
     description: dto.description ?? "",
+    verificationMethod: dto.verificationMethod ?? "",
     additionalNotes: dto.additionalNotes ?? "",
     isOutOfService: dto.isOutOfService,
     lastInspection: formatDate(dto.lastInspectionAt),

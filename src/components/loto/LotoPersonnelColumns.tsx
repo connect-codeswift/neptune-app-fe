@@ -10,6 +10,18 @@ import type {
 
 const columnHelper = createColumnHelper<LotoPersonnel>();
 
+/**
+ * Four states, four tones. "Not certified" is muted rather than red: an untrained person is a
+ * gap to fill, not a failure, and colouring it like an expiry hides the people who actually
+ * lapsed.
+ */
+function personnelStatusTone(status: LotoPersonnelStatus) {
+  if (status === "Current") return "teal" as const;
+  if (status === "Expiring") return "warn" as const;
+  if (status === "Expired") return "danger" as const;
+  return "muted" as const;
+}
+
 function columnHeader(label: string) {
   return (
     <Text as="span" className="text6 text-ehs-muted-text">
@@ -90,7 +102,7 @@ export function buildLotoPersonnelColumns(): TableColumns<LotoPersonnel> {
         return (
           <IncidentBadge
             label={status}
-            tone={status === "Current" ? "teal" : "danger"}
+            tone={personnelStatusTone(status)}
             showDot
           />
         );
