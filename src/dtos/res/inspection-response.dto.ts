@@ -78,6 +78,24 @@ export type InspectionRecordedResponseDto = {
   valueText: string;
   note: string;
   isNA: boolean;
+  /** `Pass` | `Action` | `Critical`, or null on answers recorded before grading. */
+  severity?: string | null;
+};
+
+/** One piece of evidence attached to a run, optionally pinned to a question. */
+export type InspectionAttachmentDto = {
+  id: number;
+  inspectionId: number;
+  /** Null when the file was attached to the run rather than to one question. */
+  inspectionItemId: number | null;
+  /** Handle for GET /files/{fileId}. Null only on rows predating file storage. */
+  fileId: string | null;
+  fileName: string;
+  /** Legacy client-supplied url. Null on everything written since file storage. */
+  filePath: string | null;
+  mimeType: string | null;
+  sizeBytes: number;
+  createdDate: string;
 };
 
 /** A single inspection's detail from GET /api/v1/inspections/{id}. */
@@ -96,7 +114,7 @@ export type InspectionDetailDto = {
   hasCriticalFailure: boolean;
   startedAt?: string | null;
   submittedAt?: string | null;
-  attachments: unknown[];
+  attachments: InspectionAttachmentDto[];
   responses: InspectionRecordedResponseDto[];
   snapshot: InspectionSnapshotDto;
 };
@@ -159,3 +177,26 @@ export type InspectionFindingDto = {
 export type GetInspectionFindingsResponseDto = ApiEnvelopeDto<
   InspectionFindingDto[]
 >;
+
+/** The run's state after it was submitted. */
+export type SubmitInspectionResultDto = {
+  id: number;
+  status: string;
+  hasCriticalFailure: boolean;
+  /** How many findings the engine raised from Action/Critical answers. */
+  autoRaisedFindings: number;
+};
+
+/** Matches the backend response for POST /api/v1/inspections/{id}/submit. */
+export type SubmitInspectionResponseDto =
+  ApiEnvelopeDto<SubmitInspectionResultDto | null>;
+
+/** Matches the backend response for POST /api/v1/inspections/{id}/reopen. */
+export type ReopenInspectionResponseDto = ApiEnvelopeDto<unknown>;
+
+/** Matches the backend response for POST /api/v1/inspections/{id}/attachments. */
+export type AddInspectionAttachmentResponseDto =
+  ApiEnvelopeDto<InspectionAttachmentDto | null>;
+
+/** Matches the backend response for DELETE /api/v1/inspections/{id}/attachments/{attachmentId}. */
+export type DeleteInspectionAttachmentResponseDto = ApiEnvelopeDto<unknown>;

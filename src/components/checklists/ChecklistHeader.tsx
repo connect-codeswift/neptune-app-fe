@@ -5,23 +5,23 @@ import { Text } from "@/components/Text";
 import { TextButton } from "@/components/ui/TextButton";
 
 /** Mirrors the save states the perform page tracks. */
-export type AuditSaveState = "idle" | "saving" | "saved" | "error";
+export type ChecklistSaveState = "idle" | "saving" | "saved" | "error";
 
-const SAVE_LABEL: Record<AuditSaveState, string> = {
+const SAVE_LABEL: Record<ChecklistSaveState, string> = {
   idle: "",
   saving: "Saving…",
   saved: "All answers saved",
   error: "Not saved",
 };
 
-const SAVE_ICON: Record<AuditSaveState, string> = {
+const SAVE_ICON: Record<ChecklistSaveState, string> = {
   idle: "",
   saving: "mdi:loading",
   saved: "mdi:cloud-check-outline",
   error: "mdi:cloud-alert-outline",
 };
 
-function SaveIndicator(props: Readonly<{ state: AuditSaveState }>) {
+function SaveIndicator(props: Readonly<{ state: ChecklistSaveState }>) {
   const { state } = props;
   if (state === "idle") return null;
 
@@ -49,27 +49,37 @@ function SaveIndicator(props: Readonly<{ state: AuditSaveState }>) {
   );
 }
 
-export type AuditPerformHeaderProps = Readonly<{
-  auditId: string;
+export type ChecklistHeaderProps = Readonly<{
+  /** Display code for the run, e.g. "A-0007". */
+  recordId: string;
   subtitle: string;
-  saveState: AuditSaveState;
+  /** "Perform Audit" / "Perform Inspection". */
+  title: string;
+  saveState: ChecklistSaveState;
   isLocked: boolean;
   onViewFindings: () => void;
   onReopen: () => void;
 }>;
 
-export function AuditPerformHeader(props: AuditPerformHeaderProps) {
-  const { auditId, subtitle, saveState, isLocked, onViewFindings, onReopen } =
-    props;
+export function ChecklistHeader(props: ChecklistHeaderProps) {
+  const {
+    recordId,
+    subtitle,
+    title,
+    saveState,
+    isLocked,
+    onViewFindings,
+    onReopen,
+  } = props;
 
   return (
     <header className="flex flex-wrap items-start justify-between gap-3 px-1">
       <div className="flex min-w-0 flex-col gap-0.5">
         <Text as="span" className="text8 text-ehs-gray">
-          {auditId}
+          {recordId}
         </Text>
         <Text as="h1" className="text2 text-ehs-darker">
-          Perform Audit
+          {title}
         </Text>
         {subtitle ? (
           <Text as="p" className="text4 text-ehs-gray">

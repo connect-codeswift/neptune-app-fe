@@ -127,7 +127,7 @@ export function InspectionsListPageClient() {
         }),
         {
           getHref: (row) =>
-            `/dashboard/inspections/findings/${encodeURIComponent(row.id)}`,
+            `/dashboard/inspections/${encodeURIComponent(row.id)}/perform`,
           getAriaLabel: (row) => `Manage inspection ${row.title}`,
         },
       ),

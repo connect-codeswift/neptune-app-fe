@@ -3,17 +3,15 @@
 import { useRef } from "react";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
-import type { AuditSeverity } from "@/dtos/req/audit-request.dto";
-import type {
-  AuditAttachmentDto,
-  AuditSnapshotItemDto,
-} from "@/dtos/res/audit-response.dto";
 import {
   type AnswerDraft,
+  type ChecklistEvidence,
+  type ChecklistGrade,
+  type ChecklistItem,
   isAnswered,
   needsNote,
   PENDING_ANSWER,
-} from "./audit-perform-state";
+} from "./checklist-state";
 
 /**
  * A hint for the file picker, not a rule. The rule is `validateFileForModule`,
@@ -23,7 +21,7 @@ import {
 export const EVIDENCE_ACCEPT = "image/*,application/pdf,video/mp4,video/webm";
 
 type GradeOption = Readonly<{
-  value: AuditSeverity;
+  value: ChecklistGrade;
   label: string;
   icon: string;
   /** Classes for the button once it is the chosen grade. */
@@ -89,10 +87,10 @@ function GradeButton(
   );
 }
 
-export type AuditPerformItemRowProps = Readonly<{
-  item: AuditSnapshotItemDto;
+export type ChecklistItemRowProps = Readonly<{
+  item: ChecklistItem;
   answer: AnswerDraft | undefined;
-  attachments: readonly AuditAttachmentDto[];
+  attachments: readonly ChecklistEvidence[];
   /** Read-only once the run is submitted — the backend refuses writes anyway. */
   disabled: boolean;
   /** True when a rejected submit named this question. */
@@ -103,11 +101,16 @@ export type AuditPerformItemRowProps = Readonly<{
   onRemoveAttachment: (attachmentId: number) => void;
 }>;
 
+/** The dom id a rejected submit scrolls to. */
+export function checklistRowId(itemId: number): string {
+  return `checklist-item-${String(itemId)}`;
+}
+
 /**
  * One checklist question: its grade, the note explaining that grade, and any
- * evidence pinned to it.
+ * evidence pinned to it. Shared by audits and inspections.
  */
-export function AuditPerformItemRow(props: AuditPerformItemRowProps) {
+export function ChecklistItemRow(props: ChecklistItemRowProps) {
   const {
     item,
     answer,
@@ -128,7 +131,7 @@ export function AuditPerformItemRow(props: AuditPerformItemRowProps) {
   // The note only earns its space once there is a grade to explain.
   const showNote = answered;
 
-  const handleGrade = (severity: AuditSeverity) => {
+  const handleGrade = (severity: ChecklistGrade) => {
     // Tapping the chosen grade again clears it, back to Pending.
     const isSame = draft.severity === severity;
     onChange({ ...draft, severity: isSame ? null : severity });
@@ -143,7 +146,7 @@ export function AuditPerformItemRow(props: AuditPerformItemRowProps) {
 
   return (
     <li
-      id={`audit-item-${String(item.id)}`}
+      id={checklistRowId(item.id)}
       className={[
         "border-ehs-border-ink/10 flex flex-col gap-3 border-b px-5 py-4 last:border-b-0",
         isBlocked ? "bg-ehs-red/5 border-l-ehs-red border-l-2" : "",
@@ -191,7 +194,7 @@ export function AuditPerformItemRow(props: AuditPerformItemRowProps) {
       {showNote ? (
         <div className="flex flex-col gap-1.5">
           <label
-            htmlFor={`audit-note-${String(item.id)}`}
+            htmlFor={`checklist-note-${String(item.id)}`}
             className="text8 text-ehs-gray"
           >
             {draft.severity === "Pass"
@@ -205,7 +208,7 @@ export function AuditPerformItemRow(props: AuditPerformItemRowProps) {
           </label>
 
           <textarea
-            id={`audit-note-${String(item.id)}`}
+            id={`checklist-note-${String(item.id)}`}
             rows={2}
             disabled={disabled}
             value={draft.note}
