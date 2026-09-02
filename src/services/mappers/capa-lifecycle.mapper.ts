@@ -57,6 +57,9 @@ const SLICE_COLORS = {
   inProgress: "#3b82f6",
   completed: "#10b981",
   pendingVerification: "#f59e0b",
+  // Red, and the same red the register's Overdue badge uses - the slice and the chip it
+  // corresponds to should not need translating between them.
+  overdue: "#ef4444",
 } as const;
 
 /** Maps GET /api/v1/capas/lifecycle into donut slices + total. */
@@ -70,17 +73,21 @@ export function mapCapaLifecycleToView(
     return { slices: [], total: 0 };
   }
 
-  // The four active stages, in lifecycle order. They are mutually exclusive and sum to
-  // `total`, which is what makes a donut readable.
+  // Five mutually exclusive buckets summing to `total`, which is what makes a donut readable.
   //
-  // Two things this deliberately does not draw. `Verified` was a slice reading a field the
-  // API has never sent, so it showed 0 forever - and it hid the fact that `completed` and
-  // `pendingVerification` were being dropped on the floor. And `overdue` is not a stage: a
-  // CAPA is Open or In Progress *and also* past its date, so drawing it as a fifth slice
-  // double-counts rows that are already in one of these four.
+  // Overdue is one of them now. It could not be while the API counted it as a subset - a CAPA
+  // was Open *and also* late, so a fifth slice double-counted rows already in one of the other
+  // four. The endpoint now excludes late rows from Open and In Progress and reports Overdue on
+  // the same predicate the register's filter uses, so the two agree and "Open" here means open
+  // and on time.
+  //
+  // Completed and Pending Verification are never late by that predicate: the assignee has
+  // finished, and a Pending Verification CAPA past its date is waiting on a verifier rather
+  // than on the person who did the work.
   //
   // Closed is absent because the endpoint is about active work - `total` counts non-closed
-  // CAPAs, so adding Closed here would make every percentage wrong.
+  // CAPAs, so adding Closed here would make every percentage wrong. `Verified` was a slice
+  // reading a field the API has never sent, and showed 0 forever.
   const slices: readonly CapaLifecycleSlice[] = [
     {
       label: "Open",
@@ -101,6 +108,11 @@ export function mapCapaLifecycleToView(
       label: "Pending Verification",
       value: dto.pendingVerification ?? 0,
       color: SLICE_COLORS.pendingVerification,
+    },
+    {
+      label: "Overdue",
+      value: dto.overdue ?? 0,
+      color: SLICE_COLORS.overdue,
     },
   ];
 
