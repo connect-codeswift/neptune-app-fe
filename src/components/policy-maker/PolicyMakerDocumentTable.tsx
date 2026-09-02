@@ -6,7 +6,7 @@ import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import { Table, type TablePagination } from "@/components/ui/Table";
-import { withManageAction } from "@/components/ui/table-manage-column";
+import { withRowLink } from "@/components/ui/table-row-link";
 import {
   CompliancePill,
   complianceGlassCardClass,
@@ -17,6 +17,10 @@ import {
 } from "@/components/ui/table-header-action";
 import type { PolicyDocument } from "@/components/policy-maker/policy-maker-types";
 import { formatDocumentDisplayId } from "@/services/mappers/document-list.mapper";
+
+/** Where a row in this register opens. Shared by the id link and the row click. */
+const policyDocumentHref = (id: string) =>
+  `/dashboard/policy-maker/${encodeURIComponent(id)}`;
 
 export type PolicyMakerDocumentTableProps = Readonly<{
   categoryLabel: string;
@@ -205,19 +209,16 @@ export function PolicyMakerDocumentTable(
 
   const columns = useMemo(
     () =>
-      withManageAction(
-        createDocumentColumns(expanded, { selectedId, onViewMore }),
-        {
-          getHref: (row) =>
-            `/dashboard/policy-maker/${encodeURIComponent(row.id)}`,
-          getAriaLabel: (row) => `Manage document ${row.title}`,
-        },
-      ),
+      withRowLink(createDocumentColumns(expanded, { selectedId, onViewMore }), {
+        getHref: (row) => policyDocumentHref(row.id),
+        getAriaLabel: (row) => `Open document ${row.title}`,
+      }),
     [expanded, selectedId, onViewMore],
   );
 
   return (
     <Table
+      rowHref={(row) => policyDocumentHref(row.id)}
       variant="compliance"
       data={documents}
       columns={columns}

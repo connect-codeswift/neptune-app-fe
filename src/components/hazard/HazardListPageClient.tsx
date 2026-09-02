@@ -12,7 +12,7 @@ import { HazardHeatmapCard } from "@/components/hazard/HazardHeatmapCard";
 import { HazardRecognitionCard } from "@/components/hazard/HazardRecognitionCard";
 import { HazardDetailPanel } from "@/components/hazard/HazardDetailPanel";
 import { makeHazardColumns } from "@/components/hazard/HazardColumns";
-import { withManageAction } from "@/components/ui/table-manage-column";
+import { withRowLink } from "@/components/ui/table-row-link";
 import type { HazardRecord } from "@/app/dashboard/hazard/hazard-data";
 import {
   formatHazardDisplayId,
@@ -22,6 +22,10 @@ import {
 import { canViewHazardInsights, getCurrentUser } from "@/lib/current-user";
 import { useUserDropdownQuery } from "@/hooks/use-user-queries";
 import { toUserNameLookup, userNameFor } from "@/lib/map-user";
+
+/** Where a row in this register opens. Shared by the id link and the row click. */
+const hazardRecordHref = (id: string) =>
+  `/dashboard/hazard/${encodeURIComponent(id)}`;
 
 const PAGE_SIZE = 10;
 
@@ -99,7 +103,7 @@ export function HazardListPageClient() {
 
   const columns = useMemo(
     () =>
-      withManageAction<HazardRecord>(
+      withRowLink<HazardRecord>(
         makeHazardColumns({
           userNames,
           selectedId: activeSelectedId,
@@ -110,10 +114,9 @@ export function HazardListPageClient() {
           },
         }),
         {
-          getHref: (record) =>
-            `/dashboard/hazard/${encodeURIComponent(record.id)}`,
+          getHref: (record) => hazardRecordHref(record.id),
           getAriaLabel: (record) =>
-            `Manage hazard ${formatHazardDisplayId(record.id)}`,
+            `Open hazard ${formatHazardDisplayId(record.id)}`,
         },
       ),
     [userNames, activeSelectedId],
@@ -176,6 +179,7 @@ export function HazardListPageClient() {
         data: filteredRecords,
         columns,
         getRowId: (row) => row.id,
+        rowHref: (row) => hazardRecordHref(row.id),
         selectedRowId: activeSelectedId,
         pagination: {
           pageNumber: page?.pageNumber ?? pageNumber,

@@ -1,5 +1,7 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+
 import { EmptyState } from "@/components/ui/EmptyState";
 import {
   columnWidthStyle,
@@ -28,7 +30,11 @@ import {
 } from "@/components/hazcom/shared";
 import { splitQuantity } from "@/components/hazcom/chemicals/chemical-utils";
 import { formatRecordDisplayId } from "@/lib/format-record-id";
-import { withManageAction } from "@/components/ui/table-manage-column";
+import { withRowLink } from "@/components/ui/table-row-link";
+
+/** Where a row in this register opens. Shared by the id link and the row click. */
+const chemicalRecordHref = (id: string) =>
+  `/dashboard/hazcom/chemicals/${encodeURIComponent(id)}`;
 
 function signalTone(signalWord: string): IncidentBadgeTone {
   return signalWord.trim().toLowerCase() === "danger" ? "danger" : "warn";
@@ -307,10 +313,9 @@ function createChemicalListColumns(
     return columns;
   }
 
-  return withManageAction(columns, {
-    getHref: (row) =>
-      `/dashboard/hazcom/chemicals/${encodeURIComponent(row.id)}`,
-    getAriaLabel: (row) => `Manage chemical ${row.name}`,
+  return withRowLink(columns, {
+    getHref: (row) => chemicalRecordHref(row.id),
+    getAriaLabel: (row) => `Open chemical ${row.name}`,
   }) as ColumnDef<HazcomChemical, unknown>[];
 }
 
@@ -339,6 +344,8 @@ export function ChemicalListTable(props: Readonly<ChemicalListTableProps>) {
       }),
     [selectedId, onViewMore, canManage],
   );
+
+  const router = useRouter();
 
   const table = useReactTable({
     data: chemicals as HazcomChemical[],
@@ -426,8 +433,13 @@ export function ChemicalListTable(props: Readonly<ChemicalListTableProps>) {
                 return (
                   <tr
                     key={row.id}
+                    // The id cell is the real link; this makes the whole row a
+                    // target for the mouse, as every other register now does.
+                    onClick={() => {
+                      router.push(chemicalRecordHref(row.original.id));
+                    }}
                     className={[
-                      "border-ehs-border-ink/8 border-t transition-colors",
+                      "border-ehs-border-ink/8 cursor-pointer border-t transition-colors",
                       isSelected
                         ? "bg-ehs-light-blue/35"
                         : "hover:bg-ehs-light-bg/70",

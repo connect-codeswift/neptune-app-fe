@@ -7,7 +7,7 @@ import { DashboardHeader } from "@/components/DashboardHeader";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import { Table } from "@/components/ui/Table";
-import { withManageAction } from "@/components/ui/table-manage-column";
+import { withRowLink } from "@/components/ui/table-row-link";
 import { ModuleFilterBar } from "@/components/ui/ModuleFilterBar";
 import { ModuleSearchBar } from "@/components/ui/ModuleSearchBar";
 import { MetricCardsRow } from "@/components/ui/MetricCard";
@@ -36,6 +36,10 @@ import {
 } from "@/lib/audit-inspection-status";
 import { detailSummaryErrorMessage } from "@/lib/audit-inspection-errors";
 import { getCurrentUser } from "@/lib/current-user";
+
+/** Where a row in this register opens. Shared by the id link and the row click. */
+const auditRecordHref = (id: string) =>
+  `/dashboard/audits/${encodeURIComponent(id)}`;
 
 const PAGE_SIZE = 10;
 
@@ -118,15 +122,15 @@ export function AuditsListPageClient() {
 
   const columns = useMemo(
     () =>
-      withManageAction(
+      withRowLink(
         createAuditColumns({
           selectedId: activeSelectedId,
           onViewMore: handleToggleDetailPanel,
           expanded: !isPanelOpen,
         }),
         {
-          getHref: (row) => `/dashboard/audits/${encodeURIComponent(row.id)}`,
-          getAriaLabel: (row) => `Manage audit ${row.title}`,
+          getHref: (row) => auditRecordHref(row.id),
+          getAriaLabel: (row) => `Open audit ${row.title}`,
         },
       ),
     [activeSelectedId, handleToggleDetailPanel, isPanelOpen],
@@ -223,6 +227,7 @@ export function AuditsListPageClient() {
             ].join(" ")}
           >
             <Table
+              rowHref={(row) => auditRecordHref(row.id)}
               variant="compliance"
               data={filteredRecords}
               columns={columns}

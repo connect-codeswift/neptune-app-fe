@@ -46,6 +46,8 @@ export type UnifiedNearMissAndHazardListPageProps<TData> = Readonly<{
     getRowId: (row: TData) => string;
     pagination: TablePagination;
     selectedRowId?: string | null;
+    /** Makes the whole row open the record; the id cell links there too. */
+    rowHref?: (row: TData) => string | null;
   }>;
   /** Side card opened from the table eye icon, same split as Audits / CAPA. */
   detailPanel?: ReactNode;
@@ -175,6 +177,7 @@ export function UnifiedNearMissAndHazardListPage<TData>(
               columns={table.columns}
               getRowId={table.getRowId}
               selectedRowId={table.selectedRowId}
+              rowHref={table.rowHref}
               containerClassName={[complianceGlassCardClass, "min-w-0"].join(
                 " ",
               )}

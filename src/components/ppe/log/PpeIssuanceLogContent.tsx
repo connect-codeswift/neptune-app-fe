@@ -25,7 +25,11 @@ import { buildPpeIssuanceLogColumns } from "./PpeIssuanceLogColumns";
 import { PpeIssuanceLogHeader } from "./PpeIssuanceLogHeader";
 import { exportIssuanceLogToCsv } from "./export-issuance-log-csv";
 import { PpeIssuanceLogSkeleton } from "../PpeSkeletons";
-import { withManageAction } from "@/components/ui/table-manage-column";
+import { withRowLink } from "@/components/ui/table-row-link";
+
+/** Where a row in this register opens. Shared by the id link and the row click. */
+const ppeProfileHref = (id: string) =>
+  `${PROFILE_ROUTE}/${encodeURIComponent(id)}`;
 
 const PROFILE_ROUTE = "/dashboard/ppe-management/profile";
 
@@ -182,9 +186,9 @@ export function PpeIssuanceLogContent(
 
   const columns = useMemo(
     () =>
-      withManageAction(buildPpeIssuanceLogColumns(), {
-        getHref: (row) => `${PROFILE_ROUTE}/${encodeURIComponent(row.id)}`,
-        getAriaLabel: (row) => `Manage issuance for ${row.employee}`,
+      withRowLink(buildPpeIssuanceLogColumns(), {
+        getHref: (row) => ppeProfileHref(row.id),
+        getAriaLabel: (row) => `Open issuance for ${row.employee}`,
       }),
     [],
   );
@@ -324,6 +328,7 @@ export function PpeIssuanceLogContent(
           {/* Desktop — inventory / catalog compliance table chrome */}
           <div className="hidden min-w-0 overflow-x-auto md:block">
             <Table
+              rowHref={(row) => ppeProfileHref(row.id)}
               variant="compliance"
               data={filtered}
               columns={columns}

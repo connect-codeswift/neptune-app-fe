@@ -22,12 +22,16 @@ import {
 } from "@/hooks/use-walk-talk-queries";
 import { toWalkTalkSessionDetail } from "@/lib/map-walk-talk";
 import { formatRecordDisplayId } from "@/lib/format-record-id";
-import { withManageAction } from "@/components/ui/table-manage-column";
+import { withRowLink } from "@/components/ui/table-row-link";
 import type { WalkTalkSession } from "@/app/dashboard/walk-talk/walk-talk-data";
 import { WalkTalkDetailPanel } from "./WalkTalkDetailPanel";
 import { WalkTalkSessionCard } from "./WalkTalkSessionCard";
 import { createWalkTalkSessionColumns } from "./WalkTalkSessionColumns";
 import { WalkTalkSessionsHeader } from "./WalkTalkSessionsHeader";
+
+/** Where a row in this register opens. Shared by the id link and the row click. */
+const walkTalkSessionHref = (id: string) =>
+  `/dashboard/walk-talk/session?id=${encodeURIComponent(id)}`;
 
 const LOG_ROUTE = "/dashboard/walk-talk/log";
 
@@ -123,17 +127,16 @@ export function WalkTalkRecentSessionsSection(
 
   const columns = useMemo(
     () =>
-      withManageAction<WalkTalkSession>(
+      withRowLink<WalkTalkSession>(
         createWalkTalkSessionColumns({
           selectedId: activeSessionId,
           onViewMore: handleToggleDetailPanel,
           expanded: !isPanelOpen,
         }),
         {
-          getHref: (session) =>
-            `/dashboard/walk-talk/session?id=${encodeURIComponent(session.id)}`,
+          getHref: (session) => walkTalkSessionHref(session.id),
           getAriaLabel: (session) =>
-            `Manage walk & talk session ${formatRecordDisplayId("WT", session.id)}`,
+            `Open walk & talk session ${formatRecordDisplayId("WT", session.id)}`,
         },
       ),
     [activeSessionId, handleToggleDetailPanel, isPanelOpen],
@@ -314,6 +317,7 @@ export function WalkTalkRecentSessionsSection(
             ].join(" ")}
           >
             <Table
+              rowHref={(row) => walkTalkSessionHref(row.id)}
               variant="compliance"
               data={filtered}
               columns={columns}

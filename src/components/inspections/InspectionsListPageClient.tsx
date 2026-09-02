@@ -7,7 +7,7 @@ import { DashboardHeader } from "@/components/DashboardHeader";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import { Table } from "@/components/ui/Table";
-import { withManageAction } from "@/components/ui/table-manage-column";
+import { withRowLink } from "@/components/ui/table-row-link";
 import { ModuleFilterBar } from "@/components/ui/ModuleFilterBar";
 import { ModuleSearchBar } from "@/components/ui/ModuleSearchBar";
 import { MetricCardsRow } from "@/components/ui/MetricCard";
@@ -36,6 +36,10 @@ import {
 } from "@/lib/audit-inspection-status";
 import { detailSummaryErrorMessage } from "@/lib/audit-inspection-errors";
 import { getCurrentUser } from "@/lib/current-user";
+
+/** Where a row in this register opens. Shared by the id link and the row click. */
+const inspectionRecordHref = (id: string) =>
+  `/dashboard/inspections/${encodeURIComponent(id)}/perform`;
 
 const PAGE_SIZE = 10;
 
@@ -119,16 +123,15 @@ export function InspectionsListPageClient() {
 
   const columns = useMemo(
     () =>
-      withManageAction(
+      withRowLink(
         createInspectionColumns({
           selectedId: activeId,
           onViewMore: handleToggleDetailPanel,
           expanded: !isPanelOpen,
         }),
         {
-          getHref: (row) =>
-            `/dashboard/inspections/${encodeURIComponent(row.id)}/perform`,
-          getAriaLabel: (row) => `Manage inspection ${row.title}`,
+          getHref: (row) => inspectionRecordHref(row.id),
+          getAriaLabel: (row) => `Open inspection ${row.title}`,
         },
       ),
     [activeId, handleToggleDetailPanel, isPanelOpen],
@@ -225,6 +228,7 @@ export function InspectionsListPageClient() {
             ].join(" ")}
           >
             <Table
+              rowHref={(row) => inspectionRecordHref(row.id)}
               variant="compliance"
               data={filteredRecords}
               columns={columns}

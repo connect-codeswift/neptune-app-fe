@@ -1,5 +1,7 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+
 import { EmptyState } from "@/components/ui/EmptyState";
 import {
   columnWidthStyle,
@@ -25,7 +27,11 @@ import {
   HazcomPictogramIcon,
   type HazcomSdsRecord,
 } from "@/components/hazcom/shared";
-import { withManageAction } from "@/components/ui/table-manage-column";
+import { withRowLink } from "@/components/ui/table-row-link";
+
+/** Where a row in this register opens. Shared by the id link and the row click. */
+const sdsRecordHref = (id: string) =>
+  `/dashboard/hazcom/sds/${encodeURIComponent(id)}`;
 
 export type SdsLibraryTableProps = Readonly<{
   records: readonly HazcomSdsRecord[];
@@ -278,9 +284,9 @@ function createSdsLibraryColumns(
     return columns;
   }
 
-  return withManageAction(columns, {
-    getHref: (row) => `/dashboard/hazcom/sds/${encodeURIComponent(row.id)}`,
-    getAriaLabel: (row) => `Manage SDS record ${row.chemicalName}`,
+  return withRowLink(columns, {
+    getHref: (row) => sdsRecordHref(row.id),
+    getAriaLabel: (row) => `Open SDS record ${row.chemicalName}`,
   }) as ColumnDef<HazcomSdsRecord, unknown>[];
 }
 
@@ -311,6 +317,8 @@ export function SdsLibraryTable(props: Readonly<SdsLibraryTableProps>) {
       }),
     [selectedId, onViewMore, expanded, canManage],
   );
+
+  const router = useRouter();
 
   const table = useReactTable({
     data: records as HazcomSdsRecord[],
@@ -400,8 +408,13 @@ export function SdsLibraryTable(props: Readonly<SdsLibraryTableProps>) {
                 return (
                   <tr
                     key={row.id}
+                    // The id cell is the real link; this makes the whole row a
+                    // target for the mouse, as every other register now does.
+                    onClick={() => {
+                      router.push(sdsRecordHref(row.original.id));
+                    }}
                     className={[
-                      "border-ehs-border-ink/8 border-t transition-colors",
+                      "border-ehs-border-ink/8 cursor-pointer border-t transition-colors",
                       isSelected
                         ? "bg-ehs-light-blue/35"
                         : "hover:bg-ehs-light-bg/70",
