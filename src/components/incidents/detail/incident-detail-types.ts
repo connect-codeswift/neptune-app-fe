@@ -130,10 +130,19 @@ export type IncidentClosureData = Readonly<{
   closureStatus:
     "Pending Checklist" | "Ready for Closure" | "Closed" | "Under Review";
   /**
-   * When the draft was last saved, ISO. `""` when nothing has been saved yet,
-   * which is what step 1 tests to decide whether to offer a resume card.
+   * When the draft was last saved, ISO. `""` when nothing has been saved yet.
    */
   draftSavedAt: string;
+  /**
+   * The step the closer was on when they last saved — deliberately NOT the same
+   * as {@link currentStep}.
+   *
+   * The wizard still opens on Classification after a reload. Jumping straight
+   * to the saved step would drop the closer into the middle of the flow with no
+   * sign that anything had been restored; instead step 1's action bar offers
+   * "Drafts", and this is where that button sends them.
+   */
+  draftStep: 1 | 2 | 3 | 4;
   closureId?: string;
   closedAt?: string;
   closedBy: string;
