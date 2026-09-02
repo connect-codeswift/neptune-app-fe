@@ -23,7 +23,7 @@ import {
 } from "./start-audit-schema";
 
 const AUDIT_LIST_ROUTE = "/dashboard/audits";
-const AUDIT_CHECKLIST_ROUTE = "/dashboard/audits/checklist";
+const AUDIT_DETAIL_ROUTE = "/dashboard/audits";
 const TEMPLATE_PAGE_SIZE = 10;
 
 export function StartAuditForm() {
@@ -190,11 +190,13 @@ export function StartAuditForm() {
           const created = response.dataModel;
           if (created) dispatch(setSelectedAudit(created));
 
-          // Go straight to the checklist, which loads the template's sections
-          // and items from its id.
+          // Straight into the checklist for the run that was just created.
+          // Routing by template id used to send the auditor to whichever run on
+          // that template happened to be newest, which is the wrong one as soon
+          // as a template is scheduled twice.
           router.push(
-            audit.template
-              ? `${AUDIT_CHECKLIST_ROUTE}?templateid=${encodeURIComponent(audit.template)}`
+            created
+              ? `${AUDIT_DETAIL_ROUTE}/${encodeURIComponent(String(created.id))}/perform`
               : AUDIT_LIST_ROUTE,
           );
         },
