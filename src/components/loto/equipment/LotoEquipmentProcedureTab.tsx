@@ -134,6 +134,20 @@ export function LotoEquipmentProcedureTab(
               No isolation steps recorded for this equipment.
             </p>
           )}
+
+          {/* Sits under the steps because it is the last of them: isolate, then
+              prove the isolation worked. Hidden when blank rather than drawn as
+              an empty heading — it is an optional field. */}
+          {detail.verificationMethod ? (
+            <div className="border-ehs-border-ink/8 mt-5 border-t pt-4">
+              <h3 className="text4 text-ehs-darker mb-1.5 font-semibold">
+                Verification Method
+              </h3>
+              <p className="text4 text-ehs-gray whitespace-pre-line">
+                {detail.verificationMethod}
+              </p>
+            </div>
+          ) : null}
         </section>
       </div>
 

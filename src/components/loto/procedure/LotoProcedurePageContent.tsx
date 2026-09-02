@@ -157,7 +157,7 @@ function detailToFormState(
           // steps is legacy data, and the author should be shown one to fill in
           // rather than two, one of which they must delete.
           [createEmptyIsolationStep({ id: "step-1" })],
-    verificationMethod: "",
+    verificationMethod: detail.verificationMethod ?? "",
     additionalNotes: detail.additionalNotes ?? "",
     selectedPpe: [],
     selectedPersonnel: detail.authorizedPersonnel.map((person) => ({
@@ -252,6 +252,7 @@ function LotoProcedureEditor(props: LotoProcedureEditorProps) {
     const equipmentName = fieldString(gatheredRef.current, "equipmentName");
     const description = fieldString(gatheredRef.current, "description");
     const hazardLevel = fieldString(gatheredRef.current, "hazardLevel");
+    const verificationMethod = fieldString(gatheredRef.current, "verificationMethod");
     const additionalNotes = fieldString(gatheredRef.current, "additionalNotes");
 
     if (!equipmentName.trim()) {
@@ -323,6 +324,10 @@ function LotoProcedureEditor(props: LotoProcedureEditorProps) {
       // Not editable from this form yet — preserved from the loaded record on
       // edit, defaulted for a brand-new machine on create.
       isOutOfService: isEdit ? props.detail.isOutOfService : false,
+      // Collected by the form since it was written, and until the column existed it was
+      // dropped here on every save — the author's zero-energy check never left the browser.
+      verificationMethod:
+        verificationMethod.trim() === "" ? null : verificationMethod.trim(),
       additionalNotes:
         additionalNotes.trim() === "" ? null : additionalNotes.trim(),
       steps: stepPayloads.map((step) => ({

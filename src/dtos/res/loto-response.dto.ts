@@ -48,6 +48,7 @@ export type LotoEquipmentDetailDto = LotoEquipmentGridRowDto & {
   description: string | null;
   hazardLevel: string | null;
   isOutOfService: boolean;
+  verificationMethod: string | null;
   additionalNotes: string | null;
   steps: LotoEquipmentStepDto[];
   authorizedPersonnel: LotoAuthorizedPersonDto[];
@@ -81,9 +82,18 @@ export type LotoLockoutRowDto = {
   expectedCompletionAt: string | null;
   removedAt: string | null;
   status: LotoLockoutStatusDto;
+  /** The lock-and-tag photo taken on apply, as a files-API id. Null when none. */
+  attachmentFileId: string | null;
   /** True only for the operator who applied the lock. */
   canRemove: boolean;
 };
+
+/**
+ * What a pair of certification dates earns. "Not certified" is its own state: it used to fall
+ * through to Current, so someone with no training read as green on the register.
+ */
+export type LotoCertificationStatus =
+  "Not certified" | "Current" | "Expiring" | "Expired";
 
 /** GET /api/v1/loto/personnel row. `equipment` holds raw machine codes. */
 export type LotoPersonnelDto = {
@@ -91,7 +101,10 @@ export type LotoPersonnelDto = {
   fullName: string;
   certifiedAt: string | null;
   expiresAt: string | null;
-  status: "Current" | "Expired";
+  /** The certificate on file, as a files-API id. Never a url. */
+  attachmentFileId: string | null;
+  /** Derived from the dates by the API — never stored, so it cannot go stale. */
+  status: LotoCertificationStatus;
   equipment: string[];
 };
 

@@ -27,7 +27,9 @@ export function buildApplyLockoutSchema(): FormSchema {
     {
       name: "purpose",
       type: "text",
-      label: "Purpose of Work *",
+      // No asterisk in the label: FormBuilder appends its own for `required`,
+      // and the two together rendered "Purpose of Work * *".
+      label: "Purpose of Work",
       placeholder: "e.g., Belt replacement",
       required: true,
       colSpan: 6,

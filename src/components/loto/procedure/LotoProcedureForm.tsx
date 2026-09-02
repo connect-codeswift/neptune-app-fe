@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
+import { LotoCertificationPanel } from "@/components/loto/procedure/LotoCertificationPanel";
 import { Button } from "@/components/ui/Button";
 import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
 import { useDraftMutation } from "@/hooks/use-ai-text-mutations";
@@ -351,6 +352,8 @@ export function LotoProcedureForm(props: Readonly<LotoProcedureFormProps>) {
               filter={(user) => !user.isInvited && !user.isDrop}
             />
           </div>
+
+          <LotoCertificationPanel personnel={personnel} />
         </IncidentGlassCard>
 
         <IncidentGlassCard paddingClassName="p-5 md:p-5.5" className="min-w-0">

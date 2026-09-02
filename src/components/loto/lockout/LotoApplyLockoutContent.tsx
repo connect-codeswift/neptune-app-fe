@@ -15,6 +15,7 @@ import {
 import { LOTO_ROUTE } from "@/app/dashboard/lockout-tagout/loto-procedure-data";
 import { lotoEquipmentDetailRoute } from "@/app/dashboard/lockout-tagout/loto-equipment-detail-data";
 import { getAuthDisplayName } from "@/lib/auth-context";
+import { uploadFile } from "@/lib/upload-file";
 import { toast } from "@/lib/toast";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { useLotoEquipmentDetailQuery } from "@/hooks/use-loto-queries";
@@ -79,6 +80,7 @@ export function LotoApplyLockoutContent(props: LotoApplyLockoutContentProps) {
         splitEnergySources(detail.energySources),
       ),
       operatorName: getAuthDisplayName(),
+      verificationMethod: detail.verificationMethod ?? "",
       canApply: detail.canApply,
       cannotApplyReason: detail.cannotApplyReason,
     };
@@ -143,6 +145,9 @@ function LotoApplyLockoutForm(
   // Purpose is required and lives inside FormBuilder, so the button could not
   // see it. Mirrored out here for the enable check below.
   const [purpose, setPurpose] = useState("");
+  const [attachmentFileId, setAttachmentFileId] = useState<string | null>(null);
+  const [attachmentName, setAttachmentName] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const applyMutation = useApplyLotoLockoutMutation();
   // Held past the response: `isPending` drops when the record is saved, while
   // the navigation away is still in flight. A click in that gap saved a
@@ -158,7 +163,27 @@ function LotoApplyLockoutForm(
     confirmed &&
     purpose.trim() !== "" &&
     context.canApply &&
+    !isUploading &&
     !submitLock.isLocked;
+
+  // The photo is uploaded as it is picked rather than on submit: the bytes go
+  // straight to R2 and only the returned id rides on the lockout payload, so a
+  // slow upload cannot hold up the apply and a failed one leaves no orphan.
+  const handleUpload = async (file: File) => {
+    setIsUploading(true);
+    try {
+      const result = await uploadFile(file, { module: "Loto" });
+      setAttachmentFileId(result.fileId);
+      setAttachmentName(file.name);
+    } catch (error) {
+      toast.error(
+        "Could not upload the photo",
+        getMutationErrorMessage(error, "Please try again."),
+      );
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const handleValid = (values: FormValues) => {
     // Not redundant with the disabled button: a form submits on Enter from any
@@ -184,6 +209,7 @@ function LotoApplyLockoutForm(
         expectedCompletionAt:
           expectedCompletion === "" ? null : expectedCompletion,
         confirmationAccepted: true,
+        attachmentFileId,
       },
       {
         onSuccess: (result) => {
@@ -231,11 +257,75 @@ function LotoApplyLockoutForm(
             </div>
           </IncidentGlassCard>
 
+          <IncidentGlassCard
+            paddingClassName="p-5.5"
+            className="rounded-5 min-w-0"
+          >
+            <h2 className="text3 text-ehs-darker">Lock &amp; Tag Photo</h2>
+            {/* Optional on purpose. The tag in the picture is the only evidence
+                that survives a lock being cut off in an emergency, but an
+                operator with a flat phone must still be able to isolate the
+                machine. */}
+            <Text as="p" className="text8 text-ehs-muted-text mt-1">
+              Optional. A photo of the applied lock and tag is kept with this
+              lockout record.
+            </Text>
+
+            <div className="mt-3 flex flex-wrap items-center gap-3">
+              <label className="text-ehs-normal-blue hover:text-ehs-normal-blue-hover text5 inline-flex cursor-pointer items-center gap-1.75">
+                <Icon
+                  icon="mdi:camera-outline"
+                  className="size-3.5"
+                  aria-hidden="true"
+                />
+                {isUploading
+                  ? "Uploading…"
+                  : attachmentFileId
+                    ? "Replace photo"
+                    : "Attach photo"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  disabled={isUploading}
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    // Cleared so picking the same file twice still fires.
+                    event.target.value = "";
+                    if (file) void handleUpload(file);
+                  }}
+                />
+              </label>
+
+              {attachmentFileId ? (
+                <Text as="span" className="text8 text-ehs-muted-text">
+                  {attachmentName ?? "Photo attached"}
+                </Text>
+              ) : null}
+            </div>
+          </IncidentGlassCard>
+
           {!context.canApply ? (
             <p className="text4 border-ehs-yellow/30 bg-ehs-yellow/8 text-ehs-warning-ink rounded-xl border px-4.5 py-3 font-medium">
               {context.cannotApplyReason ??
                 "This equipment cannot be locked out right now."}
             </p>
+          ) : null}
+
+          {/* Directly above the confirmation, because that checkbox says the
+              operator has followed the procedure and this is the part of it they
+              are attesting to. Without it they were confirming against a screen
+              that showed nothing but the energy-source chips. */}
+          {context.verificationMethod ? (
+            <IncidentGlassCard
+              paddingClassName="p-5.5"
+              className="rounded-5 min-w-0"
+            >
+              <h2 className="text3 text-ehs-darker">Verification Method</h2>
+              <p className="text4 text-ehs-gray mt-2 whitespace-pre-line">
+                {context.verificationMethod}
+              </p>
+            </IncidentGlassCard>
           ) : null}
 
           <label className="border-ehs-red/16 bg-ehs-red/4 flex cursor-pointer items-start gap-3 rounded-xl border px-4.5 py-4">

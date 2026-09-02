@@ -35,6 +35,8 @@ export type LotoEquipmentDetail = Readonly<{
   status: LotoEquipmentStatus;
   hazardLevel: string;
   description: string;
+  /** How to confirm zero energy. Empty when the author left it blank. */
+  verificationMethod: string;
   additionalNotes: string;
   isOutOfService: boolean;
   lastInspection: string;

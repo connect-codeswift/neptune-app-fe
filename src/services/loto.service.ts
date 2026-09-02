@@ -4,6 +4,7 @@ import type {
   GetAllLotoEquipmentRequestDto,
   GetAllLotoLockoutsRequestDto,
   RemoveLotoLockoutRequestDto,
+  SaveLotoCertificationRequestDto,
   UpsertLotoEquipmentRequestDto,
 } from "@/dtos/req/loto-request.dto";
 import type {
@@ -18,6 +19,7 @@ import type {
   GetLotoEquipmentHistoryResponseDto,
   GetLotoEquipmentResponseDto,
   GetLotoLocationsResponseDto,
+  LotoCertificationStatus,
   GetLotoLockoutsResponseDto,
   GetLotoPersonnelResponseDto,
   LotoAuthorizedPersonDto,
@@ -47,6 +49,7 @@ const LOTO_EQUIPMENT_SEARCH_PATH = `${LOTO_EQUIPMENT_PATH}/search`;
 const LOTO_LOCKOUTS_PATH = `${LOTO_PATH}/lockouts`;
 const LOTO_LOCKOUTS_SEARCH_PATH = `${LOTO_LOCKOUTS_PATH}/search`;
 const LOTO_PERSONNEL_PATH = `${LOTO_PATH}/personnel`;
+const LOTO_CERTIFICATION_PATH = `${LOTO_PERSONNEL_PATH}/certification`;
 // Locations were promoted out of the LOTO controller into a global resource
 // every module can reach (`LotoLocation` -> `Location`), so this is no longer
 // under `/loto`.
@@ -185,6 +188,9 @@ function normalizeEquipmentDetail(raw: unknown): LotoEquipmentDetailDto | null {
     isOutOfService: asBoolean(
       readProp(raw, "isOutOfService", "IsOutOfService"),
     ),
+    verificationMethod: asNullableString(
+      readProp(raw, "verificationMethod", "VerificationMethod"),
+    ),
     additionalNotes: asNullableString(
       readProp(raw, "additionalNotes", "AdditionalNotes"),
     ),
@@ -242,8 +248,24 @@ function normalizeLockoutRow(raw: unknown): LotoLockoutRowDto | null {
     ),
     removedAt: asNullableString(readProp(raw, "removedAt", "RemovedAt")),
     status: normalizeLockoutStatus(readProp(raw, "status", "Status")),
+    attachmentFileId: asNullableString(
+      readProp(raw, "attachmentFileId", "AttachmentFileId"),
+    ),
     canRemove: asBoolean(readProp(raw, "canRemove", "CanRemove")),
   };
+}
+
+/**
+ * The API derives the badge; this only narrows the string to the union. An unknown value reads as
+ * "Not certified" rather than "Current" — on a screen that decides who may isolate a machine, the
+ * safe default is the one that shows a gap.
+ */
+function toCertificationStatus(raw: unknown): LotoCertificationStatus {
+  const value = asString(raw);
+
+  return value === "Current" || value === "Expiring" || value === "Expired"
+    ? value
+    : "Not certified";
 }
 
 function normalizePersonnel(raw: unknown): LotoPersonnelDto | null {
@@ -258,10 +280,12 @@ function normalizePersonnel(raw: unknown): LotoPersonnelDto | null {
     fullName: asString(readProp(raw, "fullName", "FullName")),
     certifiedAt: asNullableString(readProp(raw, "certifiedAt", "CertifiedAt")),
     expiresAt: asNullableString(readProp(raw, "expiresAt", "ExpiresAt")),
-    status:
-      asString(readProp(raw, "status", "Status")) === "Expired"
-        ? "Expired"
-        : "Current",
+    attachmentFileId: asNullableString(
+      readProp(raw, "attachmentFileId", "AttachmentFileId"),
+    ),
+    // Taken as the API sent it rather than re-derived here. The old code mapped anything that
+    // was not "Expired" to "Current", which is how a row with no dates at all read as green.
+    status: toCertificationStatus(readProp(raw, "status", "Status")),
     equipment: Array.isArray(rawEquipment)
       ? rawEquipment.map(asString).filter((code) => code !== "")
       : [],
@@ -396,6 +420,39 @@ export async function updateLotoEquipment(
 ): Promise<void> {
   const { data } = await http.put<ApiEnvelopeDto<unknown>>(
     `${LOTO_EQUIPMENT_PATH}/${String(id)}`,
+    payload,
+  );
+
+  unwrapDataModel(data);
+}
+
+/**
+ * DELETE /api/v1/loto/equipment/{id} — soft deletes the machine and its procedure.
+ * Needs `Loto.Delete`.
+ *
+ * Refused by the API while an un-removed lockout is on the machine: the worker holding it needs
+ * a record to take it off from.
+ */
+export async function dropLotoEquipment(id: number): Promise<void> {
+  const { data } = await http.delete<ApiEnvelopeDto<unknown>>(
+    `${LOTO_EQUIPMENT_PATH}/${String(id)}`,
+  );
+
+  unwrapDataModel(data);
+}
+
+/**
+ * PUT /api/v1/loto/personnel/certification — records or replaces one person's LOTO training
+ * dates. Needs `Loto.Update`.
+ *
+ * An upsert keyed on userId, so there is one row per person and re-saving edits it rather than
+ * stacking a second. The API refuses an expiry earlier than the certified date.
+ */
+export async function saveLotoCertification(
+  payload: SaveLotoCertificationRequestDto,
+): Promise<void> {
+  const { data } = await http.put<ApiEnvelopeDto<unknown>>(
+    LOTO_CERTIFICATION_PATH,
     payload,
   );
 
