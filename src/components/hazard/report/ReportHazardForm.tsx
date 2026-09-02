@@ -243,6 +243,15 @@ export function ReportHazardForm() {
       } as const,
       ...mapped.slice(hazardTypeIndex + 1),
     ];
+    // draftInput and buttonDraftPending belong here: the first is what the
+    // rewrite sends as context, and without the second the Draft button's
+    // spinner never appears, because the schema — and so the assistant's props —
+    // would not rebuild when it flips. Both change on a dropdown selection, not
+    // per keystroke, so neither costs field focus.
+    //
+    // runButtonDraft is deliberately excluded: it is a new function every render
+    // and including it would rebuild the schema on every keystroke.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     showsDraft,
     draft,
@@ -252,6 +261,8 @@ export function ReportHazardForm() {
     canRegenerate,
     isChemicalHazard,
     chemicalOptions,
+    draftInput,
+    buttonDraftPending,
   ]);
 
   const handleSubmit = (values: FormValues) => {

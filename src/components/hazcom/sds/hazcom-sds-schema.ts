@@ -187,7 +187,8 @@ export function buildSdsUploadSchema(
       placeholder:
         "e.g. Keep away from heat, sparks, open flames and hot surfaces.",
       assistant: args.statementAssistant
-        ? (control) => args.statementAssistant?.("precautionaryStatement", control)
+        ? (control) =>
+            args.statementAssistant?.("precautionaryStatement", control)
         : undefined,
     },
   ];
