@@ -2,10 +2,10 @@
 
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Text } from "@/components/Text";
-import type { AuditTally } from "./audit-perform-state";
+import type { ChecklistTally } from "./checklist-state";
 
 type Bucket = Readonly<{
-  key: keyof Omit<AuditTally, "total">;
+  key: keyof Omit<ChecklistTally, "total">;
   label: string;
   dotClassName: string;
 }>;
@@ -17,14 +17,14 @@ const BUCKETS: readonly Bucket[] = [
   { key: "pending", label: "Pending", dotClassName: "bg-ehs-gray/40" },
 ];
 
-export type AuditPerformTallyProps = Readonly<{ tally: AuditTally }>;
+export type ChecklistTallyProps = Readonly<{ tally: ChecklistTally }>;
 
 /**
  * The same four counts the detail summary reports, shown while the audit is
  * still being filled in — so the auditor can see what they are about to submit
  * without leaving the checklist.
  */
-export function AuditPerformTally(props: AuditPerformTallyProps) {
+export function ChecklistTallyCard(props: ChecklistTallyProps) {
   const { tally } = props;
   const answered = tally.total - tally.pending;
   const completion = tally.total > 0 ? (answered / tally.total) * 100 : 0;

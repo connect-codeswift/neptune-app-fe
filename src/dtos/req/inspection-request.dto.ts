@@ -8,6 +8,12 @@ export type InspectionItemResponseRequestDto = {
   valueText: string;
   note: string;
   isNA: boolean;
+  /**
+   * The grade the inspector picked. The backend derives Pass/Action/Critical
+   * from this; omitting it falls back to the response option, which inspection
+   * templates do not carry, so every answer would grade as Pass.
+   */
+  severity?: "Pass" | "Action" | "Critical" | null;
 };
 
 /** Body for PUT /api/v1/inspections/{id}/responses — records the answers. */
@@ -31,4 +37,26 @@ export type CreateInspectionRequestDto = {
   dueDate?: string;
   userId: number;
   siteId: number;
+};
+
+/** Body for POST /api/v1/inspections/{id}/submit — locks the run and raises findings. */
+export type SubmitInspectionRequestDto = {
+  userId: number;
+  siteId: number;
+};
+
+/** Body for POST /api/v1/inspections/{id}/reopen — lead-only correction path. */
+export type ReopenInspectionRequestDto = {
+  userId: number;
+  siteId: number;
+  reason: string;
+};
+
+/**
+ * Body for POST /api/v1/inspections/{id}/attachments — links a file already
+ * uploaded through the files pipeline.
+ */
+export type LinkInspectionAttachmentRequestDto = {
+  fileId: string;
+  inspectionItemId: number | null;
 };

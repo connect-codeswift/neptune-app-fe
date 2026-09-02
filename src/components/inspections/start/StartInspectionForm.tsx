@@ -24,7 +24,7 @@ import {
 } from "./start-inspection-schema";
 
 const INSPECTION_LIST_ROUTE = "/dashboard/inspections";
-const INSPECTION_CHECKLIST_ROUTE = "/dashboard/inspections/checklist";
+const INSPECTION_DETAIL_ROUTE = "/dashboard/inspections";
 const TEMPLATE_PAGE_SIZE = 10;
 
 export function StartInspectionForm() {
@@ -146,7 +146,7 @@ export function StartInspectionForm() {
           const createdId = response.dataModel?.id;
           router.push(
             createdId
-              ? `${INSPECTION_CHECKLIST_ROUTE}?inspectionid=${encodeURIComponent(String(createdId))}`
+              ? `${INSPECTION_DETAIL_ROUTE}/${encodeURIComponent(String(createdId))}/perform`
               : INSPECTION_LIST_ROUTE,
           );
         },

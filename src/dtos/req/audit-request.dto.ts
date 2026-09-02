@@ -56,3 +56,13 @@ export type ReopenAuditRequestDto = {
   siteId: number;
   reason: string;
 };
+
+/**
+ * Body for POST /api/v1/audits/{id}/attachments — links a file already uploaded
+ * through the files pipeline. `templateItemId` null attaches it to the run
+ * rather than to one question.
+ */
+export type LinkAuditAttachmentRequestDto = {
+  fileId: string;
+  templateItemId: number | null;
+};
