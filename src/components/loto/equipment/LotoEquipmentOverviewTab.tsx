@@ -91,6 +91,17 @@ export function LotoEquipmentOverviewTab(props: LotoEquipmentOverviewTabProps) {
             ))}
           </div>
         </IncidentGlassCard>
+
+        {/* Saved since the form was written and shown on no screen until now.
+            Warnings about a machine are worth reading before working on it. */}
+        {detail.additionalNotes ? (
+          <IncidentGlassCard paddingClassName="p-5" className="min-w-0">
+            <h2 className="text3 text-ehs-darker mb-2">Notes &amp; Warnings</h2>
+            <p className="text4 text-ehs-gray whitespace-pre-line">
+              {detail.additionalNotes}
+            </p>
+          </IncidentGlassCard>
+        ) : null}
       </div>
 
       <IncidentGlassCard paddingClassName="p-4.5" className="min-w-0">

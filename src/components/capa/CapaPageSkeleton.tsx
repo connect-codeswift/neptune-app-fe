@@ -1,4 +1,4 @@
-﻿import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Skeleton } from "@/components/ui/Skeleton";
 
 /** KPI tile — Figma 4818:19425. */

@@ -1,4 +1,4 @@
-﻿import { CreateTemplateContent } from "@/components/inspections/templates/create/CreateTemplateContent";
+import { CreateTemplateContent } from "@/components/inspections/templates/create/CreateTemplateContent";
 
 export default function CreateInspectionTemplatePage() {
   return (

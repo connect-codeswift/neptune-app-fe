@@ -29,6 +29,9 @@ import {
 import { getChemicalById } from "@/services/hazcom.service";
 import { mapChemicalDtoToHazcomChemical } from "@/services/mappers/hazcom-chemical.mapper";
 import { toast } from "@/lib/toast";
+import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
+import { useDraftMutation } from "@/hooks/use-ai-text-mutations";
+import { logAiAssistFailure } from "@/services/ai-text.service";
 
 /**
  * Large enough to cover the SDS library in one page for every real org
@@ -54,6 +57,89 @@ export function HazcomSdsUploadForm(props: Readonly<HazcomSdsUploadFormProps>) {
   // duplicate.
   const submitLock = useSubmitLock();
   const saveAsDraftRef = useRef(false);
+
+  // FormBuilder owns the field values; this mirrors them so the draft below can
+  // read the classification without the schema depending on them. Keeping it in
+  // a ref rather than state is what stops the schema rebuilding — and the boxes
+  // losing focus — on every keystroke.
+  const sdsValuesRef = useRef<FormValues>(HAZCOM_SDS_INITIAL_VALUES);
+  const [statementDraftPending, setStatementDraftPending] = useState<
+    "hazardStatement" | "precautionaryStatement" | null
+  >(null);
+  const statementDraft = useDraftMutation("sds");
+
+  /**
+   * The classification the person has already read off the sheet and entered.
+   *
+   * This is the whole input to the draft, and deliberately so: the product name
+   * and CAS travel only to disambiguate wording. A draft grounded in the
+   * pictograms and hazard class is completing a transcription from their own
+   * entries; one grounded in the name would be classifying the chemical, which
+   * is the manufacturer's job and not ours.
+   */
+  const readClassification = () => {
+    const values = sdsValuesRef.current;
+    const text = (name: string) => String(values[name] ?? "").trim();
+    const pictograms = values.ghsPictograms;
+
+    return {
+      "Product name": text("productName"),
+      "CAS number": text("casNumber"),
+      "GHS pictograms": Array.isArray(pictograms)
+        ? pictograms.map((item) => String(item)).join(", ")
+        : text("ghsPictograms"),
+      "Hazard class": text("hazardClass"),
+      "Signal word": text("signalWord"),
+    };
+  };
+
+  const runStatementDraft = (
+    field: "hazardStatement" | "precautionaryStatement",
+    apply: (next: string) => void,
+  ) => {
+    const fields = readClassification();
+
+    // Without a classification there is nothing to draft from, and the backend
+    // would rightly answer null. Say so here rather than spending the call.
+    if (fields["GHS pictograms"] === "" && fields["Hazard class"] === "") {
+      toast.info(
+        "Enter the classification first",
+        "Pick the GHS pictograms or the hazard class from the sheet — the statements are drafted from those, not from the product name.",
+      );
+      return;
+    }
+
+    setStatementDraftPending(field);
+    statementDraft
+      .mutateAsync({ fields, targetField: field })
+      .then((results) => {
+        const drafted = results[field] ?? null;
+
+        if (drafted === null) {
+          toast.info(
+            "Nothing to draft yet",
+            "The classification entered does not determine these statements. Add the pictograms or hazard class from the sheet.",
+          );
+          return;
+        }
+
+        apply(drafted);
+        toast.info(
+          "Check these against the sheet",
+          "Drafted from the classification you entered. The manufacturer's sheet is the record — correct anything that differs.",
+        );
+      })
+      .catch((error: unknown) => {
+        logAiAssistFailure("sds-draft", error);
+        toast.error(
+          "Couldn't draft the statements",
+          "Your text is unchanged. Try again in a moment.",
+        );
+      })
+      .finally(() => {
+        setStatementDraftPending(null);
+      });
+  };
   const { chemicals, isLoading: isLoadingChemicals } = useChemicalNamesQuery();
   const { items: sdsRecords, isLoading: isLoadingSdsRecords } = useSdsListQuery(
     { pageSize: SDS_LIST_PAGE_SIZE },
@@ -167,9 +253,31 @@ export function HazcomSdsUploadForm(props: Readonly<HazcomSdsUploadFormProps>) {
           : chemicalOptions,
         onChemicalChange: handleChemicalChange,
         lockedFields,
+        statementAssistant: (field, control) => (
+          <AiTextAssistant
+            module="sds"
+            value={control.value}
+            onApply={control.onChange}
+            draftPending={statementDraftPending === field}
+            onRegenerateDraft={() => runStatementDraft(field, control.onChange)}
+          />
+        ),
       }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- handleChemicalChange is stable enough (queryClient identity doesn't change) and including it would rebuild the schema (and reset field focus) on every render.
-    [chemicalOptions, isLoadingChemicalOptions, lockedFields],
+
+    // statementDraftPending is a dependency so the spinner actually appears. It
+    // changes twice per draft, not per keystroke, which is why the values live
+    // in a ref instead.
+    //
+    // handleChemicalChange and runStatementDraft are deliberately excluded: both
+    // change identity every render, and including them would rebuild the schema
+    // — and reset field focus — on every keystroke.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      chemicalOptions,
+      isLoadingChemicalOptions,
+      lockedFields,
+      statementDraftPending,
+    ],
   );
 
   const goBack = () => {
@@ -223,6 +331,9 @@ export function HazcomSdsUploadForm(props: Readonly<HazcomSdsUploadFormProps>) {
         schema={schema}
         initialValues={HAZCOM_SDS_INITIAL_VALUES}
         onSubmit={handleSubmit}
+        onChange={(values) => {
+          sdsValuesRef.current = values;
+        }}
         hideActions
         className="gap-4.5"
       />

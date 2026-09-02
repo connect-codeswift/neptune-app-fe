@@ -14,11 +14,16 @@ const actionClass = "text4 h-9 rounded-2.5 px-3 sm:h-9.5";
 export type AuditDetailHeaderProps = Readonly<{
   auditId: string;
   subtitle: string;
+  /** Omitted until the run is submitted — the report endpoint refuses before that. */
   onGenerateReport?: () => void;
+  /** Opens the checklist. Label varies with the run's status. */
+  onPerform?: () => void;
+  performLabel?: string;
 }>;
 
 export function AuditDetailHeader(props: AuditDetailHeaderProps) {
-  const { auditId, subtitle, onGenerateReport } = props;
+  const { auditId, subtitle, onGenerateReport, onPerform, performLabel } =
+    props;
 
   return (
     <div className="backdrop-blur-2.5 bg-ehs-surface/62 border-ehs-border-ink/8 relative flex flex-col justify-center gap-1.5 rounded-2xl border px-4 py-4 shadow-(--ehs-shadow-panel) before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:content-[''] sm:px-6">
@@ -55,21 +60,39 @@ export function AuditDetailHeader(props: AuditDetailHeaderProps) {
           ) : null}
         </div>
 
-        {onGenerateReport ? (
-          <Button
-            type="button"
-            variant="primary"
-            onClick={onGenerateReport}
-            className={`${actionClass} shrink-0 border-transparent! shadow-none!`}
-          >
-            <Icon
-              icon="mdi:file-document-outline"
-              className="size-4 shrink-0"
-              aria-hidden="true"
-            />
-            Generate Report
-          </Button>
-        ) : null}
+        <div className="flex shrink-0 flex-wrap items-center gap-2">
+          {onPerform ? (
+            <Button
+              type="button"
+              variant="primary"
+              onClick={onPerform}
+              className={`${actionClass} shrink-0 border-transparent! shadow-none!`}
+            >
+              <Icon
+                icon="mdi:clipboard-check-outline"
+                className="size-4 shrink-0"
+                aria-hidden="true"
+              />
+              {performLabel ?? "Perform Audit"}
+            </Button>
+          ) : null}
+
+          {onGenerateReport ? (
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={onGenerateReport}
+              className={`${actionClass} shrink-0`}
+            >
+              <Icon
+                icon="mdi:file-document-outline"
+                className="size-4 shrink-0"
+                aria-hidden="true"
+              />
+              Generate Report
+            </Button>
+          ) : null}
+        </div>
       </div>
     </div>
   );

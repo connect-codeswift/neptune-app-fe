@@ -310,6 +310,7 @@ export function HazcomTrainingLogPageClient() {
                   primaryHref="/dashboard/hazcom/training/new"
                   primaryLabel="Schedule Training"
                   primaryShortLabel="Schedule"
+                  primaryCapability="HazCom.Create"
                 />
               }
               className="min-w-0"

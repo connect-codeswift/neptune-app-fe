@@ -1,6 +1,5 @@
 import type { InspectionRecord } from "@/app/dashboard/inspections/inspections-data";
 import type { InspectionFinding } from "@/app/dashboard/inspections/findings/inspection-findings-data";
-import type { InspectionChecklist } from "@/app/dashboard/inspections/checklist/inspection-checklist-data";
 import type { InspectionReport } from "@/app/dashboard/inspections/report/inspection-report-data";
 import type {
   InspectionDetailDto,
@@ -99,32 +98,6 @@ export function mapFindingDtoToFinding(
 }
 
 /** Map an API inspection detail onto the detail panel's donut shape. */
-/**
- * Turn GET /api/v1/inspections/{id} into a runnable checklist: the template
- * snapshot carries the sections and their items.
- */
-export function mapInspectionDetailToChecklist(
-  dto: InspectionDetailDto,
-): InspectionChecklist {
-  const sections = [...(dto.snapshot?.sections ?? [])]
-    .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
-    .map((section) => ({
-      id: String(section.id),
-      title: section.sectionTitle || "Untitled section",
-      items: [...(section.items ?? [])]
-        .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
-        .map((item) => ({
-          id: String(item.id),
-          question: item.question ?? "",
-        })),
-    }));
-
-  return {
-    inspectionId: formatRecordDisplayId("I", dto.id),
-    subtitle: dto.inspectionTitle || dto.snapshot?.templateName || "Inspection",
-    sections,
-  };
-}
 
 /**
  * Build the report straight from GET /api/v1/inspections/{id}, which carries

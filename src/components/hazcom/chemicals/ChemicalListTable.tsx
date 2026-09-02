@@ -42,6 +42,12 @@ export type ChemicalListTableProps = Readonly<{
   chemicals: readonly HazcomChemical[];
   selectedId?: string | null;
   onViewMore?: (id: string) => void;
+  /**
+   * Draw the row's Manage (cog) shortcut. Defaults to false so a caller that
+   * has not thought about permissions gets the read-only table rather than
+   * silently offering an edit route the API will refuse.
+   */
+  canManage?: boolean;
   header?: ReactNode;
   className?: string;
 }>;
@@ -62,6 +68,7 @@ const columnHelper = createColumnHelper<HazcomChemical>();
 export type ChemicalListColumnOptions = Readonly<{
   selectedId: string | null;
   onViewMore: (id: string) => void;
+  canManage: boolean;
 }>;
 
 /**
@@ -72,7 +79,7 @@ export type ChemicalListColumnOptions = Readonly<{
 function createChemicalListColumns(
   options: ChemicalListColumnOptions,
 ): ColumnDef<HazcomChemical, unknown>[] {
-  const { selectedId, onViewMore } = options;
+  const { selectedId, onViewMore, canManage } = options;
 
   const columns = [
     columnHelper.display({
@@ -293,6 +300,13 @@ function createChemicalListColumns(
     }),
   ] as ColumnDef<HazcomChemical, unknown>[];
 
+  // The eye stays for everyone — viewing the register is the whole point of a
+  // worker reaching this page. Only the cog, which opens the edit route, is
+  // held back.
+  if (!canManage) {
+    return columns;
+  }
+
   return withManageAction(columns, {
     getHref: (row) =>
       `/dashboard/hazcom/chemicals/${encodeURIComponent(row.id)}`,
@@ -311,6 +325,7 @@ export function ChemicalListTable(props: Readonly<ChemicalListTableProps>) {
     chemicals,
     selectedId = null,
     onViewMore,
+    canManage = false,
     header,
     className = "",
   } = props;
@@ -320,8 +335,9 @@ export function ChemicalListTable(props: Readonly<ChemicalListTableProps>) {
       createChemicalListColumns({
         selectedId,
         onViewMore: onViewMore ?? (() => undefined),
+        canManage,
       }),
-    [selectedId, onViewMore],
+    [selectedId, onViewMore, canManage],
   );
 
   const table = useReactTable({

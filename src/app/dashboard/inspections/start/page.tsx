@@ -1,4 +1,4 @@
-﻿import { Suspense } from "react";
+import { Suspense } from "react";
 import { StartInspectionForm } from "@/components/inspections/start/StartInspectionForm";
 import { StartInspectionHeader } from "@/components/inspections/start/StartInspectionHeader";
 

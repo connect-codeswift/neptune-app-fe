@@ -1,4 +1,4 @@
-﻿import { BbsListPageClient } from "@/components/bbs/BbsListPageClient";
+import { BbsListPageClient } from "@/components/bbs/BbsListPageClient";
 
 export default function BbsPage() {
   return <BbsListPageClient />;

@@ -45,6 +45,8 @@ export type UpsertLotoEquipmentRequestDto = {
   description: string | null;
   hazardLevel: LotoHazardLevelDto | null;
   isOutOfService: boolean;
+  /** How to confirm zero energy. Optional, like the notes beside it. */
+  verificationMethod: string | null;
   additionalNotes: string | null;
   steps: LotoProcedureStepRequestDto[];
   authorizedUserIds: number[];
@@ -56,9 +58,25 @@ export type ApplyLotoLockoutRequestDto = {
   purpose: string;
   expectedCompletionAt: string | null;
   confirmationAccepted: boolean;
+  /** Optional photo of the applied lock and tag. A files-API id, never a url. */
+  attachmentFileId: string | null;
 };
 
 /** POST /api/v1/loto/lockouts/{id}/remove body. Both flags are required. */
+/**
+ * PUT /api/v1/loto/personnel/certification.
+ *
+ * Per person, not per machine — the API keys on userId alone, so saving from a procedure editor
+ * still writes one global record covering every machine they are authorized on.
+ */
+export type SaveLotoCertificationRequestDto = {
+  userId: number;
+  certifiedAt: string | null;
+  expiresAt: string | null;
+  /** A files-API id from the three-step upload. Never a url — the bucket is private. */
+  attachmentFileId: string | null;
+};
+
 export type RemoveLotoLockoutRequestDto = {
   energyRestoredConfirmed: boolean;
   signedOff: boolean;

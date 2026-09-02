@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type {
   FormSchema,
   FormValues,
@@ -37,6 +38,15 @@ export type BuildTrainingSessionSchemaArgs = Readonly<{
    * nobody.
    */
   trainerId: string;
+  /**
+   * Rendered inside the Notes box. Proofread, paraphrase and draft — the notes
+   * are the trainer's own prose, unlike the SDS statement fields, which are
+   * quotations and are held to transcription tidying.
+   */
+  notesAssistant?: (control: {
+    value: string;
+    onChange: (next: string) => void;
+  }) => ReactNode;
 }>;
 
 /** Schedule Training — POST /api/v1/hazcom/trainings. */
@@ -135,6 +145,7 @@ export function buildTrainingSessionSchema(
       colSpan: 12,
       rows: 4,
       placeholder: "Additional notes…",
+      assistant: args.notesAssistant,
     },
   ];
 }

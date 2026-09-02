@@ -15,6 +15,7 @@ import { lotoRemoveLockoutRoute } from "@/app/dashboard/lockout-tagout/loto-lock
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { useLotoActiveLockoutsQuery } from "@/hooks/use-loto-queries";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useCapabilities } from "@/lib/capabilities";
 import { LotoQueryStatus } from "./LotoQueryStatus";
 import { LotoRegisterHeader } from "./LotoRegisterHeader";
 
@@ -50,6 +51,11 @@ export function LotoActiveLockoutsSection() {
   const router = useRouter();
   const hasToken = useHasAccessToken();
   const lockoutsQuery = useLotoActiveLockoutsQuery(hasToken === true);
+
+  // canRemove alone is ownership — the API also demands Loto.Remove, which the
+  // Worker preset does not hold. Both, or the card offers a button that 403s.
+  const { can } = useCapabilities();
+  const canRemoveLockout = can("Loto.Remove");
 
   if (hasToken === null || (hasToken && lockoutsQuery.isLoading)) {
     return <LotoQueryStatus state="loading" />;
@@ -115,7 +121,7 @@ export function LotoActiveLockoutsSection() {
                   </Text>
                 </div>
 
-                {item.canRemove ? (
+                {item.canRemove && canRemoveLockout ? (
                   <Button
                     type="button"
                     variant="tertiary"

@@ -14,6 +14,8 @@ export type LotoApplyLockoutContext = Readonly<{
   equipmentCode: string;
   energySources: readonly LotoEnergySourceView[];
   operatorName: string;
+  /** Shown above the Final Confirmation, which is what it is attesting to. */
+  verificationMethod: string;
   canApply: boolean;
   cannotApplyReason: string | null;
 }>;

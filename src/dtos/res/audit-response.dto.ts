@@ -85,6 +85,24 @@ export type AuditRecordedResponseDto = {
   valueText: string;
   note: string;
   isNA: boolean;
+  /** `Pass` | `Action` | `Critical`, or null on answers recorded before grading. */
+  severity: string | null;
+};
+
+/** One piece of evidence attached to a run, optionally pinned to a question. */
+export type AuditAttachmentDto = {
+  id: number;
+  auditId: number;
+  /** Null when the file was attached to the run rather than to one question. */
+  templateItemId: number | null;
+  /** Handle for GET /files/{fileId}. Null only on rows predating file storage. */
+  fileId: string | null;
+  fileName: string;
+  /** Legacy on-disk path. Null on everything written since file storage. */
+  filePath: string | null;
+  mimeType: string | null;
+  sizeBytes: number;
+  createdDate: string;
 };
 
 /** A single audit's detail from GET /api/v1/audits/{id}. */
@@ -104,7 +122,7 @@ export type AuditDetailDto = {
   submittedAt: string | null;
   templateId: number;
   templateVersionId: number;
-  attachments: unknown[];
+  attachments: AuditAttachmentDto[];
   responses: AuditRecordedResponseDto[];
   snapshot: AuditSnapshotDto;
 };
@@ -152,3 +170,26 @@ export type GetAuditFindingsResponseDto = ApiEnvelopeDto<
 /** Matches the backend response for GET /api/v1/audits/{id}/report. Left as
  * `unknown` until the report's shape is pinned down. */
 export type GetAuditReportResponseDto = ApiEnvelopeDto<unknown>;
+
+/** The run's state after it was submitted. */
+export type SubmitAuditResultDto = {
+  id: number;
+  status: string;
+  hasCriticalFailure: boolean;
+  /** How many findings the engine raised from Action/Critical answers. */
+  autoRaisedFindings: number;
+};
+
+/** Matches the backend response for POST /api/v1/audits/{id}/submit. */
+export type SubmitAuditResponseDto =
+  ApiEnvelopeDto<SubmitAuditResultDto | null>;
+
+/** Matches the backend response for POST /api/v1/audits/{id}/reopen. */
+export type ReopenAuditResponseDto = ApiEnvelopeDto<unknown>;
+
+/** Matches the backend response for POST /api/v1/audits/{id}/attachments. */
+export type AddAuditAttachmentResponseDto =
+  ApiEnvelopeDto<AuditAttachmentDto | null>;
+
+/** Matches the backend response for DELETE /api/v1/audits/{id}/attachments/{attachmentId}. */
+export type DeleteAuditAttachmentResponseDto = ApiEnvelopeDto<unknown>;

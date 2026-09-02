@@ -1,4 +1,4 @@
-﻿import { HazcomShell } from "@/components/hazcom/shared/HazcomShell";
+import { HazcomShell } from "@/components/hazcom/shared/HazcomShell";
 
 export default function HazcomLayout({
   children,

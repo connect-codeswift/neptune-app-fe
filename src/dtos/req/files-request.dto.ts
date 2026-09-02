@@ -10,6 +10,7 @@ export const FILE_MODULES = [
   "Bbs",
   "Ppe",
   "Profile",
+  "Loto",
 ] as const;
 
 export type FileModule = (typeof FILE_MODULES)[number];

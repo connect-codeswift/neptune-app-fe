@@ -18,6 +18,7 @@ export const FILE_MAX_BYTES_BY_MODULE: Readonly<Record<FileModule, number>> = {
   Capa: 25 * MB,
   Bbs: 25 * MB,
   Ppe: 25 * MB,
+  Loto: 25 * MB,
 };
 
 export const FILE_MAX_FILES = 10;

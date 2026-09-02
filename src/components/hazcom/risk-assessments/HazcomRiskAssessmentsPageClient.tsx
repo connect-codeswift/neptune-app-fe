@@ -180,6 +180,7 @@ export function HazcomRiskAssessmentsPageClient() {
                   primaryHref="/dashboard/hazcom/risk-assessments/new"
                   primaryLabel="New Assessment"
                   primaryShortLabel="New"
+                  primaryCapability="HazCom.Create"
                 />
               }
               className="min-w-0"

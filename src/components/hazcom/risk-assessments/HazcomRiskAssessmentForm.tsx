@@ -18,6 +18,7 @@ import {
 import { HazcomHazardRatingSelector } from "@/components/hazcom/risk-assessments/HazcomHazardRatingSelector";
 import type { HazcomRiskAssessmentFormState } from "@/components/hazcom/risk-assessments/risk-assessment-form-state";
 import { ReportSelectField } from "@/components/incidents/report/shared/ReportFormField";
+import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
 import type { ChemicalRiskAssessmentRequestDto } from "@/dtos/req/hazcom-request.dto";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useSubmitLock } from "@/hooks/use-submit-lock";
@@ -174,6 +175,13 @@ export function HazcomRiskAssessmentForm(
           onChange={(event) =>
             onChange({ exposureScenario: event.target.value })
           }
+          assistant={
+            <AiTextAssistant
+              module="riskAssessment"
+              value={values.exposureScenario}
+              onApply={(exposureScenario) => onChange({ exposureScenario })}
+            />
+          }
         />
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -256,11 +264,25 @@ export function HazcomRiskAssessmentForm(
           </div>
         </div>
 
+        {/*
+          Proofread and paraphrase only, and no draft on either box — see the
+          gate for this record kind. What the worker actually does is knowledge
+          the assessor brought and is not on the form, and the controls are the
+          safety judgement this assessment exists to record: a drafted one would
+          sit here as though a competent person had made it.
+        */}
         <HazcomTextareaField
           label="Controls / Mitigation Notes"
           placeholder="Engineering controls, administrative controls, substitution, elimination..."
           value={values.controls}
           onChange={(event) => onChange({ controls: event.target.value })}
+          assistant={
+            <AiTextAssistant
+              module="riskAssessment"
+              value={values.controls}
+              onApply={(controls) => onChange({ controls })}
+            />
+          }
         />
 
         <div className="border-ehs-border-ink/8 flex flex-wrap items-center justify-between gap-3 border-t pt-4 sm:pt-5">

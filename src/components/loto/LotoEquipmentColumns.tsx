@@ -27,6 +27,8 @@ function statusTone(status: LotoEquipmentStatus): IncidentBadgeTone {
 
 export type LotoEquipmentColumnActions = Readonly<{
   onView: (item: LotoEquipmentItem) => void;
+  /** Omitted when the reader lacks Loto.Delete, which is what hides the control. */
+  onDelete?: (item: LotoEquipmentItem) => void;
 }>;
 
 export function buildLotoEquipmentColumns(
@@ -114,6 +116,23 @@ export function buildLotoEquipmentColumns(
                 aria-hidden="true"
               />
             </button>
+            {actions.onDelete ? (
+              <button
+                type="button"
+                className="text-ehs-muted-text hover:text-ehs-red hover:bg-ehs-red/8 inline-flex size-8 cursor-pointer items-center justify-center rounded-lg transition-colors"
+                aria-label={`Delete ${item.name}`}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  actions.onDelete?.(item);
+                }}
+              >
+                <Icon
+                  icon="mdi:trash-can-outline"
+                  className="size-5"
+                  aria-hidden="true"
+                />
+              </button>
+            ) : null}
           </div>
         );
       },

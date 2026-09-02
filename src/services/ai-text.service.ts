@@ -13,7 +13,15 @@ import http from "@/lib/axios";
 export type RewriteOperation = "proofread" | "paraphrase";
 
 /** Which module's endpoints to call. */
-export type AiModule = "incident" | "nearMiss" | "hazard" | "loto";
+export type AiModule =
+  | "incident"
+  | "nearMiss"
+  | "hazard"
+  | "loto"
+  | "sds"
+  | "training"
+  | "chemical"
+  | "riskAssessment";
 
 /** Every AI call goes here; the module travels in the body. */
 const AI_ASSIST_PATH = "/ai/assist";
@@ -38,6 +46,10 @@ const RECORD_KINDS = {
   nearMiss: "near-miss",
   hazard: "hazard",
   loto: "lockout/tagout procedure",
+  sds: "safety data sheet",
+  training: "chemical safety training session",
+  chemical: "chemical inventory record",
+  riskAssessment: "chemical exposure risk assessment",
 } satisfies Record<AiModule, string>;
 
 /**
@@ -163,10 +175,6 @@ function readResult(payload: unknown, key: string): string | null {
 }
 
 /**
- * Logs why an assist call failed. The reporter is shown fixed copy either way,
- * so this is the only place the cause is recoverable from a running app.
- */
-/**
  * Whether the assistant refused the content rather than failing on it. Callers
  * show "that is not report text" instead of "try again in a moment" — retrying
  * an instruction typed into a field will fail the same way every time.
@@ -175,6 +183,10 @@ export function isRejectedByAssistant(error: unknown): boolean {
   return error instanceof AiAssistError && error.isRejectedContent;
 }
 
+/**
+ * Logs why an assist call failed. The reporter is shown fixed copy either way,
+ * so this is the only place the cause is recoverable from a running app.
+ */
 export function logAiAssistFailure(label: string, error: unknown): void {
   if (error instanceof AiAssistError) {
     console.warn(
