@@ -512,14 +512,7 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
                 </div>
               </div>
             </div>
-          </FormSection>
 
-          <div className="border-ehs-border border-t" />
-
-          <FormSection
-            title="Storage & notes"
-            description="Handling instructions and any extra context for this record."
-          >
             <HazcomTextareaField
               label="Additional Notes"
               value={notes}
