@@ -6,6 +6,8 @@ import { createPortal } from "react-dom";
 import { Icon } from "@iconify/react";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
+import { useResolvedFileUrl } from "@/hooks/use-file-queries";
+import { isStoredFileId } from "@/lib/files";
 import { resolveFileName } from "@/components/policy-maker/edit/edit-document-utils";
 import type { VersionHistoryCardModel } from "@/components/policy-maker/version-history/version-history-utils";
 import type { PolicyDocument } from "@/components/policy-maker/policy-maker-types";
@@ -50,7 +52,24 @@ export function VersionDocumentPreviewModal(
   const titleId = useId();
   const [mounted, setMounted] = useState(false);
 
-  const fileUrl = entry.filePath ?? policyDocument.filePath;
+  /*
+   * `filePath` is not always a URL.
+   *
+   * Two upload paths coexist: the legacy Cloudinary one stores a public https
+   * link, and the files API stores a bare uuid whose viewable link is fetched
+   * from `GET /files/{id}` and expires. Handing that uuid straight to
+   * `<Document file=...>` made pdf.js resolve it against the current page, so
+   * it fetched `/dashboard/policy-maker/<uuid>`, got HTML back and reported
+   * "Invalid PDF structure" — the document was never requested at all.
+   *
+   * Same resolution the incident attachment preview already uses.
+   */
+  const storedRef = (entry.filePath ?? policyDocument.filePath)?.trim() ?? "";
+  const resolved = useResolvedFileUrl(
+    isStoredFileId(storedRef) ? storedRef : null,
+  );
+  const fileUrl = isStoredFileId(storedRef) ? (resolved.url ?? "") : storedRef;
+  const isResolvingFile = isStoredFileId(storedRef) && resolved.isLoading;
   const fileName = resolveFileName(
     entry.filePath
       ? entry
@@ -163,7 +182,16 @@ export function VersionDocumentPreviewModal(
         </div>
 
         <div className="bg-ehs-form-classes-bg/70 flex min-h-0 flex-1 items-start justify-center overflow-auto px-4 py-8 sm:px-8 sm:py-10">
-          {fileUrl ? (
+          {isResolvingFile ? (
+            <div className="text-ehs-gray text4 flex h-[50vh] w-full max-w-135 flex-col items-center justify-center gap-2">
+              <Icon
+                icon="mdi:loading"
+                className="text-ehs-normal-blue size-6 animate-spin"
+                aria-hidden="true"
+              />
+              <span>Preparing document…</span>
+            </div>
+          ) : fileUrl ? (
             <FilePreviewPdf fileUrl={fileUrl} />
           ) : (
             <div className="bg-ehs-surface flex h-[50vh] w-full max-w-135 flex-col items-center justify-center gap-2 rounded text-center shadow-[0px_8px_32px_-8px_rgba(15,23,42,0.16)]">

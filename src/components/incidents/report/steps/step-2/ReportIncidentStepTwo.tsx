@@ -32,6 +32,7 @@ import { ReportSelectWithAdd } from "@/components/incidents/report/shared/Report
 import { ReportPhotosField } from "@/components/incidents/report/steps/step-2/ReportPhotosField";
 import { MultipleUsersPickerInput } from "@/components/inputs/MultipleUsersPickerInput";
 import { useCurrentSite } from "@/hooks/use-current-site";
+import { ReportIncidentDraftButton } from "@/components/incidents/report/shared/ReportIncidentDraftButton";
 
 export type ReportStepTwoErrors = Readonly<{
   mechanismOfInjury: string | null;
@@ -71,6 +72,10 @@ export type ReportIncidentStepTwoProps = Readonly<{
   onBack?: () => void;
   onContinue?: () => void;
   showFieldErrors?: boolean;
+  /** Saves the report as a draft in place, without navigating away. */
+  onSaveDraft?: () => void;
+  /** True while the draft is being written. Blocks a second click mid-save. */
+  isSavingDraft?: boolean;
   className?: string;
 }>;
 
@@ -83,6 +88,8 @@ export function ReportIncidentStepTwo(
     onBack,
     onContinue,
     showFieldErrors = false,
+    onSaveDraft,
+    isSavingDraft = false,
     className = "",
   } = props;
   const [attemptedContinue, setAttemptedContinue] = useState(false);
@@ -426,6 +433,11 @@ export function ReportIncidentStepTwo(
               Required fields marked with{" "}
               <span className="text-ehs-red">*</span>
             </p>
+
+            <ReportIncidentDraftButton
+              onSaveDraft={onSaveDraft}
+              isSavingDraft={isSavingDraft}
+            />
 
             <Button
               type="button"

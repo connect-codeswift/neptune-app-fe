@@ -17,19 +17,32 @@ import {
   type ReportIncidentFormState,
   IMMEDIATE_ACTION_OPTIONS,
 } from "@/forms/incident-module/index";
+import { ReportIncidentDraftButton } from "@/components/incidents/report/shared/ReportIncidentDraftButton";
 
 export type ReportIncidentStepFourProps = Readonly<{
   form: ReportIncidentFormState;
   onChange: (next: Partial<ReportIncidentFormState>) => void;
   onBack?: () => void;
   onContinue?: () => void;
+  /** Saves the report as a draft in place, without navigating away. */
+  onSaveDraft?: () => void;
+  /** True while the draft is being written. Blocks a second click mid-save. */
+  isSavingDraft?: boolean;
   className?: string;
 }>;
 
 export function ReportIncidentStepFour(
   props: Readonly<ReportIncidentStepFourProps>,
 ) {
-  const { form, onChange, onBack, onContinue, className = "" } = props;
+  const {
+    form,
+    onChange,
+    onBack,
+    onContinue,
+    onSaveDraft,
+    isSavingDraft = false,
+    className = "",
+  } = props;
 
   const draft = useIncidentFieldDraft(form, onChange, "actionNotes");
 
@@ -149,6 +162,11 @@ export function ReportIncidentStepFour(
               Required fields marked with{" "}
               <span className="text-ehs-red">*</span>
             </p>
+
+            <ReportIncidentDraftButton
+              onSaveDraft={onSaveDraft}
+              isSavingDraft={isSavingDraft}
+            />
 
             <Button
               type="button"

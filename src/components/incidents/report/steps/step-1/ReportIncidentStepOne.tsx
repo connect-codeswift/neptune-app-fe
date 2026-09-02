@@ -39,6 +39,7 @@ import { useCurrentSite } from "@/hooks/use-current-site";
 import { userGenderQueryKey } from "@/hooks/use-user-queries";
 import { getUserGenderById } from "@/services/user.service";
 import { getAuthContext, getAuthDisplayName } from "@/lib/auth-context";
+import { ReportIncidentDraftButton } from "@/components/incidents/report/shared/ReportIncidentDraftButton";
 
 export type ReportTimingErrors = Readonly<{
   incidentDate: string | null;
@@ -206,6 +207,10 @@ export type ReportIncidentStepOneProps = Readonly<{
   onContinue?: () => void;
   /** Set when the stepper blocks a forward jump — surfaces the same inline errors as Continue. */
   showFieldErrors?: boolean;
+  /** Saves the report as a draft in place, without navigating away. */
+  onSaveDraft?: () => void;
+  /** True while the draft is being written. Blocks a second click mid-save. */
+  isSavingDraft?: boolean;
   className?: string;
 }>;
 
@@ -218,6 +223,8 @@ export function ReportIncidentStepOne(
     onBack,
     onContinue,
     showFieldErrors = false,
+    onSaveDraft,
+    isSavingDraft = false,
     className = "",
   } = props;
 
@@ -578,6 +585,11 @@ export function ReportIncidentStepOne(
           <p className="text-ehs-muted-text min-w-0 flex-1 text-xs">
             Required fields marked with <span className="text-ehs-red">*</span>
           </p>
+
+          <ReportIncidentDraftButton
+            onSaveDraft={onSaveDraft}
+            isSavingDraft={isSavingDraft}
+          />
 
           <Button
             type="button"

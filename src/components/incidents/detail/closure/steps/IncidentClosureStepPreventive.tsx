@@ -115,16 +115,6 @@ export function IncidentClosureStepPreventive(
           A CAPA's incident is set when it is raised and the API has no way to move
           it, so raising one from the Linked CAPA tab is the whole of the real flow.
         */}
-        {onManageCapas ? (
-          <button
-            type="button"
-            onClick={onManageCapas}
-            className="text-ehs-normal-blue text4 mt-3 flex items-center gap-1.5 font-bold transition-colors hover:underline"
-          >
-            <Icon icon="mdi:arrow-right" className="size-4" />
-            <span>Manage CAPAs in the Linked CAPA tab</span>
-          </button>
-        ) : null}
       </div>
 
       {/* Notes. Still persisted as `actionsTaken` (the backend column is unchanged),

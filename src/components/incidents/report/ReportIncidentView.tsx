@@ -50,21 +50,40 @@ const STEP_VALIDATORS: Partial<
   2: validateStepTwo,
 };
 
-function renderStepForm(
-  currentStep: ReportStepId,
-  form: ReportIncidentFormState,
-  updateForm: (next: Partial<ReportIncidentFormState>) => void,
-  handleBack: () => void,
-  handleContinue: () => void,
-  showStepFieldErrors: Partial<Record<ReportStepId, boolean>>,
-  goToStep: (step: ReportStepId) => void,
-  onAfterCreateIncident?: (incidentId: number) => Promise<void> | void,
-) {
+type RenderStepFormArgs = Readonly<{
+  currentStep: ReportStepId;
+  form: ReportIncidentFormState;
+  updateForm: (next: Partial<ReportIncidentFormState>) => void;
+  handleBack: () => void;
+  handleContinue: () => void;
+  showStepFieldErrors: Partial<Record<ReportStepId, boolean>>;
+  goToStep: (step: ReportStepId) => void;
+  onSaveDraft: () => void;
+  isSavingDraft: boolean;
+  onAfterCreateIncident?: (incidentId: number) => Promise<void> | void;
+}>;
+
+function renderStepForm(args: RenderStepFormArgs) {
+  const {
+    currentStep,
+    form,
+    updateForm,
+    handleBack,
+    handleContinue,
+    showStepFieldErrors,
+    goToStep,
+    onSaveDraft,
+    isSavingDraft,
+    onAfterCreateIncident,
+  } = args;
+
   const sharedProps = {
     form,
     onChange: updateForm,
     onBack: handleBack,
     onContinue: handleContinue,
+    onSaveDraft,
+    isSavingDraft,
   };
 
   switch (currentStep) {
@@ -277,16 +296,10 @@ export function ReportIncidentView(props: Readonly<ReportIncidentViewProps>) {
   };
 
   /**
-   * Saves the unfinished report, then leaves.
-   *
-   * <p>This button used to be `router.push(exitHref)` and nothing else, so four
-   * steps of typing were discarded under a control that says Save. The order
-   * matters: navigation happens only after the save resolves, and a failed save
-   * keeps the reporter on the page with their work still in front of them. The
-   * one thing this must never do is leave and lose it quietly, which is exactly
-   * what it did before.</p>
+   * Saves the unfinished report in place, without navigating away. A failed save
+   * keeps the reporter on the page with their work still in front of them.
    */
-  const handleSaveExit = async () => {
+  const handleSaveDraft = async () => {
     if (saveDraftMutation.isPending) return;
 
     try {
@@ -304,7 +317,6 @@ export function ReportIncidentView(props: Readonly<ReportIncidentViewProps>) {
         "Draft saved",
         "Pick it up from Drafts when you are ready.",
       );
-      router.push(exitHref);
     } catch {
       toast.error(
         "Could not save your draft",
@@ -317,8 +329,6 @@ export function ReportIncidentView(props: Readonly<ReportIncidentViewProps>) {
     <div className="flex min-h-screen min-w-0 flex-1 flex-col">
       <div className="flex min-w-0 flex-1 flex-col gap-0 px-3 pb-8 sm:px-4">
         <ReportIncidentPageHeader
-          onSaveExit={() => void handleSaveExit()}
-          isSavingExit={saveDraftMutation.isPending}
           backHref={backHref}
           backLabel={backLabel}
           title={headerTitle}
@@ -340,16 +350,18 @@ export function ReportIncidentView(props: Readonly<ReportIncidentViewProps>) {
             onStepChange={goToStep}
           />
 
-          {renderStepForm(
+          {renderStepForm({
             currentStep,
-            normalizedForm,
+            form: normalizedForm,
             updateForm,
             handleBack,
             handleContinue,
             showStepFieldErrors,
             goToStep,
-            handleAfterCreateIncident,
-          )}
+            onSaveDraft: () => void handleSaveDraft(),
+            isSavingDraft: saveDraftMutation.isPending,
+            onAfterCreateIncident: handleAfterCreateIncident,
+          })}
 
           {isReviewStep ? null : (
             <ReportIncidentAside

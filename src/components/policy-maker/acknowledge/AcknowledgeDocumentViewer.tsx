@@ -3,6 +3,8 @@
 import dynamic from "next/dynamic";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
+import { useResolvedFileUrl } from "@/hooks/use-file-queries";
+import { isStoredFileId } from "@/lib/files";
 import { documentFileName } from "@/components/policy-maker/edit/edit-document-utils";
 import type { PolicyDocument } from "@/components/policy-maker/policy-maker-types";
 
@@ -42,8 +44,42 @@ export function AcknowledgeDocumentViewer(
   props: Readonly<AcknowledgeDocumentViewerProps>,
 ) {
   const { document, className = "" } = props;
-  const fileUrl = document.filePath;
+  /*
+   * `filePath` may be a files-API uuid rather than a URL — see
+   * VersionDocumentPreviewModal for the same trap. Passing the uuid straight
+   * to the renderer made pdf.js resolve it against the current page and fail
+   * with "Invalid PDF structure", which on this screen means the reader cannot
+   * see the policy they are being asked to acknowledge.
+   */
+  const storedRef = document.filePath?.trim() ?? "";
+  const resolved = useResolvedFileUrl(
+    isStoredFileId(storedRef) ? storedRef : null,
+  );
+  const fileUrl = isStoredFileId(storedRef) ? (resolved.url ?? "") : storedRef;
+  const isResolvingFile = isStoredFileId(storedRef) && resolved.isLoading;
   const fileName = documentFileName(document);
+
+  if (isResolvingFile) {
+    return (
+      <div
+        className={[
+          "rounded-5 backdrop-blur-2.5 border-ehs-hairline/90 bg-ehs-surface/62 relative flex min-h-105 w-full min-w-0 flex-col items-center justify-center gap-2 overflow-hidden border px-6 text-center shadow-(--ehs-shadow-card-flat) lg:min-h-180.5",
+          className,
+        ]
+          .filter(Boolean)
+          .join(" ")}
+      >
+        <Icon
+          icon="mdi:loading"
+          className="text-ehs-normal-blue size-6 animate-spin"
+          aria-hidden="true"
+        />
+        <Text as="p" className="text4 text-ehs-muted-text">
+          Preparing document…
+        </Text>
+      </div>
+    );
+  }
 
   if (!fileUrl) {
     return (
