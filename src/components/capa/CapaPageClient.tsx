@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { CapaDashboardView } from "@/components/capa/CapaDashboardView";
 import { DashboardHeader } from "@/components/DashboardHeader";

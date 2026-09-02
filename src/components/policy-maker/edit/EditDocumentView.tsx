@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { EditDocumentForm } from "@/components/policy-maker/edit/EditDocumentForm";

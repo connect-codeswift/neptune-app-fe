@@ -1,4 +1,4 @@
-﻿import { DashboardHeader } from "@/components/DashboardHeader";
+import { DashboardHeader } from "@/components/DashboardHeader";
 import { LogWalkTalkContent } from "@/components/walk-talk/log/LogWalkTalkContent";
 
 export default function LogWalkTalkPage() {
