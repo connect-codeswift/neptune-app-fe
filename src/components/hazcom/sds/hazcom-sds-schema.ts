@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type {
   FormSchema,
   FormValues,
@@ -32,6 +33,19 @@ export type BuildSdsUploadSchemaArgs = Readonly<{
    * from. Empty until a chemical is picked.
    */
   lockedFields?: ReadonlySet<string>;
+  /**
+   * Rendered inside the Hazard Statement and Precautionary Statement boxes.
+   *
+   * Only those two, and only ever proofread and paraphrase — both of which are
+   * held to transcription tidying on this record kind. These are GHS statements
+   * copied from the manufacturer's sheet, not prose, so there is nothing to
+   * draft: a statement the assistant supplied would be a hazard classification
+   * nobody assessed.
+   */
+  statementAssistant?: (
+    field: "hazardStatement" | "precautionaryStatement",
+    control: { value: string; onChange: (next: string) => void },
+  ) => ReactNode;
 }>;
 
 /** Upload SDS — POST /api/hazcom/sds. */
@@ -159,6 +173,9 @@ export function buildSdsUploadSchema(
       colSpan: 6,
       rows: 4,
       placeholder: "e.g. Highly flammable liquid and vapor.",
+      assistant: args.statementAssistant
+        ? (control) => args.statementAssistant?.("hazardStatement", control)
+        : undefined,
     },
     {
       type: "textarea",
@@ -169,6 +186,9 @@ export function buildSdsUploadSchema(
       rows: 4,
       placeholder:
         "e.g. Keep away from heat, sparks, open flames and hot surfaces.",
+      assistant: args.statementAssistant
+        ? (control) => args.statementAssistant?.("precautionaryStatement", control)
+        : undefined,
     },
   ];
 }

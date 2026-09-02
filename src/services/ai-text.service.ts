@@ -13,7 +13,7 @@ import http from "@/lib/axios";
 export type RewriteOperation = "proofread" | "paraphrase";
 
 /** Which module's endpoints to call. */
-export type AiModule = "incident" | "nearMiss" | "hazard" | "loto";
+export type AiModule = "incident" | "nearMiss" | "hazard" | "loto" | "sds";
 
 /** Every AI call goes here; the module travels in the body. */
 const AI_ASSIST_PATH = "/ai/assist";
@@ -38,6 +38,7 @@ const RECORD_KINDS = {
   nearMiss: "near-miss",
   hazard: "hazard",
   loto: "lockout/tagout procedure",
+  sds: "safety data sheet",
 } satisfies Record<AiModule, string>;
 
 /**
