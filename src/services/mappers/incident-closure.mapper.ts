@@ -143,6 +143,7 @@ export function mapIncidentClosureDtoToData(
     currentStep,
     maxAccessibleStep,
     closureStatus,
+    draftSavedAt: dto.updatedAt ?? fallback.draftSavedAt,
     closureId: dto.closureId ?? dto.id?.toString() ?? fallback.closureId,
     closedAt: dto.closedAt ?? fallback.closedAt,
     closedBy: dto.closedBy ?? dto.closedByUserName ?? fallback.closedBy,
@@ -244,5 +245,9 @@ export function mapIncidentClosureDataToUpdateDto(
     rootCauseDescription: data.rootCauseSummary || data.closureNotes || null,
     actionsTaken: data.actionsTaken || data.preventiveActionSummary || null,
     attestationConfirmed: data.isEhsConfirmed || data.isApproved,
+    // Sent so Save as Draft records where the closer stopped, not just what they
+    // had typed. Without it the fields survived a reload but the wizard always
+    // reopened on Classification.
+    currentStep: data.currentStep,
   };
 }

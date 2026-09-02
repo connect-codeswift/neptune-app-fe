@@ -10,6 +10,12 @@ export type SaveIncidentClosureDto = {
   rootCauseDescription?: string | null;
   actionsTaken?: string | null;
   attestationConfirmed?: boolean | null;
+  /**
+   * The step the closer was on when they saved, so the draft reopens there.
+   * Omit to leave the stored position alone — a step that saves without moving
+   * must not reset the draft to step 1.
+   */
+  currentStep?: number | null;
 };
 
 /** @deprecated Use SaveIncidentClosureDto */

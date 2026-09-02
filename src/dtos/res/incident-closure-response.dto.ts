@@ -28,6 +28,8 @@ export type IncidentClosureResponseDto = {
    * this is what "Closed" actually means — the API sends no status string.
    */
   isDraft?: boolean | null;
+  /** When the draft was last written — drives the "saved X ago" line on step 1. */
+  updatedAt?: string | null;
   closedAt?: string | null;
   closedBy?: string | null;
   closedByRole?: string | null;
