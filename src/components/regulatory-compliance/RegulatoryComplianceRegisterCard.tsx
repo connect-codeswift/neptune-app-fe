@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Icon } from "@iconify/react";
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
 import { Table, type TablePagination } from "@/components/ui/Table";
-import { withManageAction } from "@/components/ui/table-manage-column";
+import { withRowLink } from "@/components/ui/table-row-link";
 import { Text } from "@/components/Text";
 import {
   TABLE_HEADER_ACTION_CLASS,
@@ -14,6 +14,10 @@ import {
 import { formatComplianceDisplayId } from "@/services/mappers/compliance.mapper";
 import type { ComplianceObligationItem } from "./regulatory-compliance-types";
 import { CompliancePill, complianceGlassCardClass } from "./compliance-ui";
+
+/** Where a row in this register opens. Shared by the id link and the row click. */
+const obligationHref = (id: string) =>
+  `/dashboard/regulatory-compliance/${encodeURIComponent(id)}`;
 
 const CALENDAR_HREF = "/dashboard/regulatory-compliance/calendar";
 const ADD_OBLIGATION_HREF = "/dashboard/regulatory-compliance/calendar/new";
@@ -164,16 +168,16 @@ export function RegulatoryComplianceRegisterCard(
 
   const columns = useMemo(
     () =>
-      withManageAction(createObligationColumns({ selectedId, onViewMore }), {
-        getHref: (row) =>
-          `/dashboard/regulatory-compliance/${encodeURIComponent(row.id)}`,
-        getAriaLabel: (row) => `Manage obligation ${row.obligation}`,
+      withRowLink(createObligationColumns({ selectedId, onViewMore }), {
+        getHref: (row) => obligationHref(row.id),
+        getAriaLabel: (row) => `Open obligation ${row.obligation}`,
       }),
     [selectedId, onViewMore],
   );
 
   return (
     <Table
+      rowHref={(row) => obligationHref(row.id)}
       variant="compliance"
       data={items}
       columns={columns}

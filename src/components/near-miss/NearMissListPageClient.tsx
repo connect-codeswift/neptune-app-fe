@@ -12,7 +12,7 @@ import { NearMissHeatmapCard } from "@/components/near-miss/NearMissHeatmapCard"
 import { NearMissRecognitionCard } from "@/components/near-miss/NearMissRecognitionCard";
 import { NearMissDetailPanel } from "@/components/near-miss/NearMissDetailPanel";
 import { makeNearMissColumns } from "@/components/near-miss/NearMissColumns";
-import { withManageAction } from "@/components/ui/table-manage-column";
+import { withRowLink } from "@/components/ui/table-row-link";
 import type { NearMissRecord } from "@/app/dashboard/near-miss/near-miss-data";
 import {
   formatNearMissDisplayId,
@@ -23,6 +23,10 @@ import {
 import { canViewNearMissInsights } from "@/lib/current-user";
 import { useUserDropdownQuery } from "@/hooks/use-user-queries";
 import { toUserNameLookup, userNameFor } from "@/lib/map-user";
+
+/** Where a row in this register opens. Shared by the id link and the row click. */
+const nearMissRecordHref = (id: string) =>
+  `/dashboard/near-miss/${encodeURIComponent(id)}`;
 
 const PAGE_SIZE = 10;
 
@@ -95,7 +99,7 @@ export function NearMissListPageClient() {
 
   const columns = useMemo(
     () =>
-      withManageAction<NearMissRecord>(
+      withRowLink<NearMissRecord>(
         makeNearMissColumns({
           userNames,
           selectedId: activeSelectedId,
@@ -106,10 +110,9 @@ export function NearMissListPageClient() {
           },
         }),
         {
-          getHref: (record) =>
-            `/dashboard/near-miss/${encodeURIComponent(record.id)}`,
+          getHref: (record) => nearMissRecordHref(record.id),
           getAriaLabel: (record) =>
-            `Manage near miss ${formatNearMissDisplayId(record.id)}`,
+            `Open near miss ${formatNearMissDisplayId(record.id)}`,
         },
       ),
     [userNames, activeSelectedId],
@@ -175,6 +178,7 @@ export function NearMissListPageClient() {
         data: filteredRecords,
         columns,
         getRowId: (row) => row.id,
+        rowHref: (row) => nearMissRecordHref(row.id),
         selectedRowId: activeSelectedId,
         pagination: {
           pageNumber: page?.pageNumber ?? pageNumber,

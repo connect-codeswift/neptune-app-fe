@@ -2,11 +2,15 @@
 
 import { useMemo } from "react";
 import { Table } from "@/components/ui/Table";
-import { withManageAction } from "@/components/ui/table-manage-column";
+import { withRowLink } from "@/components/ui/table-row-link";
 import { createCapaColumns } from "@/components/capa/CapaColumns";
 import { CapaRegisterHeader } from "@/components/capa/CapaRegisterHeader";
 import type { CapaDashboardItem } from "@/components/capa/capa-dashboard-data";
 import { complianceGlassCardClass } from "@/components/regulatory-compliance/compliance-ui";
+
+/** Where a row in this register opens. Shared by the id link and the row click. */
+const capaRecordHref = (id: string) =>
+  `/dashboard/capa/${encodeURIComponent(id)}`;
 
 export type CapaRegisterTableProps = Readonly<{
   items: readonly CapaDashboardItem[];
@@ -37,15 +41,15 @@ export function CapaRegisterTable(props: Readonly<CapaRegisterTableProps>) {
   } = props;
   const columns = useMemo(
     () =>
-      withManageAction(
+      withRowLink(
         createCapaColumns({
           selectedId,
           onViewMore: onToggleDetail,
           expanded,
         }),
         {
-          getHref: (row) => `/dashboard/capa/${encodeURIComponent(row.id)}`,
-          getAriaLabel: (row) => `Manage CAPA ${row.title}`,
+          getHref: (row) => capaRecordHref(row.id),
+          getAriaLabel: (row) => `Open CAPA ${row.title}`,
         },
       ),
     [selectedId, onToggleDetail, expanded],
@@ -53,6 +57,7 @@ export function CapaRegisterTable(props: Readonly<CapaRegisterTableProps>) {
 
   return (
     <Table
+      rowHref={(row) => capaRecordHref(row.id)}
       variant="compliance"
       data={items}
       columns={columns}

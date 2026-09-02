@@ -24,7 +24,11 @@ import {
   PpeSearchBarSkeleton,
   PpeTableSkeleton,
 } from "./PpeSkeletons";
-import { withManageAction } from "@/components/ui/table-manage-column";
+import { withRowLink } from "@/components/ui/table-row-link";
+
+/** Where a row in this register opens. Shared by the id link and the row click. */
+const ppeCatalogHref = (id: string) =>
+  `${CATALOG_ROUTE}/${encodeURIComponent(id)}`;
 
 const ISSUE_ROUTE = "/dashboard/ppe-management/issue";
 const CATALOG_ROUTE = "/dashboard/ppe-management/catalog";
@@ -136,14 +140,14 @@ export function PpeInventorySection() {
 
   const columns = useMemo(
     () =>
-      withManageAction(
+      withRowLink(
         makePpeInventoryColumns({
           selectedId: activeId,
           onViewMore: handleToggleDetailPanel,
         }),
         {
-          getHref: (row) => `${CATALOG_ROUTE}/${encodeURIComponent(row.id)}`,
-          getAriaLabel: (row) => `Manage PPE item ${row.itemName}`,
+          getHref: (row) => ppeCatalogHref(row.id),
+          getAriaLabel: (row) => `Open PPE item ${row.itemName}`,
         },
       ),
     [activeId, handleToggleDetailPanel],
@@ -236,6 +240,7 @@ export function PpeInventorySection() {
               {/* Desktop — table */}
               <div className="hidden min-w-0 overflow-x-auto md:block">
                 <Table
+                  rowHref={(row) => ppeCatalogHref(row.id)}
                   variant="compliance"
                   data={filtered}
                   columns={columns}

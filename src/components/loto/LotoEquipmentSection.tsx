@@ -18,7 +18,7 @@ import {
 } from "@/hooks/use-loto-queries";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { toast } from "@/lib/toast";
-import { withManageAction } from "@/components/ui/table-manage-column";
+import { withRowLink } from "@/components/ui/table-row-link";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { stripEquipmentPrefix } from "@/services/mappers/loto.mapper";
 import { useDropLotoEquipmentMutation } from "@/hooks/use-loto-mutations";
@@ -121,10 +121,10 @@ export function LotoEquipmentSection(
     // somewhere the reader cannot use. View stays: a worker still needs to
     // read the procedure for a machine they are authorized on.
     return canEdit
-      ? withManageAction<LotoEquipmentItem>(base, {
+      ? withRowLink<LotoEquipmentItem>(base, {
           getHref: (item) => lotoEquipmentDetailRoute(item.id),
           getAriaLabel: (item) =>
-            `Manage equipment ${item.equipmentCode} — ${item.name}`,
+            `Open equipment ${item.equipmentCode} — ${item.name}`,
         })
       : base;
   }, [router, canEdit, canDelete]);
