@@ -1138,9 +1138,17 @@ export function IncidentDetailContent(
               incidentId: targetId,
               data: closureData,
             });
+            // Back to Classification once it is safely stored. Saving is the
+            // closer stepping away, so leaving them mid-wizard invites more
+            // edits that are not in the draft they just took; step 1 is where
+            // the Drafts button lives, which is now the only way back in.
+            //
+            // Set after the await, never before: on a failed save the closer
+            // stays exactly where they were, with their work on screen.
+            setClosureData((prev) => ({ ...prev, currentStep: 1 }));
             toast.success(
               "Draft Saved",
-              "Incident closure draft saved successfully.",
+              "Saved. Use Drafts on this step to pick up where you left off.",
             );
           } catch (error) {
             toast.error(

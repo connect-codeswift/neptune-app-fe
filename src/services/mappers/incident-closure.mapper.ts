@@ -151,6 +151,13 @@ export function mapIncidentClosureDtoToData(
     currentStep,
     maxAccessibleStep,
     closureStatus,
+    // A closure row with an id that is still a draft IS the saved draft. Both
+    // come straight off the record, so this cannot disagree with what was
+    // stored the way a step-number heuristic could.
+    hasDraft:
+      Number(dto.id ?? 0) > 0 && dto.isDraft !== false
+        ? true
+        : fallback.hasDraft,
     draftSavedAt: dto.updatedAt ?? fallback.draftSavedAt,
     draftStep,
     closureId: dto.closureId ?? dto.id?.toString() ?? fallback.closureId,
