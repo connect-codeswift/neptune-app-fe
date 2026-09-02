@@ -17,7 +17,11 @@ import {
   useLotoEquipmentQuery,
 } from "@/hooks/use-loto-queries";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { toast } from "@/lib/toast";
 import { withManageAction } from "@/components/ui/table-manage-column";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { stripEquipmentPrefix } from "@/services/mappers/loto.mapper";
+import { useDropLotoEquipmentMutation } from "@/hooks/use-loto-mutations";
 import type { LotoEquipmentItem } from "@/app/dashboard/lockout-tagout/loto-data";
 import { buildLotoEquipmentColumns } from "./LotoEquipmentColumns";
 import { LotoQueryStatus } from "./LotoQueryStatus";
@@ -59,6 +63,11 @@ export function LotoEquipmentSection(
   const { can } = useCapabilities();
   const canCreate = can("Loto.Create");
   const canEdit = can("Loto.Update");
+  const canDelete = can("Loto.Delete");
+  const dropMutation = useDropLotoEquipmentMutation();
+  const [pendingDelete, setPendingDelete] = useState<LotoEquipmentItem | null>(
+    null,
+  );
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [status, setStatus] = useState<LotoEquipmentStatusFilterDto>("All");
@@ -72,7 +81,8 @@ export function LotoEquipmentSection(
   // a beat after they had clicked page 2, and re-ran for whitespace edits that
   // produce the same query.
   useEffect(() => {
-    const trimmed = query.trim();
+    // "EQ-7" is what the row shows; "7" is what is stored and searched.
+    const trimmed = stripEquipmentPrefix(query);
     if (trimmed === debouncedQuery) {
       return;
     }
@@ -102,6 +112,9 @@ export function LotoEquipmentSection(
       onView: (item) => {
         router.push(lotoEquipmentDetailRoute(item.id));
       },
+      // Passing no handler is what removes the control — the API enforces
+      // Loto.Delete either way, this only avoids offering a refused action.
+      onDelete: canDelete ? (item) => setPendingDelete(item) : undefined,
     });
 
     // The cog opens the procedure editor, so without the permission it leads
@@ -114,7 +127,29 @@ export function LotoEquipmentSection(
             `Manage equipment ${item.equipmentCode} — ${item.name}`,
         })
       : base;
-  }, [router, canEdit]);
+  }, [router, canEdit, canDelete]);
+
+  const confirmDelete = () => {
+    if (!pendingDelete) return;
+
+    dropMutation.mutate(pendingDelete.id, {
+      onSuccess: () => {
+        toast.success(
+          "Equipment deleted",
+          `${pendingDelete.equipmentCode} — ${pendingDelete.name} removed from the register.`,
+        );
+        setPendingDelete(null);
+      },
+      onError: (error) => {
+        // The API refuses this while a lockout is still on the machine, and
+        // that sentence is the useful one — it says what to do first.
+        toast.error(
+          getMutationErrorMessage(error, "Failed to delete the equipment."),
+        );
+        setPendingDelete(null);
+      },
+    });
+  };
 
   const page = equipmentQuery.data;
   const totalRecords = page?.totalRecords ?? 0;
@@ -188,6 +223,22 @@ export function LotoEquipmentSection(
           }}
         />
       )}
+
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        title="Delete this equipment?"
+        description={
+          pendingDelete
+            ? `${pendingDelete.equipmentCode} — ${pendingDelete.name} and its energy control procedure will be removed from the register. Its lockout history is kept.`
+            : undefined
+        }
+        confirmLabel="Delete"
+        isConfirming={dropMutation.isPending}
+        onConfirm={confirmDelete}
+        onCancel={() => {
+          setPendingDelete(null);
+        }}
+      />
     </div>
   );
 }

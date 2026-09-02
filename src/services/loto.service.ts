@@ -427,6 +427,21 @@ export async function updateLotoEquipment(
 }
 
 /**
+ * DELETE /api/v1/loto/equipment/{id} — soft deletes the machine and its procedure.
+ * Needs `Loto.Delete`.
+ *
+ * Refused by the API while an un-removed lockout is on the machine: the worker holding it needs
+ * a record to take it off from.
+ */
+export async function dropLotoEquipment(id: number): Promise<void> {
+  const { data } = await http.delete<ApiEnvelopeDto<unknown>>(
+    `${LOTO_EQUIPMENT_PATH}/${String(id)}`,
+  );
+
+  unwrapDataModel(data);
+}
+
+/**
  * PUT /api/v1/loto/personnel/certification — records or replaces one person's LOTO training
  * dates. Needs `Loto.Update`.
  *

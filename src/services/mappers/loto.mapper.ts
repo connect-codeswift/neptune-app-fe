@@ -24,6 +24,19 @@ export function withEquipmentPrefix(code: string): string {
   return trimmed.toUpperCase().startsWith("EQ-") ? trimmed : `EQ-${trimmed}`;
 }
 
+/**
+ * The inverse of {@link withEquipmentPrefix} for search terms. The register draws "EQ-7" but the
+ * stored code is the bare "7", so typing the identifier off a row matched nothing at all.
+ *
+ * Only an exact "EQ-<digits>" is unwrapped. A looser rule would eat the prefix out of a machine
+ * or location whose name genuinely contains it, and those still need to be findable.
+ */
+export function stripEquipmentPrefix(search: string): string {
+  const trimmed = search.trim();
+  const match = /^eq-([0-9]+)$/i.exec(trimmed);
+  return match ? match[1] : trimmed;
+}
+
 export function withLockPrefix(code: string): string {
   const trimmed = code.trim();
   if (trimmed === "") return "—";

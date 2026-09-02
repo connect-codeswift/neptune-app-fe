@@ -11,6 +11,7 @@ import { lotoQueryKeys } from "@/hooks/use-loto-queries";
 import {
   applyLotoLockout,
   createLotoEquipment,
+  dropLotoEquipment,
   removeLotoLockout,
   saveLotoCertification,
   updateLotoEquipment,
@@ -43,6 +44,18 @@ export function useUpdateLotoEquipmentMutation() {
       id: number;
       payload: UpsertLotoEquipmentRequestDto;
     }) => updateLotoEquipment(variables.id, variables.payload),
+    onSuccess: () => {
+      void invalidate();
+    },
+  });
+}
+
+/** DELETE /api/v1/loto/equipment/{id} — refused while a lockout is still on the machine. */
+export function useDropLotoEquipmentMutation() {
+  const invalidate = useInvalidateLoto();
+
+  return useMutation({
+    mutationFn: (id: number) => dropLotoEquipment(id),
     onSuccess: () => {
       void invalidate();
     },
