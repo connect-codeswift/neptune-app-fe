@@ -225,10 +225,7 @@ export function mapCapaDashboardKpisToMetrics(
 
   return [
     mapCard(dto.openCapas, {
-      // Not "Open CAPAs": the endpoint excludes late rows from this count, so it is active
-      // work that is still on time, and the Overdue tile beside it holds the rest. Reusing
-      // "Open" would also collide with the lifecycle donut, where Open is one stage of five.
-      title: "On Track",
+      title: "Open CAPAs",
       preference: "lower-better",
       valueStyle: "int",
       targetUnitSuffix: "",

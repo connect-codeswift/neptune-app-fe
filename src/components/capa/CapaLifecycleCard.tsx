@@ -135,7 +135,11 @@ export function CapaLifecycleCard() {
           Lifecycle
         </Text>
         <Text as="p" className="text-ehs-muted-text text-xs">
-          By stage
+          {/* "By status", not "By stage": Overdue is a due-date condition rather than a
+              lifecycle stage, and it is drawn as a slice so the donut matches the register's
+              filter chips exactly. Claiming stages while showing one that is not would be the
+              same word problem the tiles had. */}
+          By status
         </Text>
       </div>
 
