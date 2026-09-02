@@ -1,5 +1,4 @@
 import type { CapaLifecycleSlice } from "@/components/capa/capa-dashboard-data";
-import { CAPA_LIFECYCLE_SLICES } from "@/components/capa/capa-dashboard-data";
 import type { CapaLifecycleDto } from "@/dtos/res/capa-lifecycle-response.dto";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -64,12 +63,11 @@ const SLICE_COLORS = {
 export function mapCapaLifecycleToView(
   dto: CapaLifecycleDto | null | undefined,
 ): CapaLifecycleViewModel {
+  // Nothing to draw rather than the Figma placeholder. The constants this returned carried an
+  // Overdue wedge the mapping below deliberately omits, so a failed request drew a donut whose
+  // shape no query could have produced.
   if (!dto) {
-    const total = CAPA_LIFECYCLE_SLICES.reduce(
-      (sum, slice) => sum + slice.value,
-      0,
-    );
-    return { slices: CAPA_LIFECYCLE_SLICES, total };
+    return { slices: [], total: 0 };
   }
 
   // The four active stages, in lifecycle order. They are mutually exclusive and sum to

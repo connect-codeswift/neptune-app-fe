@@ -160,8 +160,11 @@ export function mapActionsToCapaRows(
 /** Counts driving the KPI row above the table. */
 export function summariseCapaRows(rows: readonly CapaListRow[]) {
   const overdue = rows.filter((row) => row.dueLabel === "Overdue").length;
-  const closed = rows.filter((row) =>
-    ["closed", "completed", "done"].includes(row.status.toLowerCase()),
+  // Closed only. Completed and Pending Verification are two stages *before* Closed in the
+  // CAPA lifecycle (Open, In Progress, Completed, Pending Verification, Closed), so counting
+  // them here reported live work awaiting verification as finished and undercounted Open.
+  const closed = rows.filter(
+    (row) => row.status.trim().toLowerCase() === "closed",
   ).length;
 
   return {

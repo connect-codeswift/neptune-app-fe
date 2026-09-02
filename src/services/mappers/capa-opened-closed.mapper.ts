@@ -1,7 +1,4 @@
-import {
-  CAPA_OPENED_CLOSED_TREND,
-  type CapaTrendPoint,
-} from "@/components/capa/capa-dashboard-data";
+import type { CapaTrendPoint } from "@/components/capa/capa-dashboard-data";
 import type {
   CapaOpenedClosedDto,
   CapaOpenedClosedWeekDto,
@@ -118,18 +115,14 @@ export function mapCapaOpenedClosedToView(
   dto: CapaOpenedClosedDto | null | undefined,
 ): CapaOpenedClosedViewModel {
   if (!dto || !dto.weeks || dto.weeks.length === 0) {
+    // Empty, not the Figma trend. The card printed "Unable to load trend" and drew the
+    // placeholder curve underneath it, which is the most confidently wrong state of the three.
     return {
-      points: CAPA_OPENED_CLOSED_TREND,
-      totalOpened: CAPA_OPENED_CLOSED_TREND.reduce(
-        (sum, point) => sum + point.opened,
-        0,
-      ),
-      totalClosed: CAPA_OPENED_CLOSED_TREND.reduce(
-        (sum, point) => sum + point.closed,
-        0,
-      ),
-      weekCount: CAPA_OPENED_CLOSED_TREND.length,
-      closingFaster: true,
+      points: [],
+      totalOpened: 0,
+      totalClosed: 0,
+      weekCount: 0,
+      closingFaster: false,
     };
   }
 

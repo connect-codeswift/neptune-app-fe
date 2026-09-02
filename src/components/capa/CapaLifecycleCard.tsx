@@ -2,8 +2,8 @@
 
 import { IncidentGlassCard } from "@/components/incidents";
 import { Text } from "@/components/Text";
+import { EmptyState } from "@/components/ui/EmptyState";
 import {
-  CAPA_LIFECYCLE_SLICES,
   type CapaLifecycleSlice,
 } from "@/components/capa/capa-dashboard-data";
 import { useCapaLifecycleQuery } from "@/hooks/use-capa-queries";
@@ -118,12 +118,12 @@ export function CapaLifecycleCard() {
     return <LifecycleCardSkeleton />;
   }
 
-  const fallbackTotal = CAPA_LIFECYCLE_SLICES.reduce(
-    (sum, slice) => sum + slice.value,
-    0,
-  );
-  const slices = lifecycleQuery.data?.slices ?? CAPA_LIFECYCLE_SLICES;
-  const total = lifecycleQuery.data?.total ?? fallbackTotal;
+  // No placeholder slices. The constants this used to fall back to drew an "Overdue" wedge
+  // that the real mapper deliberately omits as double-counting, so a refused or failed
+  // request rendered a donut that could not have come from any data.
+  const slices = lifecycleQuery.data?.slices ?? [];
+  const total = lifecycleQuery.data?.total ?? 0;
+  const isEmpty = total === 0 || slices.length === 0;
 
   return (
     <IncidentGlassCard paddingClassName="p-5.25" className="min-w-0">
@@ -139,6 +139,14 @@ export function CapaLifecycleCard() {
         </Text>
       </div>
 
+      {isEmpty ? (
+        <EmptyState
+          icon="mdi:chart-donut"
+          title="No active CAPAs"
+          message="Nothing is open at this stage yet, so there is no lifecycle to draw."
+          variant="inline"
+        />
+      ) : (
       <div className="flex flex-wrap items-center gap-5">
         <LifecycleDonut slices={slices} total={total} />
 
@@ -160,6 +168,7 @@ export function CapaLifecycleCard() {
           ))}
         </ul>
       </div>
+      )}
     </IncidentGlassCard>
   );
 }
