@@ -121,21 +121,12 @@ export function AuditPerformItemRow(props: AuditPerformItemRowProps) {
   const noteRequired = needsNote(item, answer);
 
   // The note only earns its space once there is a grade to explain.
-  const showNote = answered && !draft.isNA;
+  const showNote = answered;
 
   const handleGrade = (severity: AuditSeverity) => {
     // Tapping the chosen grade again clears it, back to Pending.
-    const isSame = draft.severity === severity && !draft.isNA;
-    onChange({
-      ...draft,
-      severity: isSame ? null : severity,
-      isNA: false,
-    });
-  };
-
-  const handleNA = () => {
-    const next = !draft.isNA;
-    onChange({ ...draft, isNA: next, severity: next ? null : draft.severity });
+    const isSame = draft.severity === severity;
+    onChange({ ...draft, severity: isSame ? null : severity });
   };
 
   const handleFile = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -182,32 +173,13 @@ export function AuditPerformItemRow(props: AuditPerformItemRowProps) {
             <GradeButton
               key={option.value}
               option={option}
-              isSelected={!draft.isNA && draft.severity === option.value}
+              isSelected={draft.severity === option.value}
               disabled={disabled}
               onSelect={() => {
                 handleGrade(option.value);
               }}
             />
           ))}
-
-          {item.allowNA ? (
-            <button
-              type="button"
-              role="radio"
-              aria-checked={draft.isNA}
-              disabled={disabled}
-              onClick={handleNA}
-              className={[
-                "text8 rounded-2.5 cursor-pointer border px-3 py-1.5 transition-colors",
-                "disabled:cursor-not-allowed disabled:opacity-60",
-                draft.isNA
-                  ? "bg-ehs-gray text-ehs-on-accent border-ehs-gray"
-                  : UNSELECTED_GRADE_CLASS,
-              ].join(" ")}
-            >
-              N/A
-            </button>
-          ) : null}
         </div>
       </div>
 

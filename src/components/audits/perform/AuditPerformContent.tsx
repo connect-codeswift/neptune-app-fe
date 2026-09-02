@@ -33,6 +33,7 @@ import {
   orderedSections,
   tallyAnswers,
   toResponsePayload,
+  ungradedItemIds,
 } from "./audit-perform-state";
 
 /** A grade is one tap and wants to feel committed; a note is still being typed. */
@@ -193,12 +194,31 @@ export function AuditPerformContent(props: AuditPerformContentProps) {
       ?.scrollIntoView({ behavior: "smooth", block: "center" });
   }, []);
 
-  const handleSubmit = useCallback(async () => {
-    setIsConfirmingSubmit(false);
-
+  /**
+   * Runs the checks first and only then opens the confirmation. Asking someone
+   * to confirm and *then* telling them the checklist is incomplete wastes the
+   * one decision the dialog exists to take.
+   */
+  const handleRequestSubmit = useCallback(async () => {
     // A note typed a moment ago is still on a timer; submitting without
     // writing it first would lose it and fail the backend's evidence check.
     await flushSaves();
+
+    // Every question has to be graded, not just the ones the template marked
+    // required — each one is a check somebody decided was worth making, and a
+    // blank leaves the record ambiguous about whether it was looked at. The
+    // backend only enforces `IsRequired`, so this is the stricter rule and it
+    // has to live here.
+    const ungraded = ungradedItemIds(items, answers);
+    if (ungraded.length > 0) {
+      highlightBlocked(ungraded);
+      toast.error(
+        `Grade ${String(ungraded.length)} remaining ${
+          ungraded.length === 1 ? "question" : "questions"
+        } before submitting.`,
+      );
+      return;
+    }
 
     // The "explain an Action or a Critical" rule is this page's, not the
     // backend's, so it has to be checked here or it is not checked at all.
@@ -216,6 +236,11 @@ export function AuditPerformContent(props: AuditPerformContentProps) {
       return;
     }
 
+    setIsConfirmingSubmit(true);
+  }, [answers, flushSaves, highlightBlocked, items]);
+
+  const handleSubmit = useCallback(() => {
+    setIsConfirmingSubmit(false);
     const { userId, siteId } = getCurrentUser();
 
     submitAudit.mutate(
@@ -245,15 +270,7 @@ export function AuditPerformContent(props: AuditPerformContentProps) {
         },
       },
     );
-  }, [
-    answers,
-    auditId,
-    flushSaves,
-    highlightBlocked,
-    items,
-    router,
-    submitAudit,
-  ]);
+  }, [auditId, highlightBlocked, router, submitAudit]);
 
   // Losing a half-typed note to a stray back-navigation is worth one prompt.
   useEffect(() => {
@@ -377,7 +394,7 @@ export function AuditPerformContent(props: AuditPerformContentProps) {
             variant="primary"
             isLoading={submitAudit.isPending}
             onClick={() => {
-              setIsConfirmingSubmit(true);
+              void handleRequestSubmit();
             }}
           >
             Submit Audit
@@ -396,14 +413,12 @@ export function AuditPerformContent(props: AuditPerformContentProps) {
         title="Submit this audit?"
         description={
           tally.action + tally.critical > 0
-            ? `Submitting locks the answers and raises ${String(tally.action + tally.critical)} finding(s) from the questions you graded Action or Critical.`
-            : "Submitting locks the answers. Only a lead can reopen the audit afterwards."
+            ? `All ${String(tally.total)} questions are graded. Submitting locks the answers and raises ${String(tally.action + tally.critical)} finding(s) from the questions you graded Action or Critical.`
+            : `All ${String(tally.total)} questions are graded and none needs action. Submitting locks the answers; only a lead can reopen the audit afterwards.`
         }
         confirmLabel="Submit"
         isConfirming={submitAudit.isPending}
-        onConfirm={() => {
-          void handleSubmit();
-        }}
+        onConfirm={handleSubmit}
         onCancel={() => {
           setIsConfirmingSubmit(false);
         }}
