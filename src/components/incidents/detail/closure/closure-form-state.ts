@@ -62,6 +62,7 @@ export function createInitialClosureData(
     currentStep: 1,
     maxAccessibleStep: 1,
     closureStatus: "Pending Checklist",
+    hasDraft: false,
     draftSavedAt: "",
     draftStep: 1,
     closureId: undefined,
@@ -114,6 +115,7 @@ export function resetClosureWizardFields(
   return {
     ...fresh,
     closureStatus: prev.closureStatus,
+    hasDraft: prev.hasDraft,
     draftSavedAt: prev.draftSavedAt,
     draftStep: prev.draftStep,
     closureId: prev.closureId,

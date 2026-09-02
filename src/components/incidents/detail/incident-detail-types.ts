@@ -130,6 +130,16 @@ export type IncidentClosureData = Readonly<{
   closureStatus:
     "Pending Checklist" | "Ready for Closure" | "Closed" | "Under Review";
   /**
+   * True once a closure draft has actually been written for this incident.
+   *
+   * Taken from the saved record itself — the API answers with a closure row id
+   * and `isDraft` — rather than inferred from which step it was saved on. An
+   * earlier version keyed the Drafts button on the saved step being past
+   * Classification, which silently did nothing for anyone who filled step 2 and
+   * then pressed Save as Draft from step 1.
+   */
+  hasDraft: boolean;
+  /**
    * When the draft was last saved, ISO. `""` when nothing has been saved yet.
    */
   draftSavedAt: string;

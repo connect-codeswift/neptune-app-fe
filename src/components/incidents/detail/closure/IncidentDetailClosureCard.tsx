@@ -85,12 +85,9 @@ export function IncidentDetailClosureCard(
    * saving does not claim there is a draft to return to. Past step 1 the closer
    * is already at or beyond the saved point, so the slot stays Save as Draft.
    */
-  const hasSavedDraft =
-    data.draftSavedAt.trim() !== "" && data.closureStatus !== "Closed";
+  const hasSavedDraft = data.hasDraft && data.closureStatus !== "Closed";
   const resumeStep: ClosureStepId | null =
-    currentStep === 1 && hasSavedDraft && data.draftStep > 1
-      ? data.draftStep
-      : null;
+    currentStep === 1 && hasSavedDraft ? data.draftStep : null;
 
   const savedAt = data.draftSavedAt.trim() ? new Date(data.draftSavedAt) : null;
   const savedAtLabel =
@@ -166,7 +163,6 @@ export function IncidentDetailClosureCard(
       <IncidentClosureStepsSidebar
         currentStep={currentStep}
         maxAccessibleStep={maxAccessibleStep}
-        onSelectStep={goToStep}
       />
 
       {/* Center Column: Active Step Form & Action Bar */}
