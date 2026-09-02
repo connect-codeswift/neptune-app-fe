@@ -235,6 +235,10 @@ export function ReportNearMissForm() {
       } as const,
       ...mapped.slice(hazardTypeIndex + 1),
     ];
+    // draftInput is what the rewrite sends as context. It changes on a dropdown
+    // selection rather than per keystroke, so listing it costs no field focus,
+    // and leaving it out meant a rewrite could be sent the answers as they stood
+    // when the schema was last built.
   }, [
     showsDraft,
     draft,
@@ -244,6 +248,7 @@ export function ReportNearMissForm() {
     canRegenerate,
     isChemicalHazard,
     chemicalOptions,
+    draftInput,
   ]);
 
   const handleSubmit = (values: FormValues) => {

@@ -263,11 +263,21 @@ export function HazcomSdsUploadForm(props: Readonly<HazcomSdsUploadFormProps>) {
           />
         ),
       }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- handleChemicalChange is stable enough (queryClient identity doesn't change) and including it would rebuild the schema (and reset field focus) on every render.
+
     // statementDraftPending is a dependency so the spinner actually appears. It
     // changes twice per draft, not per keystroke, which is why the values live
     // in a ref instead.
-    [chemicalOptions, isLoadingChemicalOptions, lockedFields, statementDraftPending],
+    //
+    // handleChemicalChange and runStatementDraft are deliberately excluded: both
+    // change identity every render, and including them would rebuild the schema
+    // — and reset field focus — on every keystroke.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      chemicalOptions,
+      isLoadingChemicalOptions,
+      lockedFields,
+      statementDraftPending,
+    ],
   );
 
   const goBack = () => {
