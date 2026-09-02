@@ -15,7 +15,7 @@ const columnHelper = createColumnHelper<LotoPersonnel>();
  * gap to fill, not a failure, and colouring it like an expiry hides the people who actually
  * lapsed.
  */
-function personnelStatusTone(status: LotoPersonnelStatus) {
+export function personnelStatusTone(status: LotoPersonnelStatus) {
   if (status === "Current") return "teal" as const;
   if (status === "Expiring") return "warn" as const;
   if (status === "Expired") return "danger" as const;

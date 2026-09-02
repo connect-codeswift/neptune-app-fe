@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
+import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
+import { personnelStatusTone } from "@/components/loto/LotoPersonnelColumns";
 import { Can } from "@/components/auth/Can";
 import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
@@ -93,9 +95,20 @@ function CertificationRow(
 
   return (
     <div className="border-ehs-border-ink/8 flex flex-col gap-2 border-b py-3 last:border-b-0">
-      <Text as="p" className="text4 text-ehs-darker font-medium">
-        {name}
-      </Text>
+      {/* The badge, not just the dates. A person already on file arrives here with
+          their inputs pre-filled, and without something saying so it reads as an empty
+          row to type into — so an existing certification was one Save away from being
+          overwritten by whoever happened to add them to a second procedure. */}
+      <div className="flex flex-wrap items-center gap-2">
+        <Text as="p" className="text4 text-ehs-darker font-medium">
+          {name}
+        </Text>
+        <IncidentBadge
+          label={existing?.status ?? "Not certified"}
+          tone={personnelStatusTone(existing?.status ?? "Not certified")}
+          showDot
+        />
+      </div>
 
       <div className="grid gap-2 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
         <label className="flex flex-col gap-1">
