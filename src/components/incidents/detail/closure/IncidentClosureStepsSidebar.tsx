@@ -6,10 +6,19 @@ import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCa
 
 export type ClosureStepId = 1 | 2 | 3 | 4;
 
+/**
+ * Progress, not navigation.
+ *
+ * These rows used to be buttons that jumped between steps, which gave the
+ * closer a second way back into a part-finished closure alongside the Drafts
+ * button — and one that skipped the draft entirely, so a jump to step 3 landed
+ * on whatever happened to be in memory rather than on what was saved. The flow
+ * is now: forward with Proceed, back with the step's own Back button, and back
+ * into a saved draft only through Drafts.
+ */
 export type IncidentClosureStepsSidebarProps = Readonly<{
   currentStep: ClosureStepId;
   maxAccessibleStep: ClosureStepId;
-  onSelectStep: (step: ClosureStepId) => void;
 }>;
 
 const STEPS = [
@@ -38,7 +47,7 @@ const STEPS = [
 export function IncidentClosureStepsSidebar(
   props: Readonly<IncidentClosureStepsSidebarProps>,
 ) {
-  const { currentStep, maxAccessibleStep, onSelectStep } = props;
+  const { currentStep, maxAccessibleStep } = props;
   const progressPercent = (currentStep / 4) * 100;
 
   return (
@@ -61,19 +70,18 @@ export function IncidentClosureStepsSidebar(
           const isLocked = step.id > maxAccessibleStep;
 
           return (
-            <button
+            <div
               key={step.id}
-              type="button"
-              onClick={() => onSelectStep(step.id)}
-              disabled={isLocked}
-              aria-disabled={isLocked}
+              // Reads as state, not as a control: no button, no hover lift, and
+              // aria-current marks where the closer actually is.
+              aria-current={isActive ? "step" : undefined}
               className={[
                 "rounded-2.5 flex items-start gap-2.5 p-2.5 text-left transition-all duration-200",
                 isActive
                   ? "bg-ehs-dark-blue-bg-light border-ehs-normal-blue/10 border"
                   : isLocked
-                    ? "cursor-not-allowed border border-transparent opacity-50"
-                    : "hover:bg-ehs-surface/60 border border-transparent",
+                    ? "border border-transparent opacity-50"
+                    : "border border-transparent",
               ].join(" ")}
             >
               <div
@@ -115,7 +123,7 @@ export function IncidentClosureStepsSidebar(
                   {step.subtitle}
                 </Text>
               </div>
-            </button>
+            </div>
           );
         })}
       </div>
