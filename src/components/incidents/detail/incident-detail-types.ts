@@ -129,6 +129,11 @@ export type IncidentClosureData = Readonly<{
   maxAccessibleStep: 1 | 2 | 3 | 4;
   closureStatus:
     "Pending Checklist" | "Ready for Closure" | "Closed" | "Under Review";
+  /**
+   * When the draft was last saved, ISO. `""` when nothing has been saved yet,
+   * which is what step 1 tests to decide whether to offer a resume card.
+   */
+  draftSavedAt: string;
   closureId?: string;
   closedAt?: string;
   closedBy: string;

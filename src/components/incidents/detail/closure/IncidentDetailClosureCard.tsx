@@ -1,5 +1,7 @@
 "use client";
 
+import { Icon } from "@iconify/react";
+import { formatShortDateTime } from "@/lib/format-short-date-time";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import {
   IncidentClosureStepsSidebar,
@@ -40,6 +42,14 @@ const STEP_NEXT_LABELS: Record<ClosureStepId, string> = {
   4: "Close Incident",
 };
 
+/** Names the resume card uses, matching the sidebar's own wording. */
+const STEP_TITLES: Record<ClosureStepId, string> = {
+  1: "Classification",
+  2: "Root Cause",
+  3: "Preventive Measures",
+  4: "Review & Sign-off",
+};
+
 const STEP_BACK_LABELS: Record<2 | 3 | 4, string> = {
   2: "Back to Classification",
   3: "Back to Root Cause",
@@ -63,6 +73,28 @@ export function IncidentDetailClosureCard(
 
   const currentStep = data.currentStep;
   const maxAccessibleStep = data.maxAccessibleStep ?? 1;
+
+  /*
+   * Where a saved draft picks up again.
+   *
+   * `maxAccessibleStep` rather than `currentStep`: the API restores the saved
+   * step on load, so by the time the closer has navigated back to step 1 the
+   * live step is 1 and only the furthest-reached value still remembers where
+   * they were. `draftSavedAt` is required too, so merely paging forward and
+   * back without saving does not claim there is a draft to return to.
+   */
+  const hasSavedDraft =
+    data.draftSavedAt.trim() !== "" && data.closureStatus !== "Closed";
+  const resumeStep: ClosureStepId | null =
+    currentStep === 1 && hasSavedDraft && maxAccessibleStep > 1
+      ? maxAccessibleStep
+      : null;
+
+  const savedAt = data.draftSavedAt.trim() ? new Date(data.draftSavedAt) : null;
+  const savedAtLabel =
+    savedAt && !Number.isNaN(savedAt.getTime())
+      ? ` on ${formatShortDateTime(savedAt)}`
+      : "";
 
   /**
    * Sidebar navigation follows the same rule as the incident report stepper:
@@ -212,13 +244,40 @@ export function IncidentDetailClosureCard(
                 Cancel
               </button>
 
-              <button
-                type="button"
-                onClick={onSaveAsDraft}
-                className="rounded-2.5 border-ehs-normal-blue text4 text-ehs-normal-blue bg-ehs-surface hover:bg-ehs-normal-blue/6 border px-4 py-2.5 font-bold transition-colors"
-              >
-                Save as Draft
-              </button>
+              {/*
+                On step 1 with a draft waiting, this slot resumes instead of
+                saving.
+
+                Saving from step 1 over a draft that reached step 3 is the one
+                thing the closer cannot want here — it writes the position back
+                to 1 and buries their own work. Offering the way back in is the
+                useful action, and it is only ever offered where the alternative
+                is destructive: from step 2 onward the closer is already at or
+                past the saved point, so the button stays Save as Draft.
+              */}
+              {resumeStep === null ? (
+                <button
+                  type="button"
+                  onClick={onSaveAsDraft}
+                  className="rounded-2.5 border-ehs-normal-blue text4 text-ehs-normal-blue bg-ehs-surface hover:bg-ehs-normal-blue/6 border px-4 py-2.5 font-bold transition-colors"
+                >
+                  Save as Draft
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => onSelectStep(resumeStep)}
+                  title={`Draft saved${savedAtLabel}. Continue from ${STEP_TITLES[resumeStep]}.`}
+                  className="rounded-2.5 border-ehs-normal-blue text4 text-ehs-normal-blue bg-ehs-normal-blue/8 hover:bg-ehs-normal-blue/14 inline-flex items-center gap-2 border px-4 py-2.5 font-bold transition-colors"
+                >
+                  <Icon
+                    icon="mdi:file-document-edit-outline"
+                    className="size-4.5 shrink-0"
+                    aria-hidden="true"
+                  />
+                  Draft
+                </button>
+              )}
 
               <button
                 type="button"
