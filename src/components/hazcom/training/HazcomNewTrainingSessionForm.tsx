@@ -19,6 +19,9 @@ import {
 import { Button } from "@/components/ui/Button";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useSubmitLock } from "@/hooks/use-submit-lock";
+import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
+import { useDraftMutation } from "@/hooks/use-ai-text-mutations";
+import { logAiAssistFailure } from "@/services/ai-text.service";
 import { useCreateTrainingLogMutation } from "@/hooks/use-hazcom-mutations";
 import { useChemicalNamesQuery } from "@/hooks/use-hazcom-queries";
 import { getAuthContext } from "@/lib/auth-context";
@@ -63,6 +66,89 @@ export function HazcomNewTrainingSessionForm(
     [chemicals],
   );
 
+  /**
+   * What the notes are drafted from, and what a rewrite is read against.
+   *
+   * Keyed on the individual fields rather than on `formValues`, because
+   * FormBuilder rebuilds that object on every keystroke while leaving untouched
+   * values at the same identity. Depending on the map would rebuild the schema
+   * as the trainer types in Notes — and remount the very textarea they are
+   * typing in.
+   *
+   * The trainer's name is not here: the picker fetches people itself and the
+   * form only ever sees the id. Their title is on the form and does travel.
+   */
+  const draftContext = useMemo(() => {
+    const chemicalIds = Array.isArray(formValues.chemicalIds)
+      ? (formValues.chemicalIds as string[])
+      : [];
+    const attendees = Array.isArray(formValues.attendees)
+      ? (formValues.attendees as unknown[])
+      : [];
+    const materials = Array.isArray(formValues.materials)
+      ? (formValues.materials as unknown[])
+      : [];
+
+    const chemicalNames = chemicalIds
+      .map(
+        (id) =>
+          chemicalOptions.find((option) => option.value === id)?.label ?? "",
+      )
+      .filter(Boolean)
+      .join(", ");
+
+    return {
+      "Chemicals covered": chemicalNames,
+      "Session date": String(formValues.sessionDate ?? ""),
+      "Trainer title": String(formValues.trainerTitle ?? ""),
+      Attendees:
+        attendees.length > 0 ? `${String(attendees.length)} people` : "",
+      Materials:
+        materials.length > 0 ? `${String(materials.length)} attached` : "",
+    };
+  }, [
+    formValues.chemicalIds,
+    formValues.sessionDate,
+    formValues.trainerTitle,
+    formValues.attendees,
+    formValues.materials,
+    chemicalOptions,
+  ]);
+
+  const [notesDraftPending, setNotesDraftPending] = useState(false);
+  const draftMutation = useDraftMutation("training");
+
+  const runNotesDraft = (apply: (next: string) => void) => {
+    setNotesDraftPending(true);
+    draftMutation
+      .mutateAsync({ fields: draftContext })
+      .then((results) => {
+        const narrative = results.narrative ?? null;
+
+        // Null is an answer: nothing is filled in yet, so a note could only
+        // restate one field.
+        if (narrative === null) {
+          toast.info(
+            "Nothing to draft yet",
+            "Fill in the session details above and try again.",
+          );
+          return;
+        }
+
+        apply(narrative);
+      })
+      .catch((error: unknown) => {
+        logAiAssistFailure("training-draft", error);
+        toast.error(
+          "Couldn't draft the notes",
+          "Your text is unchanged. Try again in a moment.",
+        );
+      })
+      .finally(() => {
+        setNotesDraftPending(false);
+      });
+  };
+
   const schema = useMemo(
     () =>
       buildTrainingSessionSchema({
@@ -73,7 +159,24 @@ export function HazcomNewTrainingSessionForm(
         siteName,
         usersSource,
         trainerId,
+        notesAssistant: (control) => (
+          <AiTextAssistant
+            module="training"
+            value={control.value}
+            onApply={control.onChange}
+            contextFields={draftContext}
+            draftPending={notesDraftPending}
+            onRegenerateDraft={() => runNotesDraft(control.onChange)}
+          />
+        ),
       }),
+    // draftContext and notesDraftPending belong here: the first is what the
+    // draft and the rewrites are given, and without the second the button's
+    // spinner never appears. Neither changes while typing in Notes.
+    //
+    // runNotesDraft is excluded deliberately — a new function every render, and
+    // including it would remount the textarea on every keystroke.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       chemicalOptions,
       isLoadingChemicals,
@@ -81,6 +184,8 @@ export function HazcomNewTrainingSessionForm(
       siteName,
       usersSource,
       trainerId,
+      draftContext,
+      notesDraftPending,
     ],
   );
 
