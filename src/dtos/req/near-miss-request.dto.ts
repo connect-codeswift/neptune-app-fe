@@ -12,6 +12,8 @@ export type CreateNearMissRequestDto = {
   /** HazCom chemical id, set only when `hazardType === "chemical"`. */
   chemicalId?: number | null;
   location: string;
+  /** The site location register entry the reporter picked. */
+  locationId: number | null;
   whatHappened: string;
   contributingFactor: string[];
   /** Attached photo evidence, up to 10. */

@@ -58,11 +58,22 @@ function selectValueFor(
  * Assignees come from the org person picker. Custom type/location values from
  * create are appended so they still appear on edit.
  */
-export function buildHazardEditSchema(record: HazardRecord): FormSchema {
+export function buildHazardEditSchema(
+  record: HazardRecord,
+  registerLocations: readonly { id: number; name: string }[] = [],
+): FormSchema {
+  // Locations come from the site register, passed in because a schema cannot hold a hook.
+  // withStoredOption keeps whatever the record already carries visible even when it is not in
+  // the register - free text from before it existed, or a location since retired - so opening
+  // an old record never silently blanks its location.
+  const locationRegister = registerLocations.map((entry) => ({
+    value: String(entry.id),
+    label: entry.name,
+  }));
   const typeOptions = withStoredOption(HAZARD_TYPE_OPTIONS, record.hazardType);
-  const locationOptions = withStoredOption(LOCATION_OPTIONS, record.location);
+  const locationOptions = withStoredOption(locationRegister, record.location);
   const typeValue = selectValueFor(HAZARD_TYPE_OPTIONS, record.hazardType);
-  const locationValue = selectValueFor(LOCATION_OPTIONS, record.location);
+  const locationValue = selectValueFor(locationRegister, record.location);
 
   return [
     {
@@ -115,10 +126,21 @@ export function buildHazardEditSchema(record: HazardRecord): FormSchema {
 }
 
 /** Pre-fill the edit form from an existing record. */
-export function toHazardEditValues(record: HazardRecord): FormValues {
+export function toHazardEditValues(
+  record: HazardRecord,
+  registerLocations: readonly { id: number; name: string }[] = [],
+): FormValues {
+  // The stored value is the register name; the field holds the id, so it is resolved here.
+  // A record predating the register matches nothing and keeps its text, which withStoredOption
+  // has already added to the options.
+  const locationRegister = registerLocations.map((entry) => ({
+    value: String(entry.id),
+    label: entry.name,
+  }));
+
   return {
     hazardType: selectValueFor(HAZARD_TYPE_OPTIONS, record.hazardType),
-    location: selectValueFor(LOCATION_OPTIONS, record.location),
+    location: selectValueFor(locationRegister, record.location),
     status: record.status,
     description: record.description,
   };

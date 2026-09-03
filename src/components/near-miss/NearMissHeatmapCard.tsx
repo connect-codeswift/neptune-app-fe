@@ -1,13 +1,13 @@
 "use client";
 
 import { Fragment, useMemo } from "react";
+import { useLocationsQuery } from "@/hooks/use-location-queries";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Text } from "@/components/Text";
 import { SkeletonHeatmapGrid } from "@/components/ui/skeletons";
 import { useNearMissHeatMapQuery } from "@/hooks/use-near-miss-queries";
 import {
   HAZARD_TYPE_SHORT_LABELS,
-  LOCATION_OPTIONS,
 } from "@/components/hazard/report/hazard-report-schema";
 import type { SelectOption } from "@/components/form-builder";
 import type { NearMissHeatMapCellDto } from "@/dtos/res/near-miss-response.dto";
@@ -30,10 +30,6 @@ const HEATMAP_TYPE_COLUMNS = [
 ] as const;
 
 /** Slugs come back from the API; show the label the reporter picked. */
-function labelFor(options: readonly SelectOption[], value: string): string {
-  return options.find((option) => option.value === value)?.label ?? value;
-}
-
 /**
  * Short column label for a hazard type, e.g. "mechanical" -> "Mech". Custom
  * types aren't in the map, so fall back to their first four letters.
@@ -67,6 +63,24 @@ function cellStyle(value: number | null, max: number) {
   };
 }
 
+const OTHER_TYPE_KEY = "__other";
+
+/**
+ * Which column a reported type belongs in.
+ *
+ * Matched case-insensitively: the same hazard arrives as "Slip" from records entered against
+ * the API and "slip-trip-fall" from the form, and comparing raw strings drew both as separate
+ * columns, each holding part of the count.
+ *
+ * Anything outside the standard set folds into one Other column. The report form lets a
+ * reporter add a custom hazard type, so appending every value the API returns would let a site
+ * grow the grid without limit. Eight columns at most, and no count is lost.
+ */
+function columnKeyFor(type: string, known: ReadonlySet<string>): string {
+  const normalized = type.trim().toLowerCase();
+  return known.has(normalized) ? normalized : OTHER_TYPE_KEY;
+}
+
 /** Pivot the flat department/location × type tallies into the grid. */
 function areaKey(cell: NearMissHeatMapCellDto): string {
   const department = cell.department?.trim();
@@ -74,34 +88,51 @@ function areaKey(cell: NearMissHeatMapCellDto): string {
   return cell.location.trim();
 }
 
-function toGrid(cells: readonly NearMissHeatMapCellDto[]) {
+function toGrid(
+  cells: readonly NearMissHeatMapCellDto[],
+  registerLocations: readonly string[],
+) {
+  // Rows come from the site's location register rather than a list hardcoded here. The six
+  // placeholder areas that used to seed this were not the places anyone reports against, so
+  // the grid drew six permanently empty rows and pushed the real ones off the end.
+  //
+  // Whatever the API reports that is not in the register still follows it: records predating
+  // the register carry free text, and dropping them would hide real reports.
   const apiAreas = [...new Set(cells.map(areaKey).filter(Boolean))];
-  const defaultAreas = LOCATION_OPTIONS.map((option) => option.value);
-  const defaultAreaSet = new Set(defaultAreas);
+  const registerSet = new Set(registerLocations);
   const locations = [
-    ...defaultAreas,
-    ...apiAreas.filter((area) => !defaultAreaSet.has(area)),
+    ...registerLocations,
+    ...apiAreas.filter((area) => !registerSet.has(area)),
   ];
 
-  const apiTypes = [...new Set(cells.map((cell) => cell.type))];
-  const knownTypeSet = new Set<string>(HEATMAP_TYPE_COLUMNS);
-  const types = [
-    ...HEATMAP_TYPE_COLUMNS,
-    ...apiTypes.filter((type) => !knownTypeSet.has(type)),
-  ];
+  const knownTypes = HEATMAP_TYPE_COLUMNS.map((type) => type.toLowerCase());
+  const knownTypeSet = new Set<string>(knownTypes);
 
-  const counts = new Map(
-    cells.map((cell) => [`${areaKey(cell)}|${cell.type}`, cell.count]),
-  );
+  // Summed, not assigned: several custom types share the Other column, and overwriting would
+  // report only whichever the API happened to return last.
+  const counts = new Map<string, number>();
+  let hasOther = false;
+
+  for (const cell of cells) {
+    const column = columnKeyFor(cell.type, knownTypeSet);
+    if (column === OTHER_TYPE_KEY) hasOther = true;
+    const key = `${areaKey(cell)}|${column}`;
+    counts.set(key, (counts.get(key) ?? 0) + cell.count);
+  }
+
+  const types = hasOther ? [...knownTypes, OTHER_TYPE_KEY] : knownTypes;
 
   const rows = locations.map((location) => ({
     key: location,
-    label: labelFor(LOCATION_OPTIONS, location),
+    label: location,
     values: types.map((type) => counts.get(`${location}|${type}`) ?? null),
   }));
 
   return {
-    columns: types.map((type) => ({ key: type, label: shortTypeLabel(type) })),
+    columns: types.map((type) => ({
+      key: type,
+      label: type === OTHER_TYPE_KEY ? "Other" : shortTypeLabel(type),
+    })),
     rows,
     max: Math.max(1, ...cells.map((cell) => cell.count), 0),
   };
@@ -114,7 +145,15 @@ export function NearMissHeatmapCard(props: NearMissHeatmapCardProps) {
 
   const heatMapQuery = useNearMissHeatMapQuery();
   const cells = heatMapQuery.data?.dataModel;
-  const { columns, rows, max } = useMemo(() => toGrid(cells ?? []), [cells]);
+  const locationsQuery = useLocationsQuery();
+  const registerLocations = useMemo(
+    () => (locationsQuery.data ?? []).map((location) => location.name),
+    [locationsQuery.data],
+  );
+  const { columns, rows, max } = useMemo(
+    () => toGrid(cells ?? [], registerLocations),
+    [cells, registerLocations],
+  );
 
   return (
     <IncidentGlassCard className={className}>

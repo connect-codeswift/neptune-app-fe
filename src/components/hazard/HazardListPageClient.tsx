@@ -51,7 +51,7 @@ export function HazardListPageClient() {
     siteId,
     userId,
   });
-  const hazardKpiQuery = useHazardKpiQuery({ userId }, canViewInsights);
+  const hazardKpiQuery = useHazardKpiQuery(canViewInsights);
 
   const userDropdownQuery = useUserDropdownQuery();
   const users = userDropdownQuery.data?.dataModel;

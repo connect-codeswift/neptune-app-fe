@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useLocationsQuery } from "@/hooks/use-location-queries";
 import { useRouter } from "next/navigation";
 import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
 import {
@@ -31,13 +32,16 @@ const hazardFormFieldClass = [
 ].join(" ");
 
 export function EditHazardForm(props: Readonly<{ record: HazardRecord }>) {
+  const locationsQuery = useLocationsQuery();
+  const locations = useMemo(() => locationsQuery.data ?? [], [locationsQuery.data]);
+
   const { record } = props;
   const router = useRouter();
   const saveHazard = useCreateHazardMutation();
   const { userId, siteId } = getCurrentUser();
   const schema = useMemo<FormSchema>(
     () =>
-      buildHazardEditSchema(record).map((field) =>
+      buildHazardEditSchema(record, locations).map((field) =>
         field.type === "textarea" && field.name === "description"
           ? {
               ...field,
@@ -62,7 +66,13 @@ export function EditHazardForm(props: Readonly<{ record: HazardRecord }>) {
     const payload: UpdateHazardRequestDto = {
       id: Number(toHazardApiId(record.id)),
       type: edited.hazardType,
-      location: edited.location,
+      // The picker holds the register row's id once a record has been re-saved against it.
+      // A record still carrying free text from before the register keeps its text and no id,
+      // which is what the API's fallback expects.
+      location:
+        locations.find((entry) => String(entry.id) === edited.location)?.name ??
+        edited.location,
+      locationId: Number(edited.location) || null,
       description: edited.description,
       image: record.image ?? "",
       // Passed through untouched: the edit form has no photo field, so omitting them would
@@ -94,7 +104,7 @@ export function EditHazardForm(props: Readonly<{ record: HazardRecord }>) {
     <IncidentGlassCard paddingClassName="p-6" className="w-full">
       <FormBuilder
         schema={schema}
-        initialValues={toHazardEditValues(record)}
+        initialValues={toHazardEditValues(record, locations)}
         className={hazardFormFieldClass}
         submitLabel={saveHazard.isPending ? "Saving..." : "Save Changes"}
         cancelLabel="Cancel"

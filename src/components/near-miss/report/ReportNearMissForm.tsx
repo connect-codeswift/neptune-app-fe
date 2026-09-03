@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useLocationsQuery } from "@/hooks/use-location-queries";
+import type { LocationDto } from "@/dtos/res/location-response.dto";
 import { useRouter } from "next/navigation";
 import { AiInFieldDraft } from "@/components/ai/AiInFieldDraft";
 import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
@@ -25,7 +27,6 @@ import { toast } from "@/lib/toast";
 import {
   CONTRIBUTING_FACTOR_OPTIONS,
   HAZARD_TYPE_OPTIONS,
-  LOCATION_OPTIONS,
   nearMissReportSchema,
   type NearMissReportValues,
 } from "./near-miss-report-schema";
@@ -67,6 +68,7 @@ function toReadableDate(value: string): string {
 
 function toCreateRequest(
   report: NearMissReportValues,
+  locations: readonly LocationDto[],
 ): CreateNearMissRequestDto {
   // userId / siteId come from the signed-in user's access-token claims.
   const { userId, siteId } = getCurrentUser();
@@ -78,7 +80,13 @@ function toCreateRequest(
     dateOfEvent: report.dateOfEvent,
     hazardType: report.hazardType,
     ...(Number.isFinite(chemicalId) && chemicalId > 0 ? { chemicalId } : {}),
-    location: report.location,
+    // The field holds the register row's id; the API takes the id and keeps the name for
+    // readers that predate it. A location typed before the register existed has no id and
+    // still round-trips as text.
+    location:
+      locations.find((entry) => String(entry.id) === report.location)?.name ??
+      report.location,
+    locationId: Number(report.location) || null,
     whatHappened: report.whatHappened,
     contributingFactor: report.contributingFactors,
     attachments: report.photos,
@@ -89,6 +97,9 @@ function toCreateRequest(
 }
 
 export function ReportNearMissForm() {
+  const locationsQuery = useLocationsQuery();
+  const locations = useMemo(() => locationsQuery.data ?? [], [locationsQuery.data]);
+
   const router = useRouter();
   const createNearMiss = useCreateNearMissMutation();
   // Held past the response: `isPending` drops as soon as the record is
@@ -146,10 +157,19 @@ export function ReportNearMissForm() {
         HAZARD_TYPE_OPTIONS,
         String(values.hazardType ?? ""),
       ),
-      Location: toLabel(LOCATION_OPTIONS, String(values.location ?? "")),
+      Location:
+        locations.find(
+          (entry) => String(entry.id) === String(values.location ?? ""),
+        )?.name ?? String(values.location ?? ""),
       "Contributing factors": factorLabels.join(", "),
     }),
-    [values.dateOfEvent, values.hazardType, values.location, factorLabels],
+    [
+      values.dateOfEvent,
+      values.hazardType,
+      values.location,
+      factorLabels,
+      locations,
+    ],
   );
 
   const { draft, pending, dismiss, regenerate, canRegenerate } =
@@ -203,12 +223,17 @@ export function ReportNearMissForm() {
 
       // A chemical hazard pairs "Which chemical" beside Location, so Location
       // narrows to half width instead of leaving a gap next to the picker.
-      if (
-        isChemicalHazard &&
-        field.type === "select" &&
-        field.name === "location"
-      ) {
-        return { ...field, colSpan: 6 };
+      if (field.type === "select" && field.name === "location") {
+        // The register, not the six hardcoded areas that were never what anyone reported
+        // against. colSpan narrows next to the chemical picker, as before.
+        return {
+          ...field,
+          ...(isChemicalHazard ? { colSpan: 6 as const } : {}),
+          options: locations.map((entry) => ({
+            value: String(entry.id),
+            label: entry.name,
+          })),
+        };
       }
 
       return field;
@@ -253,7 +278,7 @@ export function ReportNearMissForm() {
 
   const handleSubmit = (values: FormValues) => {
     // Values are keyed by the schema field names, matching NearMissReportValues.
-    const payload = toCreateRequest(values as NearMissReportValues);
+    const payload = toCreateRequest(values as NearMissReportValues, locations);
 
     if (!submitLock.acquire()) {
       return;
