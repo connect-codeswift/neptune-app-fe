@@ -119,13 +119,20 @@ export function createAuditColumns(
       // No `size` → Table default 150 → no fixed width → this column fills leftover space.
       minSize: 180,
       meta: { align: "left" as const },
+      // Clamp, never `truncate`. Table keeps `table-layout: auto` and gives cells
+      // a `minWidth` floor only — there is no `max-width` to ellipsis against.
+      // `truncate` sets `white-space: nowrap`, which makes this column's
+      // min-content the entire title, so one long title grew the cell until the
+      // table overflowed its card and Site/Auditor/Progress/Status scrolled off
+      // the right. Clamping still ellipsises but allows wrapping, so min-content
+      // drops to the longest word and the column can shrink to its share.
       cell: ({ row }) => {
         const subtitle = auditSubtitle(row.original, expanded);
         return (
           <div className="flex min-w-0 flex-col gap-0.5">
             <Text
               as="span"
-              className="text4 text-ehs-darker truncate"
+              className="text4 text-ehs-darker line-clamp-2"
               title={row.original.title}
             >
               {row.original.title}
@@ -133,7 +140,7 @@ export function createAuditColumns(
             {subtitle !== "" ? (
               <Text
                 as="span"
-                className="text8 text-ehs-muted-text truncate"
+                className="text8 text-ehs-muted-text line-clamp-1"
                 title={subtitle}
               >
                 {subtitle}
@@ -156,7 +163,7 @@ export function createAuditColumns(
             cell: (info) => (
               <Text
                 as="span"
-                className="text4 text-ehs-gray truncate"
+                className="text4 text-ehs-gray line-clamp-1"
                 title={info.getValue()}
               >
                 {info.getValue()}
@@ -173,7 +180,7 @@ export function createAuditColumns(
       cell: (info) => (
         <Text
           as="span"
-          className="text4 text-ehs-gray truncate"
+          className="text4 text-ehs-gray line-clamp-1"
           title={info.getValue()}
         >
           {info.getValue()?.split(" ").slice(0, 2).join(" ")}
