@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useLocationsQuery } from "@/hooks/use-location-queries";
 import { useRouter } from "next/navigation";
 import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
 import {
@@ -30,13 +31,16 @@ const nearMissFormFieldClass = [
 ].join(" ");
 
 export function EditNearMissForm(props: Readonly<{ record: NearMissRecord }>) {
+  const locationsQuery = useLocationsQuery();
+  const locations = useMemo(() => locationsQuery.data ?? [], [locationsQuery.data]);
+
   const { record } = props;
   const router = useRouter();
   const saveNearMiss = useCreateNearMissMutation();
   const { userId, siteId } = getCurrentUser();
   const schema = useMemo<FormSchema>(
     () =>
-      buildNearMissEditSchema(record).map((field) =>
+      buildNearMissEditSchema(record, locations).map((field) =>
         field.type === "textarea" && field.name === "whatHappened"
           ? {
               ...field,
@@ -65,7 +69,13 @@ export function EditNearMissForm(props: Readonly<{ record: NearMissRecord }>) {
       id: Number(toNearMissApiId(record.id)),
       dateOfEvent: edited.dateOfEvent,
       hazardType: edited.hazardType,
-      location: edited.location,
+      // The picker holds the register row's id once a record has been re-saved against it.
+      // A record still carrying free text from before the register keeps its text and no id,
+      // which is what the API's fallback expects.
+      location:
+        locations.find((entry) => String(entry.id) === edited.location)?.name ??
+        edited.location,
+      locationId: Number(edited.location) || null,
       whatHappened: edited.whatHappened,
       contributingFactor: contributingFactors,
       // Passed through untouched — the edit form has no photo field, so omitting them
@@ -96,7 +106,7 @@ export function EditNearMissForm(props: Readonly<{ record: NearMissRecord }>) {
     <IncidentGlassCard paddingClassName="p-6" className="w-full">
       <FormBuilder
         schema={schema}
-        initialValues={toNearMissEditValues(record)}
+        initialValues={toNearMissEditValues(record, locations)}
         className={nearMissFormFieldClass}
         submitLabel={saveNearMiss.isPending ? "Saving..." : "Save Changes"}
         cancelLabel="Cancel"

@@ -50,11 +50,22 @@ export type NearMissEditValues = {
   whatHappened: string;
 };
 
-export function buildNearMissEditSchema(record: NearMissRecord): FormSchema {
+export function buildNearMissEditSchema(
+  record: NearMissRecord,
+  registerLocations: readonly { id: number; name: string }[] = [],
+): FormSchema {
+  // Locations come from the site register, passed in because a schema cannot hold a hook.
+  // withStoredOption keeps whatever the record already carries visible even when it is not in
+  // the register - free text from before it existed, or a location since retired - so opening
+  // an old record never silently blanks its location.
+  const locationRegister = registerLocations.map((entry) => ({
+    value: String(entry.id),
+    label: entry.name,
+  }));
   const typeOptions = withStoredOption(HAZARD_TYPE_OPTIONS, record.hazardType);
-  const locationOptions = withStoredOption(LOCATION_OPTIONS, record.location);
+  const locationOptions = withStoredOption(locationRegister, record.location);
   const typeValue = selectValueFor(HAZARD_TYPE_OPTIONS, record.hazardType);
-  const locationValue = selectValueFor(LOCATION_OPTIONS, record.location);
+  const locationValue = selectValueFor(locationRegister, record.location);
   const factorOptions = record.contributingFactors.reduce(
     (options, factor) => withStoredOption(options, factor),
     [...CONTRIBUTING_FACTOR_OPTIONS],
@@ -121,11 +132,22 @@ export function buildNearMissEditSchema(record: NearMissRecord): FormSchema {
   ];
 }
 
-export function toNearMissEditValues(record: NearMissRecord): FormValues {
+export function toNearMissEditValues(
+  record: NearMissRecord,
+  registerLocations: readonly { id: number; name: string }[] = [],
+): FormValues {
+  // The stored value is the register name; the field holds the id, so it is resolved here.
+  // A record predating the register matches nothing and keeps its text, which withStoredOption
+  // has already added to the options.
+  const locationRegister = registerLocations.map((entry) => ({
+    value: String(entry.id),
+    label: entry.name,
+  }));
+
   return {
     dateOfEvent: record.dateOfEvent.slice(0, 10),
     hazardType: selectValueFor(HAZARD_TYPE_OPTIONS, record.hazardType),
-    location: selectValueFor(LOCATION_OPTIONS, record.location),
+    location: selectValueFor(locationRegister, record.location),
     contributingFactors: record.contributingFactors.map((factor) =>
       selectValueFor(CONTRIBUTING_FACTOR_OPTIONS, factor),
     ),

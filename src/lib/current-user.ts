@@ -226,9 +226,17 @@ export function canViewNearMissInsights(): boolean {
   return holds("NearMiss.View");
 }
 
-/** True when the signed-in user may see the hazard insight widgets. Same caveat as above. */
+/**
+ * True when the signed-in user may see the hazard insight widgets - the KPI tiles, the heat
+ * map and the recognition board.
+ *
+ * Hazard.Dashboard.View, which Supervisor and up hold. Reporting and reading a hazard stay open
+ * to everyone because a hazard is a safety concern; the tallies over the whole site are
+ * management reporting, and the KPI endpoint is keyed on a user id, so a worker was shown their
+ * own count of 0 beside a site-wide heat map of everyone else s.
+ */
 export function canViewHazardInsights(): boolean {
-  return holds("Hazard.View");
+  return holds("Hazard.Dashboard.View");
 }
 
 /**

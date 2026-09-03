@@ -1,13 +1,13 @@
 "use client";
 
 import { Fragment, useMemo } from "react";
+import { useLocationsQuery } from "@/hooks/use-location-queries";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Text } from "@/components/Text";
 import { SkeletonHeatmapGrid } from "@/components/ui/skeletons";
 import { useNearMissHeatMapQuery } from "@/hooks/use-near-miss-queries";
 import {
   HAZARD_TYPE_SHORT_LABELS,
-  LOCATION_OPTIONS,
 } from "@/components/hazard/report/hazard-report-schema";
 import type { SelectOption } from "@/components/form-builder";
 import type { NearMissHeatMapCellDto } from "@/dtos/res/near-miss-response.dto";
@@ -30,10 +30,6 @@ const HEATMAP_TYPE_COLUMNS = [
 ] as const;
 
 /** Slugs come back from the API; show the label the reporter picked. */
-function labelFor(options: readonly SelectOption[], value: string): string {
-  return options.find((option) => option.value === value)?.label ?? value;
-}
-
 /**
  * Short column label for a hazard type, e.g. "mechanical" -> "Mech". Custom
  * types aren't in the map, so fall back to their first four letters.
@@ -74,13 +70,21 @@ function areaKey(cell: NearMissHeatMapCellDto): string {
   return cell.location.trim();
 }
 
-function toGrid(cells: readonly NearMissHeatMapCellDto[]) {
+function toGrid(
+  cells: readonly NearMissHeatMapCellDto[],
+  registerLocations: readonly string[],
+) {
+  // Rows come from the site's location register rather than a list hardcoded here. The six
+  // placeholder areas that used to seed this were not the places anyone reports against, so
+  // the grid drew six permanently empty rows and pushed the real ones off the end.
+  //
+  // Whatever the API reports that is not in the register still follows it: records predating
+  // the register carry free text, and dropping them would hide real reports.
   const apiAreas = [...new Set(cells.map(areaKey).filter(Boolean))];
-  const defaultAreas = LOCATION_OPTIONS.map((option) => option.value);
-  const defaultAreaSet = new Set(defaultAreas);
+  const registerSet = new Set(registerLocations);
   const locations = [
-    ...defaultAreas,
-    ...apiAreas.filter((area) => !defaultAreaSet.has(area)),
+    ...registerLocations,
+    ...apiAreas.filter((area) => !registerSet.has(area)),
   ];
 
   const apiTypes = [...new Set(cells.map((cell) => cell.type))];
@@ -96,7 +100,7 @@ function toGrid(cells: readonly NearMissHeatMapCellDto[]) {
 
   const rows = locations.map((location) => ({
     key: location,
-    label: labelFor(LOCATION_OPTIONS, location),
+    label: location,
     values: types.map((type) => counts.get(`${location}|${type}`) ?? null),
   }));
 
@@ -114,7 +118,15 @@ export function NearMissHeatmapCard(props: NearMissHeatmapCardProps) {
 
   const heatMapQuery = useNearMissHeatMapQuery();
   const cells = heatMapQuery.data?.dataModel;
-  const { columns, rows, max } = useMemo(() => toGrid(cells ?? []), [cells]);
+  const locationsQuery = useLocationsQuery();
+  const registerLocations = useMemo(
+    () => (locationsQuery.data ?? []).map((location) => location.name),
+    [locationsQuery.data],
+  );
+  const { columns, rows, max } = useMemo(
+    () => toGrid(cells ?? [], registerLocations),
+    [cells, registerLocations],
+  );
 
   return (
     <IncidentGlassCard className={className}>

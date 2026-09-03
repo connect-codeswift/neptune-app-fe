@@ -13,6 +13,8 @@ export type CreateHazardRequestDto = {
   /** HazCom chemical id, set only when `type === "chemical"`. */
   chemicalId?: number | null;
   location: string;
+  /** The site location register entry the reporter picked. */
+  locationId: number | null;
   description: string;
   /** First of {@link attachments}; kept for the older single-photo contract. */
   image: string;
@@ -31,6 +33,8 @@ export type UpdateHazardRequestDto = {
   id: number;
   type: string;
   location: string;
+  /** The site location register entry, once the record has been saved against one. */
+  locationId: number | null;
   description: string;
   image: string;
   attachments: string[];

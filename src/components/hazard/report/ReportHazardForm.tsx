@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useLocationsQuery } from "@/hooks/use-location-queries";
+import type { LocationDto } from "@/dtos/res/location-response.dto";
 import { useRouter } from "next/navigation";
 import { AiInFieldDraft } from "@/components/ai/AiInFieldDraft";
 import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
@@ -26,7 +28,6 @@ import { getCurrentUser } from "@/lib/current-user";
 import { toast } from "@/lib/toast";
 import {
   HAZARD_TYPE_OPTIONS,
-  LOCATION_OPTIONS,
   POTENTIAL_CONSEQUENCE_OPTIONS,
   hazardReportSchema,
   type HazardReportValues,
@@ -49,7 +50,10 @@ function toLabel(options: readonly SelectOption[], value: string): string {
   return options.find((option) => option.value === trimmed)?.label ?? trimmed;
 }
 
-function toCreateRequest(report: HazardReportValues): CreateHazardRequestDto {
+function toCreateRequest(
+  report: HazardReportValues,
+  locations: readonly LocationDto[],
+): CreateHazardRequestDto {
   // userId / siteId come from the signed-in user's access-token claims.
   const { userId, siteId } = getCurrentUser();
 
@@ -59,7 +63,13 @@ function toCreateRequest(report: HazardReportValues): CreateHazardRequestDto {
   return {
     type: report.hazardType,
     ...(Number.isFinite(chemicalId) && chemicalId > 0 ? { chemicalId } : {}),
-    location: report.location,
+    // The field holds the register row's id; the API takes the id and keeps the name for
+    // readers that predate it. A location typed before the register existed has no id and
+    // still round-trips as text.
+    location:
+      locations.find((entry) => String(entry.id) === report.location)?.name ??
+      report.location,
+    locationId: Number(report.location) || null,
     description: report.description,
     // Both are sent: `attachments` is the list the endpoint stores, `image` keeps the first so an
     // older reader still finds a photo where it expects one.
@@ -72,6 +82,9 @@ function toCreateRequest(report: HazardReportValues): CreateHazardRequestDto {
 }
 
 export function ReportHazardForm() {
+  const locationsQuery = useLocationsQuery();
+  const locations = useMemo(() => locationsQuery.data ?? [], [locationsQuery.data]);
+
   const router = useRouter();
   const createHazard = useCreateHazardMutation();
   // Held past the response: `isPending` drops as soon as the record is
@@ -122,10 +135,12 @@ export function ReportHazardForm() {
         HAZARD_TYPE_OPTIONS,
         String(values.hazardType ?? ""),
       ),
-      Location: toLabel(LOCATION_OPTIONS, String(values.location ?? "")),
+      Location:
+        locations.find((entry) => String(entry.id) === String(values.location ?? ""))
+          ?.name ?? String(values.location ?? ""),
       "Potential consequence if not addressed": consequence,
     }),
-    [values.hazardType, values.location, consequence],
+    [values.hazardType, values.location, consequence, locations],
   );
 
   const { draft, pending, dismiss, regenerate, canRegenerate } =
@@ -189,6 +204,16 @@ export function ReportHazardForm() {
 
   const schema = useMemo<FormSchema>(() => {
     const mapped: FormSchema = hazardReportSchema.map((field) =>
+      // The register is the only source of locations now; the hardcoded six never matched
+      // what anyone actually reported against.
+      field.type === "select" && field.name === "location"
+        ? {
+            ...field,
+            options: locations.map((entry) => ({
+              value: String(entry.id),
+              label: entry.name,
+            })),
+          } :
       field.type === "textarea" && field.name === "description"
         ? {
             ...field,
@@ -263,11 +288,12 @@ export function ReportHazardForm() {
     chemicalOptions,
     draftInput,
     buttonDraftPending,
+    locations,
   ]);
 
   const handleSubmit = (values: FormValues) => {
     // Values are keyed by the schema field names, matching HazardReportValues.
-    const payload = toCreateRequest(values as HazardReportValues);
+    const payload = toCreateRequest(values as HazardReportValues, locations);
 
     if (!submitLock.acquire()) {
       return;
