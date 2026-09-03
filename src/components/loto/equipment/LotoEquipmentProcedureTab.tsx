@@ -1,6 +1,5 @@
 "use client";
 
-import { Icon } from "@iconify/react";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import type { LotoEquipmentDetail } from "@/app/dashboard/lockout-tagout/loto-equipment-detail-data";
 
@@ -19,21 +18,6 @@ export function LotoEquipmentProcedureTab(
   return (
     <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,1fr)_300px]">
       <div className="flex min-w-0 flex-col gap-5">
-        <div className="rounded-3.5 border-ehs-red/25 bg-ehs-red/6 flex gap-3 border px-4 py-3.5">
-          <Icon
-            icon="mdi:shield-alert-outline"
-            className="text-ehs-red mt-0.5 size-4 shrink-0"
-            aria-hidden="true"
-          />
-          <p className="text4 text-ehs-slate">
-            <span className="text-ehs-red font-bold">
-              Authorized Personnel Only.
-            </span>{" "}
-            This procedure must be followed exactly. Failure to comply may
-            result in serious injury or death from unexpected energization.
-          </p>
-        </div>
-
         <section>
           <h2 className="text3 text-ehs-darker mb-2.5">
             Energy Sources to Isolate
