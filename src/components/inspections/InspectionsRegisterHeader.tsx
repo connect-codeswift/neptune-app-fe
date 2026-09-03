@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/table-header-action";
 
 export type InspectionsRegisterHeaderProps = Readonly<{
-  inspectionCount?: number;
   onTemplates?: () => void;
   onScheduleInspection?: () => void;
 }>;
@@ -19,7 +18,7 @@ export type InspectionsRegisterHeaderProps = Readonly<{
 export function InspectionsRegisterHeader(
   props: InspectionsRegisterHeaderProps,
 ) {
-  const { inspectionCount, onTemplates, onScheduleInspection } = props;
+  const { onTemplates, onScheduleInspection } = props;
 
   return (
     <div className="flex h-12.5 flex-wrap items-center justify-between gap-3">
@@ -27,13 +26,6 @@ export function InspectionsRegisterHeader(
         <Text as="h2" className="text3 text-ehs-darker shrink-0">
           Register
         </Text>
-        {inspectionCount != null ? (
-          <Text as="p" className="text8 text-ehs-muted-text">
-            {`${String(inspectionCount)} ${
-              inspectionCount === 1 ? "inspection" : "inspections"
-            }`}
-          </Text>
-        ) : null}
       </div>
 
       <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">

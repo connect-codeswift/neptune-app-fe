@@ -239,7 +239,6 @@ export function InspectionsListPageClient() {
               )}
               header={
                 <InspectionsRegisterHeader
-                  inspectionCount={page?.totalRecords ?? 0}
                   onTemplates={() => {
                     router.push("/dashboard/inspections/template");
                   }}

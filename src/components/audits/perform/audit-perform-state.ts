@@ -96,7 +96,8 @@ export function toResponsePayload(
   return {
     templateItemId,
     // Audit templates carry no response sets, so there is no option to point at.
-    responseOptionId: 0,
+    // null, never 0 — see the DTO: 0 is a value as far as `int?` is concerned.
+    responseOptionId: null,
     valueText: draft.severity ?? "",
     note: draft.note.trim(),
     isNA: false,

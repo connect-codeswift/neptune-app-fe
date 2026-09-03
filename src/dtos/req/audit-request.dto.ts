@@ -7,8 +7,15 @@ export type AuditSeverity = (typeof AUDIT_SEVERITIES)[number];
 export type AuditItemResponseRequestDto = {
   /** The template item's id — matches `missingItemIds` in a 400 response. */
   templateItemId: number;
-  /** 0 until the item is backed by a response set. */
-  responseOptionId: number;
+  /**
+   * The chosen response option, or null when the item is not backed by a response
+   * set — which is every audit template today.
+   *
+   * Never send 0. `ResponseOptionId` is `int?` on the backend and `((int?)0).HasValue`
+   * is true, so a 0 read as a real answer in nine separate checks and made a cleared
+   * grade count as answered forever.
+   */
+  responseOptionId: number | null;
   /** The chosen answer as text, e.g. "Yes". */
   valueText: string;
   note: string;

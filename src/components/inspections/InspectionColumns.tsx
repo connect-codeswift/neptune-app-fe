@@ -126,14 +126,14 @@ export function createInspectionColumns(
           <div className="flex min-w-0 flex-col gap-0.5">
             <Text
               as="span"
-              className="text4 text-ehs-darker truncate"
+              className="text4 text-ehs-darker line-clamp-2"
               title={row.original.title}
             >
               {row.original.title}
             </Text>
             <Text
               as="span"
-              className="text8 text-ehs-muted-text truncate"
+              className="text8 text-ehs-muted-text line-clamp-1"
               title={subtitle}
             >
               {subtitle}
@@ -155,7 +155,7 @@ export function createInspectionColumns(
             cell: (info) => (
               <Text
                 as="span"
-                className="text4 text-ehs-gray truncate"
+                className="text4 text-ehs-gray line-clamp-1"
                 title={info.getValue()}
               >
                 {info.getValue()}
@@ -172,7 +172,7 @@ export function createInspectionColumns(
       cell: (info) => (
         <Text
           as="span"
-          className="text4 text-ehs-gray truncate"
+          className="text4 text-ehs-gray line-clamp-1"
           title={info.getValue()}
         >
           {info.getValue()?.split(" ").slice(0, 2).join(" ")}
