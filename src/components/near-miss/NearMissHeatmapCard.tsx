@@ -129,7 +129,10 @@ function toGrid(
   }));
 
   return {
-    columns: types.map((type) => ({ key: type, label: shortTypeLabel(type) })),
+    columns: types.map((type) => ({
+      key: type,
+      label: type === OTHER_TYPE_KEY ? "Other" : shortTypeLabel(type),
+    })),
     rows,
     max: Math.max(1, ...cells.map((cell) => cell.count), 0),
   };
