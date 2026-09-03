@@ -63,6 +63,24 @@ function cellStyle(value: number | null, max: number) {
   };
 }
 
+const OTHER_TYPE_KEY = "__other";
+
+/**
+ * Which column a reported type belongs in.
+ *
+ * Matched case-insensitively: the same hazard arrives as "Slip" from records entered against
+ * the API and "slip-trip-fall" from the form, and comparing raw strings drew both as separate
+ * columns, each holding part of the count.
+ *
+ * Anything outside the standard set folds into one Other column. The report form lets a
+ * reporter add a custom hazard type, so appending every value the API returns would let a site
+ * grow the grid without limit. Eight columns at most, and no count is lost.
+ */
+function columnKeyFor(type: string, known: ReadonlySet<string>): string {
+  const normalized = type.trim().toLowerCase();
+  return known.has(normalized) ? normalized : OTHER_TYPE_KEY;
+}
+
 /** Pivot the flat department/location × type tallies into the grid. */
 function areaKey(cell: NearMissHeatMapCellDto): string {
   const department = cell.department?.trim();
@@ -87,16 +105,22 @@ function toGrid(
     ...apiAreas.filter((area) => !registerSet.has(area)),
   ];
 
-  const apiTypes = [...new Set(cells.map((cell) => cell.type))];
-  const knownTypeSet = new Set<string>(HEATMAP_TYPE_COLUMNS);
-  const types = [
-    ...HEATMAP_TYPE_COLUMNS,
-    ...apiTypes.filter((type) => !knownTypeSet.has(type)),
-  ];
+  const knownTypes = HEATMAP_TYPE_COLUMNS.map((type) => type.toLowerCase());
+  const knownTypeSet = new Set<string>(knownTypes);
 
-  const counts = new Map(
-    cells.map((cell) => [`${areaKey(cell)}|${cell.type}`, cell.count]),
-  );
+  // Summed, not assigned: several custom types share the Other column, and overwriting would
+  // report only whichever the API happened to return last.
+  const counts = new Map<string, number>();
+  let hasOther = false;
+
+  for (const cell of cells) {
+    const column = columnKeyFor(cell.type, knownTypeSet);
+    if (column === OTHER_TYPE_KEY) hasOther = true;
+    const key = `${areaKey(cell)}|${column}`;
+    counts.set(key, (counts.get(key) ?? 0) + cell.count);
+  }
+
+  const types = hasOther ? [...knownTypes, OTHER_TYPE_KEY] : knownTypes;
 
   const rows = locations.map((location) => ({
     key: location,
