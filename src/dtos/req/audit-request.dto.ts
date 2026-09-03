@@ -44,6 +44,25 @@ export type CreateAuditRequestDto = {
   siteId: number;
 };
 
+/**
+ * Body for PUT /api/v1/audits/{id} — edits a run that has not been submitted.
+ *
+ * Narrower than the create payload on purpose. `templateId` is absent because a
+ * run's answers are keyed to the template version pinned when it was created, so
+ * swapping the template would orphan every answer already recorded — that is a
+ * new run, not an edit. `userId`/`siteId` are absent because the backend stamps
+ * both from the token and ignores whatever a caller sends.
+ */
+export type UpdateAuditRequestDto = {
+  auditTitle: string;
+  location: string;
+  auditorId: number;
+  /** ISO date-time string. */
+  scheduleDate: string;
+  /** ISO date-time string. Cleared by omitting it. */
+  dueDate?: string;
+};
+
 /** Body for POST /api/v1/audits/{id}/submit — locks the run and raises findings. */
 export type SubmitAuditRequestDto = {
   userId: number;

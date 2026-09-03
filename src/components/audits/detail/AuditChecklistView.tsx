@@ -8,7 +8,15 @@ import type {
   AuditSnapshotSectionDto,
 } from "@/dtos/res/audit-response.dto";
 
-/** The recorded answer text for one item, or "—" when it was left unanswered. */
+/**
+ * The recorded answer for one item, or "—" when it was left unanswered.
+ *
+ * `severity` first, `valueText` second. The two carry the same grade word today
+ * because the perform screen writes it to both, but answers recorded before
+ * that only have `severity` — reading `valueText` alone rendered every one of
+ * them as "—" on this tab while the perform screen showed them correctly
+ * graded. `hydrateAnswers` in audit-perform-state.ts falls back the same way.
+ */
 function answerTextFor(
   item: AuditSnapshotItemDto,
   responses: readonly AuditRecordedResponseDto[],
@@ -16,7 +24,7 @@ function answerTextFor(
   const response = responses.find((entry) => entry.templateItemId === item.id);
   if (!response) return "—";
   if (response.isNA) return "N/A";
-  return response.valueText.trim() || "—";
+  return response.severity?.trim() || response.valueText.trim() || "—";
 }
 
 function SectionCard(

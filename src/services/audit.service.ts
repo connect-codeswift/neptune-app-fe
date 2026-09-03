@@ -21,6 +21,7 @@ import type {
   ReopenAuditRequestDto,
   SaveAuditResponsesRequestDto,
   SubmitAuditRequestDto,
+  UpdateAuditRequestDto,
 } from "@/dtos/req/audit-request.dto";
 import http from "@/lib/axios";
 import {
@@ -45,6 +46,18 @@ function buildRegisterQueryParams(params: RegisterListParams) {
 
 export async function createAudit(payload: CreateAuditRequestDto) {
   const { data } = await http.post<CreateAuditResponseDto>(AUDIT_PATH, payload);
+  return data;
+}
+
+/** Edits an unsubmitted run. The pinned template is not editable. */
+export async function updateAudit(
+  auditId: string,
+  payload: UpdateAuditRequestDto,
+) {
+  const { data } = await http.put<CreateAuditResponseDto>(
+    `${AUDIT_PATH}/${encodeURIComponent(auditId)}`,
+    payload,
+  );
   return data;
 }
 
