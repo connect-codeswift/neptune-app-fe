@@ -231,15 +231,28 @@ export function AskNeptuneAiButton() {
         aria-expanded={open}
         aria-label={open ? "Close Neptune AI" : "Ask Neptune AI"}
         className={[
-          "bg-ehs-normal-blue text-ehs-on-accent hover:bg-ehs-normal-blue-hover pointer-events-auto inline-flex touch-none items-center gap-2.5 rounded-[30px] px-4 py-3 shadow-[0px_8px_8px_color-mix(in_oklab,var(--ehs-normal-blue)_24%,transparent)] transition-colors select-none",
+          "bg-ehs-normal-blue text-ehs-on-accent hover:bg-ehs-normal-blue-hover group pointer-events-auto inline-flex touch-none items-center justify-center rounded-full p-3 shadow-[0px_8px_8px_color-mix(in_oklab,var(--ehs-normal-blue)_24%,transparent)] transition-colors select-none",
           cursorClass,
         ].join(" ")}
       >
         <LauncherMark />
-        <span className="text-[13px] font-medium whitespace-nowrap">
-          Ask Neptune AI
+        {/* The label rides in a 0fr -> 1fr grid column: the track measures the text at its
+            natural width, so the pill grows to fit whatever it says without a hard-coded
+            max-width to keep in sync with the copy. */}
+        <span
+          aria-hidden="true"
+          className="grid grid-cols-[0fr] transition-[grid-template-columns] duration-200 ease-out group-hover:grid-cols-[1fr] group-focus-visible:grid-cols-[1fr]"
+        >
+          {/* The gap before the label is padding on the *inner* row, not on this clipping box:
+              padding sits outside min-width and would leave the collapsed pill 10px wider than
+              its own circle. */}
+          <span className="min-w-0 overflow-hidden">
+            <span className="flex items-center gap-2.5 pl-2.5 whitespace-nowrap">
+              <span className="text-[13px] font-medium">Ask Neptune AI</span>
+              <BetaBadge tone="on-accent" />
+            </span>
+          </span>
         </span>
-        <BetaBadge tone="on-accent" />
       </button>
     </div>
   );
