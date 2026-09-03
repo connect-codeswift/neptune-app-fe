@@ -4,6 +4,7 @@ import type {
   ReopenAuditRequestDto,
   SaveAuditResponsesRequestDto,
   SubmitAuditRequestDto,
+  UpdateAuditRequestDto,
 } from "@/dtos/req/audit-request.dto";
 import {
   addAuditAttachment,
@@ -12,6 +13,7 @@ import {
   reopenAudit,
   saveAuditResponses,
   submitAudit,
+  updateAudit,
 } from "@/services/audit.service";
 import { uploadFile } from "@/lib/upload-file";
 
@@ -39,6 +41,20 @@ export function useCreateAuditMutation() {
     mutationFn: (payload: CreateAuditRequestDto) => createAudit(payload),
     onSuccess: () => {
       // Refetch audit lists so the new audit appears in the register.
+      queryClient.invalidateQueries({ queryKey: ["audit"] });
+    },
+  });
+}
+
+/** Edits an unsubmitted run via PUT /api/v1/audits/{id}. */
+export function useUpdateAuditMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (vars: { auditId: string; payload: UpdateAuditRequestDto }) =>
+      updateAudit(vars.auditId, vars.payload),
+    onSuccess: () => {
+      // Title, auditor and dates all show in the register and the detail header.
       queryClient.invalidateQueries({ queryKey: ["audit"] });
     },
   });

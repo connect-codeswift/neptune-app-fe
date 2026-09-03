@@ -54,10 +54,19 @@ export default function AuditDetailPage() {
     router.push(`/dashboard/audits/${encodeURIComponent(auditRunId)}/perform`);
   };
 
+  const handleEdit = () => {
+    router.push(`/dashboard/audits/${encodeURIComponent(auditRunId)}/edit`);
+  };
+
   // The report endpoint answers 400 until the run is submitted, so offering it
   // earlier only ever produced an error page.
   const canGenerateReport =
     audit !== null && LOCKED_STATUSES.has(audit.status.trim().toLowerCase());
+
+  // The mirror image: PUT /audits/{id} refuses a run that is locked, so Edit is
+  // offered for exactly the statuses Generate Report is not.
+  const canEdit =
+    audit !== null && !LOCKED_STATUSES.has(audit.status.trim().toLowerCase());
 
   return (
     <div className="flex min-h-screen flex-1 flex-col gap-3.5 px-4 pt-4 pb-8">
@@ -67,6 +76,7 @@ export default function AuditDetailPage() {
         onGenerateReport={canGenerateReport ? handleGenerateReport : undefined}
         onPerform={audit ? handlePerform : undefined}
         performLabel={audit ? performLabelFor(audit.status) : undefined}
+        onEdit={canEdit ? handleEdit : undefined}
       />
 
       <Tabs

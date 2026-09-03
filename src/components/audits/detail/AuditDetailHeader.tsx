@@ -19,11 +19,23 @@ export type AuditDetailHeaderProps = Readonly<{
   /** Opens the checklist. Label varies with the run's status. */
   onPerform?: () => void;
   performLabel?: string;
+  /**
+   * Opens the edit form. Omitted once the run is submitted, completed or
+   * cancelled — the backend refuses those, so offering the button would only
+   * produce a 400 after the fields had been retyped.
+   */
+  onEdit?: () => void;
 }>;
 
 export function AuditDetailHeader(props: AuditDetailHeaderProps) {
-  const { auditId, subtitle, onGenerateReport, onPerform, performLabel } =
-    props;
+  const {
+    auditId,
+    subtitle,
+    onGenerateReport,
+    onPerform,
+    performLabel,
+    onEdit,
+  } = props;
 
   return (
     <div className="backdrop-blur-2.5 bg-ehs-surface/62 border-ehs-border-ink/8 relative flex flex-col justify-center gap-1.5 rounded-2xl border px-4 py-4 shadow-(--ehs-shadow-panel) before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:content-[''] sm:px-6">
@@ -74,6 +86,22 @@ export function AuditDetailHeader(props: AuditDetailHeaderProps) {
                 aria-hidden="true"
               />
               {performLabel ?? "Perform Audit"}
+            </Button>
+          ) : null}
+
+          {onEdit ? (
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={onEdit}
+              className={`${actionClass} shrink-0`}
+            >
+              <Icon
+                icon="mdi:pencil-outline"
+                className="size-4 shrink-0"
+                aria-hidden="true"
+              />
+              Edit
             </Button>
           ) : null}
 

@@ -32,6 +32,14 @@ export type StartAuditSchemaOptions = Readonly<{
   selectedTemplateOption?: SelectOption;
   /** Arrived via "Use template" — the choice is fixed, so lock the dropdown. */
   isTemplateLocked?: boolean;
+  /**
+   * Editing an existing run rather than scheduling a new one. Two differences:
+   * the template is always locked, because a run's answers are keyed to the
+   * version pinned at creation; and the dates drop their `not-past` limit,
+   * because a run scheduled last week must stay saveable while its title is
+   * corrected — otherwise the form rejects the value it was seeded with.
+   */
+  isEdit?: boolean;
 }>;
 
 /**
@@ -46,7 +54,11 @@ export function buildStartAuditSchema(
     templatePagination,
     selectedTemplateOption,
     isTemplateLocked = false,
+    isEdit = false,
   } = options;
+
+  const templateLocked = isTemplateLocked || isEdit;
+  const dateLimit = isEdit ? undefined : ("not-past" as const);
 
   return [
     {
@@ -66,9 +78,9 @@ export function buildStartAuditSchema(
       placeholder: "Select template",
       options: templateOptions,
       // A locked field has nothing to page through or reveal.
-      pagination: isTemplateLocked ? undefined : templatePagination,
+      pagination: templateLocked ? undefined : templatePagination,
       selectedOption: selectedTemplateOption,
-      disabled: isTemplateLocked,
+      disabled: templateLocked,
     },
     {
       type: "select",
@@ -101,8 +113,9 @@ export function buildStartAuditSchema(
       required: true,
       colSpan: 6,
       // An audit is scheduled, not recorded: a past date lands it in the
-      // overdue bucket the moment it is created.
-      limit: "not-past",
+      // overdue bucket the moment it is created. Lifted when editing — see
+      // `isEdit`.
+      limit: dateLimit,
     },
     {
       type: "date",
@@ -111,7 +124,7 @@ export function buildStartAuditSchema(
       required: false,
       colSpan: 6,
       // Same rule as scheduledDate above — a due date cannot open overdue.
-      limit: "not-past",
+      limit: dateLimit,
     },
   ];
 }
