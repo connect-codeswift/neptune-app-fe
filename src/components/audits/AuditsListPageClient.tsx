@@ -238,7 +238,6 @@ export function AuditsListPageClient() {
               )}
               header={
                 <AuditsRegisterHeader
-                  auditCount={page?.totalRecords ?? 0}
                   onTemplates={() => {
                     router.push("/dashboard/audits/template");
                   }}

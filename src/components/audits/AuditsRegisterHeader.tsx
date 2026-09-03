@@ -10,14 +10,13 @@ import {
 } from "@/components/ui/table-header-action";
 
 export type AuditsRegisterHeaderProps = Readonly<{
-  auditCount?: number;
   onTemplates?: () => void;
   onScheduleAudit?: () => void;
 }>;
 
-/** Card header for the audits register table: title + count + actions. */
+/** Card header for the audits register table: title + actions. */
 export function AuditsRegisterHeader(props: AuditsRegisterHeaderProps) {
-  const { auditCount, onTemplates, onScheduleAudit } = props;
+  const { onTemplates, onScheduleAudit } = props;
 
   return (
     <div className="flex h-12.5 flex-wrap items-center justify-between gap-3">
@@ -25,11 +24,6 @@ export function AuditsRegisterHeader(props: AuditsRegisterHeaderProps) {
         <Text as="h2" className="text3 text-ehs-darker shrink-0">
           Register
         </Text>
-        {auditCount != null ? (
-          <Text as="p" className="text8 text-ehs-muted-text">
-            {`${String(auditCount)} ${auditCount === 1 ? "audit" : "audits"}`}
-          </Text>
-        ) : null}
       </div>
 
       <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
