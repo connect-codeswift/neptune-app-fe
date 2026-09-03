@@ -31,11 +31,13 @@ function auditDisplayId(id: string): string {
   return formatRecordDisplayId("A", id);
 }
 
+/**
+ * Second line under the audit title. Carries scope when the Site column is
+ * visible and site when it is not — never the display id, which has its own
+ * column.
+ */
 function auditSubtitle(record: AuditRecord, expanded: boolean): string {
-  const rest = expanded ? record.scope : record.site;
-  return [auditDisplayId(record.id), rest]
-    .filter((part) => part.trim() !== "")
-    .join(" · ");
+  return (expanded ? record.scope : record.site).trim();
 }
 
 /**
@@ -128,13 +130,15 @@ export function createAuditColumns(
             >
               {row.original.title}
             </Text>
-            <Text
-              as="span"
-              className="text8 text-ehs-muted-text truncate"
-              title={subtitle}
-            >
-              {subtitle}
-            </Text>
+            {subtitle !== "" ? (
+              <Text
+                as="span"
+                className="text8 text-ehs-muted-text truncate"
+                title={subtitle}
+              >
+                {subtitle}
+              </Text>
+            ) : null}
           </div>
         );
       },
