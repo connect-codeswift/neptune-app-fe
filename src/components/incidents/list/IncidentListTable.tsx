@@ -1,4 +1,6 @@
 "use client";
+
+import { useRouter } from "next/navigation";
 import { EmptyState } from "@/components/ui/EmptyState";
 import {
   columnWidthStyle,
@@ -21,9 +23,16 @@ import {
   severityTone,
   stateTone,
 } from "@/components/incidents/list/IncidentBadge";
+
+/**
+ * Where a row in the incident register opens. Exported so the id link and the
+ * row click cannot drift apart.
+ */
+export const incidentRecordHref = (numericId: number) =>
+  numericId > 0 ? `/dashboard/incidents/${String(numericId)}` : null;
 import type { IncidentRecord } from "@/components/incidents/list/incident-list-types";
 import { IncidentListTableHeader } from "@/components/incidents/list/IncidentListTableHeader";
-import { withManageAction } from "@/components/ui/table-manage-column";
+import { withRowLink } from "@/components/ui/table-row-link";
 
 export type IncidentListTableProps<
   TData extends { id: string } = IncidentRecord,
@@ -43,6 +52,11 @@ export type IncidentListTableProps<
   onOpenDetail?: (id: string) => void;
   /** When true (detail panel closed), columns and text use a wider layout */
   expanded?: boolean;
+  /**
+   * Makes the whole row open the record. The row's id cell is already a real
+   * link (see `withRowLink`); this is the mouse convenience on top of it.
+   */
+  rowHref?: (row: TData) => string | null;
   /** Optional chrome above the table (filters, title, tabs). */
   toolbar?: ReactNode;
   /** Denser row height for document-style tables. */
@@ -217,12 +231,9 @@ function createIncidentColumns(
     }),
   ] as ColumnDef<IncidentRecord, unknown>[];
 
-  return withManageAction(columns, {
-    getHref: (row) =>
-      row.numericId > 0
-        ? `/dashboard/incidents/${String(row.numericId)}`
-        : null,
-    getAriaLabel: (row) => `Manage incident ${row.id}`,
+  return withRowLink(columns, {
+    getHref: (row) => incidentRecordHref(row.numericId),
+    getAriaLabel: (row) => `Open incident ${row.id}`,
   }) as ColumnDef<IncidentRecord, unknown>[];
 }
 
@@ -272,12 +283,14 @@ export function IncidentListTable<
     onSelect,
     onViewMore,
     onOpenDetail,
+    rowHref,
     expanded = false,
     toolbar,
     compact = false,
     className = "",
   } = props;
 
+  const router = useRouter();
   const resolvedData = (data ?? incidents ?? []) as TData[];
   const isIncidentTable = columnsProp == null;
   const handleViewMore = useCallback(
@@ -388,8 +401,17 @@ export function IncidentListTable<
             ) : (
               table.getRowModel().rows.map((row) => {
                 const isSelected = selectedId === row.original.id;
-                const handleRowClick =
-                  isIncidentTable || !onSelect
+                // Opening the record wins when the caller gave a destination.
+                // This used to be a two-step gesture — click to preview, click
+                // again to open — which was undiscoverable outside its tooltip,
+                // and left the plain incidents table with no row action at all.
+                // The eye is the preview now, here as in every other register.
+                const href = rowHref?.(row.original) ?? null;
+                const handleRowClick = href
+                  ? () => {
+                      router.push(href);
+                    }
+                  : isIncidentTable || !onSelect
                     ? undefined
                     : () => {
                         if (isSelected && onOpenDetail) {
@@ -404,7 +426,7 @@ export function IncidentListTable<
                     key={row.id}
                     onClick={handleRowClick}
                     title={
-                      handleRowClick && onOpenDetail
+                      handleRowClick && !href && onOpenDetail
                         ? isSelected
                           ? "Click again to open details"
                           : "Click to preview"

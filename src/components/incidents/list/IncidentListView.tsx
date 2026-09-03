@@ -7,7 +7,10 @@ import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import { IncidentDetailPanel } from "@/components/incidents/list/IncidentDetailPanel";
 import { MetricCard } from "@/components/ui/MetricCard";
-import { IncidentListTable } from "@/components/incidents/list/IncidentListTable";
+import {
+  IncidentListTable,
+  incidentRecordHref,
+} from "@/components/incidents/list/IncidentListTable";
 import {
   SEVERITY_FILTERS,
   STATE_FILTERS,
@@ -413,6 +416,7 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
               <div className="flex min-w-0 flex-col gap-3">
                 <IncidentListTable
                   incidents={filteredIncidents}
+                  rowHref={(row) => incidentRecordHref(row.numericId)}
                   selectedId={selectedId}
                   onViewMore={handleToggleDetailPanel}
                   expanded={!isPanelOpen}

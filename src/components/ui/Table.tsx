@@ -8,6 +8,7 @@ import {
   type ColumnDef,
 } from "@tanstack/react-table";
 import type { ReactNode } from "react";
+import { useRouter } from "next/navigation";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { tableMinWidthStyle } from "@/components/ui/table-width";
@@ -32,6 +33,15 @@ export type TableProps<TData> = {
   columns: ColumnDef<TData, unknown>[];
   globalFilter?: string;
   onRowClick?: (row: TData) => void;
+  /**
+   * Makes the whole row open a record on click.
+   *
+   * A convenience for the mouse, not the only way in: the row's identifier cell
+   * is a real link (see `withRowLink`), which is what keyboard users, screen
+   * readers and middle-click rely on. Pass the same function to both so the url
+   * lives in one place.
+   */
+  rowHref?: (row: TData) => string | null;
   selectedRowId?: string | null;
   getRowId?: (row: TData) => string;
   /** Extra classes merged onto each body row (e.g. attention highlight). */
@@ -59,6 +69,7 @@ export function Table<TData>(props: TableProps<TData>) {
     columns,
     globalFilter = "",
     onRowClick,
+    rowHref,
     selectedRowId,
     getRowId,
     getRowClassName,
@@ -69,6 +80,16 @@ export function Table<TData>(props: TableProps<TData>) {
     variant = "default",
     emptyState,
   } = props;
+
+  const router = useRouter();
+
+  // A click anywhere on the row goes where its identifier link goes.
+  const handleRowActivate = (row: TData) => {
+    onRowClick?.(row);
+
+    const href = rowHref?.(row);
+    if (href) router.push(href);
+  };
 
   const isCompliance = variant === "compliance";
   const isCapa = variant === "capa";
@@ -201,14 +222,16 @@ export function Table<TData>(props: TableProps<TData>) {
                 return (
                   <tr
                     key={row.id}
-                    onClick={() => onRowClick?.(row.original)}
+                    onClick={() => {
+                      handleRowActivate(row.original);
+                    }}
                     className={[
                       isCapa
                         ? "border-ehs-border-ink/7 border-b last:border-b-0"
                         : isCompliance
                           ? "border-ehs-border-ink/8 border-t transition-colors"
                           : "border-ehs-border/45 border-b last:border-b-0",
-                      onRowClick ? "cursor-pointer" : "",
+                      onRowClick || rowHref ? "cursor-pointer" : "",
                       isCapa
                         ? "hover:bg-ehs-surface-inverse/3"
                         : isCompliance

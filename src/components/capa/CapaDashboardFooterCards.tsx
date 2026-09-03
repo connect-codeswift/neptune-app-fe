@@ -287,8 +287,8 @@ export function CapaDashboardFooterCards() {
             </Text>
             <Text as="p" className="text-ehs-muted-text text-sm">
               {workloadQuery.isError && !workloadQuery.data
-                ? "Unable to load open CAPAs"
-                : "Open CAPAs"}
+                ? "Unable to load active CAPAs"
+                : "Active CAPAs"}
             </Text>
           </div>
           <button

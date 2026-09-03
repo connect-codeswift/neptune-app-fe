@@ -65,3 +65,6 @@ testsprite_tests/tmp/
 
 # eslint --cache writes this; it is per-machine state, never shared.
 .eslintcache
+
+# Editor config is per-developer, not shared.
+.vscode/

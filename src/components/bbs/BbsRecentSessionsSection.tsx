@@ -22,12 +22,16 @@ import {
   useBehaviorCategoriesQuery,
 } from "@/hooks/use-bbs-queries";
 import { toObservationDetail } from "@/lib/map-bbs";
-import { withManageAction } from "@/components/ui/table-manage-column";
+import { withRowLink } from "@/components/ui/table-row-link";
 import type { BbsSession } from "@/app/dashboard/bbs/bbs-data";
 import { BbsDetailPanel } from "./BbsDetailPanel";
 import { BbsObservationCard } from "./BbsObservationCard";
 import { createBbsSessionColumns } from "./BbsSessionColumns";
 import { BbsSessionsHeader } from "./BbsSessionsHeader";
+
+/** Where a row in this register opens. Shared by the id link and the row click. */
+const bbsSessionHref = (id: string) =>
+  `/dashboard/bbs/observation?id=${encodeURIComponent(id)}`;
 
 const TYPE_FILTERS = ["All", "Safe", "At-Risk"] as const;
 type TypeFilter = (typeof TYPE_FILTERS)[number];
@@ -120,16 +124,15 @@ export function BbsRecentSessionsSection(props: BbsRecentSessionsSectionProps) {
 
   const columns = useMemo(
     () =>
-      withManageAction<BbsSession>(
+      withRowLink<BbsSession>(
         createBbsSessionColumns({
           selectedId: activeSessionId,
           onViewMore: handleToggleDetailPanel,
           expanded: !isPanelOpen,
         }),
         {
-          getHref: (session) =>
-            `/dashboard/bbs/observation?id=${encodeURIComponent(session.id)}`,
-          getAriaLabel: (session) => `Manage BBS session ${session.id}`,
+          getHref: (session) => bbsSessionHref(session.id),
+          getAriaLabel: (session) => `Open BBS session ${session.id}`,
         },
       ),
     [activeSessionId, handleToggleDetailPanel, isPanelOpen],
@@ -340,6 +343,7 @@ export function BbsRecentSessionsSection(props: BbsRecentSessionsSectionProps) {
               .join(" ")}
           >
             <Table
+              rowHref={(row) => bbsSessionHref(row.id)}
               variant="compliance"
               data={sessions}
               columns={columns}

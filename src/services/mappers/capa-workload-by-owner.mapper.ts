@@ -1,7 +1,4 @@
-import {
-  CAPA_OWNER_WORKLOAD,
-  type CapaOwnerWorkload,
-} from "@/components/capa/capa-dashboard-data";
+import type { CapaOwnerWorkload } from "@/components/capa/capa-dashboard-data";
 import type {
   CapaWorkloadByOwnerDto,
   CapaWorkloadOwnerDto,
@@ -98,9 +95,16 @@ function normalizeOwner(raw: unknown): CapaWorkloadOwnerDto | null {
       ),
     ),
     ownerName,
+    // totalCapas first, deliberately. The endpoint already excludes Closed, so its
+    // totalCapas *is* the owner's open workload, while its openCapas counts only the Open
+    // stage - dropping every In Progress, Completed and Pending Verification row. Reading
+    // the latter made this card total 58 under a KPI tile reading 71 on the same screen,
+    // for the one word both of them call "Open".
     openCount: asCount(
       readProp(
         raw,
+        "totalCapas",
+        "TotalCapas",
         "openCount",
         "OpenCount",
         "openCapas",
@@ -163,11 +167,10 @@ export type CapaWorkloadByOwnerViewModel = Readonly<{
 export function mapCapaWorkloadByOwnerToView(
   dto: CapaWorkloadByOwnerDto | null | undefined,
 ): CapaWorkloadByOwnerViewModel {
-  if (dto == null) {
-    return { owners: CAPA_OWNER_WORKLOAD };
-  }
-
-  if (!dto.owners || dto.owners.length === 0) {
+  // Empty either way. This used to answer a failed or refused request with the Figma
+  // owners, which reads exactly like real data and is the same trap the KPI tiles, the
+  // lifecycle donut and the trend line were in.
+  if (dto == null || !dto.owners || dto.owners.length === 0) {
     return { owners: [] };
   }
 
