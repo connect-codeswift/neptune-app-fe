@@ -15,14 +15,11 @@ export function useHazardListQuery(payload: GetAllHazardRequestDto) {
   });
 }
 
-export function useHazardKpiQuery(
-  params: Readonly<{ userId: number }>,
-  enabled = true,
-) {
+export function useHazardKpiQuery(enabled = true) {
   return useQuery({
-    queryKey: ["hazard", "kpi", params.userId] as const,
-    queryFn: () => getHazardKpiCount(params),
-    enabled: enabled && params.userId > 0,
+    queryKey: ["hazard", "kpi"] as const,
+    queryFn: () => getHazardKpiCount(),
+    enabled,
   });
 }
 

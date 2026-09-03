@@ -54,11 +54,8 @@ export async function getAllHazard(payload: GetAllHazardRequestDto) {
   return data;
 }
 
-export async function getHazardKpiCount(params: Readonly<{ userId: number }>) {
-  const { data } = await http.get<GetHazardKpiResponseDto>(
-    HAZARD_KPI_COUNT_PATH,
-    { params: { userId: params.userId } },
-  );
+export async function getHazardKpiCount() {
+  const { data } = await http.get<GetHazardKpiResponseDto>(HAZARD_KPI_COUNT_PATH);
 
   return {
     ...data,
