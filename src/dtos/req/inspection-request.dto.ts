@@ -2,8 +2,11 @@
 export type InspectionItemResponseRequestDto = {
   /** The snapshot item's id. */
   inspectionItemId: number;
-  /** 0 until the item is backed by a response set. */
-  inspectionResponseOptionId: number;
+  /**
+   * The chosen response option, or null when the item is not backed by a response
+   * set. Never send 0 — see `responseOptionId` in audit-request.dto.ts.
+   */
+  inspectionResponseOptionId: number | null;
   /** The chosen answer as text, e.g. "Yes". */
   valueText: string;
   note: string;

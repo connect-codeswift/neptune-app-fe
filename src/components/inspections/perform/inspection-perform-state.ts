@@ -100,7 +100,8 @@ export function toResponsePayload(
   return {
     inspectionItemId,
     // Inspection templates carry no response sets, so there is no option to point at.
-    inspectionResponseOptionId: 0,
+    // null, never 0 — see the DTO.
+    inspectionResponseOptionId: null,
     valueText: draft.severity ?? "",
     note: draft.note.trim(),
     isNA: false,
