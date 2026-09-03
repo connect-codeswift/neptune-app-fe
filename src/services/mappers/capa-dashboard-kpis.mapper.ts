@@ -1,5 +1,4 @@
 import type { MetricCardProps } from "@/components/ui/MetricCard";
-import { CAPA_DASHBOARD_KPIS } from "@/components/capa/capa-dashboard-data";
 import type {
   CapaDashboardKpiCardDto,
   CapaDashboardKpiChangeDto,
@@ -172,6 +171,15 @@ function buildTargetLabel(
   return `Target ${comparator} ${formatted}${unitSuffix}`;
 }
 
+/**
+ * One tile, or null when the API sent no usable value for it.
+ *
+ * Nothing is invented here. Every field used to fall back to a Figma constant, so a card the
+ * API had no number for still drew one, and a target the site had never set still read
+ * "Target <= 8" - on every screen, not only when the request failed. Targets live in
+ * KpiTargets and the endpoint returns null until somebody sets one; that null now means the
+ * tile shows no target line, which is the honest reading of "no target set".
+ */
 function mapCard(
   card: CapaDashboardKpiCardDto | null | undefined,
   options: Readonly<{
@@ -179,54 +187,40 @@ function mapCard(
     preference: MetricPreference;
     valueStyle: "int" | "oneDecimal";
     targetUnitSuffix: string;
-    fallback: MetricCardProps;
   }>,
-): MetricCardProps {
+): MetricCardProps | null {
   if (!card || card.value == null || !Number.isFinite(card.value)) {
-    return options.fallback;
+    return null;
   }
 
-  const targetLabel =
-    buildTargetLabel(
-      card.target,
-      options.preference,
-      options.targetUnitSuffix,
-    ) ??
-    options.fallback.targetLabel ??
-    "";
+  const targetLabel = buildTargetLabel(
+    card.target,
+    options.preference,
+    options.targetUnitSuffix,
+  );
 
-  const unit = displayUnit(card.unit) || options.fallback.unit || "";
-  const trend = toSparkline(card.trend) ?? options.fallback.trend;
-
-  const metric: MetricCardProps = {
+  const base = {
     title: options.title,
     value: formatValue(card.value, options.valueStyle),
-    unit,
-    target: card.target ?? options.fallback.target,
-    targetLabel,
+    unit: displayUnit(card.unit) || "",
+    target: card.target ?? undefined,
     isMorePositive: options.preference === "higher-better",
-    signalOwnedBy: "target",
-    trend,
+    signalOwnedBy: "target" as const,
+    trend: toSparkline(card.trend),
   };
 
-  return metric;
+  // targetLabel is spread in rather than set to undefined: MetricCardProps makes the footer a
+  // union, so an explicit undefined target label is not the same as having no target line.
+  return targetLabel ? { ...base, targetLabel } : base;
 }
 
 /** Maps GET /api/v1/capas/dashboard-kpis into the four CAPA dashboard KPI cards. */
 export function mapCapaDashboardKpisToMetrics(
   dto: CapaDashboardKpisDto | null | undefined,
 ): readonly MetricCardProps[] {
-  const [openFallback, overdueFallback, onTimeFallback, avgDaysFallback] =
-    CAPA_DASHBOARD_KPIS;
-
-  if (
-    !dto ||
-    !openFallback ||
-    !overdueFallback ||
-    !onTimeFallback ||
-    !avgDaysFallback
-  ) {
-    return CAPA_DASHBOARD_KPIS;
+  // No dto means no tiles. The caller renders nothing rather than four invented numbers.
+  if (!dto) {
+    return [];
   }
 
   return [
@@ -235,28 +229,24 @@ export function mapCapaDashboardKpisToMetrics(
       preference: "lower-better",
       valueStyle: "int",
       targetUnitSuffix: "",
-      fallback: openFallback,
     }),
     mapCard(dto.overdueCapas, {
       title: "Overdue",
       preference: "lower-better",
       valueStyle: "int",
       targetUnitSuffix: "",
-      fallback: overdueFallback,
     }),
     mapCard(dto.onTimeClosurePercentage, {
       title: "On-time Closure",
       preference: "higher-better",
       valueStyle: "int",
       targetUnitSuffix: "%",
-      fallback: onTimeFallback,
     }),
     mapCard(dto.averageDaysToClose, {
       title: "Avg Days to Close",
       preference: "lower-better",
       valueStyle: "oneDecimal",
       targetUnitSuffix: "d",
-      fallback: avgDaysFallback,
     }),
-  ];
+  ].filter((card): card is MetricCardProps => card !== null);
 }

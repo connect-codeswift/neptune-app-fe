@@ -6,6 +6,7 @@ import type { CapaItem } from "@/components/incidents/detail/linked-capa/capa-ty
 import type { CapaTaskStatus } from "@/dtos/req/capa-task-status-request.dto";
 import type { CapaEffectiveness } from "@/dtos/req/capa-verification-request.dto";
 import { getAuthContext } from "@/lib/auth-context";
+import { dateFieldToInstant } from "@/lib/date-time-field";
 import {
   createCapa,
   createCapaComment,
@@ -406,7 +407,10 @@ export function useCreateCapaMutation() {
       const tasks = staged
         .map((task) => ({
           task: task.task.trim(),
-          dueDate: task.dueDate,
+          // Same conversion the standalone task endpoint gets. These ride inside the CAPA
+          // body, so a naive value here fails to bind the whole capaDto - the API then
+          // reports it as "the capaDto field is required", naming the wrong field.
+          dueDate: dateFieldToInstant(task.dueDate),
           priority: task.priority?.trim()
             ? normalizePriority(task.priority)
             : "Medium",
