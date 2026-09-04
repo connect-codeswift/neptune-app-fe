@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Text } from "@/components/Text";
+import { CardPager } from "@/components/ui/CardPager";
 import { SkeletonListRows } from "@/components/ui/skeletons";
 import type { NearMissRecognitionDto } from "@/dtos/res/near-miss-response.dto";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
@@ -30,6 +32,9 @@ type RecognitionBodyProps = Readonly<{
  * ternaries. The error branch is load-bearing: without it a 400/403/500 renders
  * as "No reporters yet this month" and looks like an empty month.
  */
+/** Reporters drawn at once. Five names read as a leaderboard; twenty read as a list. */
+const REPORTERS_PER_PAGE = 5;
+
 function RecognitionBody(props: RecognitionBodyProps) {
   const { reporters, isPending, isError, error } = props;
 
@@ -101,21 +106,44 @@ export function NearMissRecognitionCard(props: NearMissRecognitionCardProps) {
     year: now.getFullYear(),
     month: now.getMonth() + 1,
   });
-  const reporters = recognitionsQuery.data?.dataModel ?? [];
+  const allReporters = recognitionsQuery.data?.dataModel ?? [];
+
+  // Most reports first. The endpoint's order is not guaranteed, and a leaderboard that is not
+  // ranked is just a list of names.
+  const reporters = [...allReporters].sort(
+    (a, b) => b.nearMissCount - a.nearMissCount,
+  );
+
+  const [page, setPage] = useState(1);
+  const pageCount = Math.max(1, Math.ceil(reporters.length / REPORTERS_PER_PAGE));
+  // Clamped, not reset: the count changes on refetch and a stale page would render empty.
+  const currentPage = Math.min(page, pageCount);
+  const pageReporters = reporters.slice(
+    (currentPage - 1) * REPORTERS_PER_PAGE,
+    currentPage * REPORTERS_PER_PAGE,
+  );
 
   return (
     <IncidentGlassCard className={className}>
-      <header className="mb-3 flex flex-col gap-0.5">
-        <Text as="h3" className="text3 text-ehs-darker">
-          Recognition
-        </Text>
-        <Text as="p" className="text8 text-ehs-muted-text">
-          Top reporters this month
-        </Text>
+      <header className="mb-3 flex items-start justify-between gap-3">
+        <div className="flex min-w-0 flex-col gap-0.5">
+          <Text as="h3" className="text3 text-ehs-darker">
+            Recognition
+          </Text>
+          <Text as="p" className="text8 text-ehs-muted-text">
+            Top reporters this month
+          </Text>
+        </div>
+        <CardPager
+          page={currentPage}
+          pageCount={pageCount}
+          onPageChange={setPage}
+          label="reporters"
+        />
       </header>
 
       <RecognitionBody
-        reporters={reporters}
+        reporters={pageReporters}
         isPending={recognitionsQuery.isPending}
         isError={recognitionsQuery.isError}
         error={recognitionsQuery.error}

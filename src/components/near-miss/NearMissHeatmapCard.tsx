@@ -1,7 +1,8 @@
 "use client";
 
-import { Fragment, useMemo } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { useLocationsQuery } from "@/hooks/use-location-queries";
+import { CardPager } from "@/components/ui/CardPager";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Text } from "@/components/Text";
 import { SkeletonHeatmapGrid } from "@/components/ui/skeletons";
@@ -57,7 +58,10 @@ function cellStyle(value: number | null, max: number) {
     };
   }
   const ratio = max > 1 ? (value - 1) / (max - 1) : 0;
-  const percent = ((0.22 + ratio * 0.58) * 100).toFixed(1);
+  // Floor at 36%, not 22%. The lightest tint was near enough invisible against the card,
+  // so a cell holding 1 read as empty - the difference between "nothing here" and "one report"
+  // is the one a heat map most needs to carry. Top of the ramp is unchanged.
+  const percent = ((0.36 + ratio * 0.44) * 100).toFixed(1);
   return {
     backgroundColor: `color-mix(in oklab, var(--ehs-normal-blue) ${percent}%, transparent)`,
   };
@@ -80,6 +84,9 @@ function columnKeyFor(type: string, known: ReadonlySet<string>): string {
   const normalized = type.trim().toLowerCase();
   return known.has(normalized) ? normalized : OTHER_TYPE_KEY;
 }
+
+/** Rows drawn at once. Keeps the card the same height as the one beside it. */
+const ROWS_PER_PAGE = 6;
 
 /** Pivot the flat department/location × type tallies into the grid. */
 function areaKey(cell: NearMissHeatMapCellDto): string {
@@ -122,11 +129,21 @@ function toGrid(
 
   const types = hasOther ? [...knownTypes, OTHER_TYPE_KEY] : knownTypes;
 
-  const rows = locations.map((location) => ({
-    key: location,
-    label: location,
-    values: types.map((type) => counts.get(`${location}|${type}`) ?? null),
-  }));
+  // Busiest first, empties last. A site register can hold fifty places, and drawing them in
+  // register order put a screenful of zeroes above the handful that had anything in them -
+  // the concentration a heat map exists to show was below the fold. Ties fall back to the
+  // name so the order is stable between renders.
+  const rows = locations
+    .map((location) => {
+      const values = types.map((type) => counts.get(`${location}|${type}`) ?? null);
+      return {
+        key: location,
+        label: location,
+        values,
+        total: values.reduce<number>((sum, value) => sum + (value ?? 0), 0),
+      };
+    })
+    .sort((a, b) => b.total - a.total || a.label.localeCompare(b.label));
 
   return {
     columns: types.map((type) => ({
@@ -155,20 +172,38 @@ export function NearMissHeatmapCard(props: NearMissHeatmapCardProps) {
     [cells, registerLocations],
   );
 
+  const [page, setPage] = useState(1);
+  const pageCount = Math.max(1, Math.ceil(rows.length / ROWS_PER_PAGE));
+  // Clamped rather than reset: the row count changes when the query refetches, and a page
+  // number left pointing past the end would render an empty grid.
+  const currentPage = Math.min(page, pageCount);
+  const pageRows = rows.slice(
+    (currentPage - 1) * ROWS_PER_PAGE,
+    currentPage * ROWS_PER_PAGE,
+  );
+
   return (
     <IncidentGlassCard className={className}>
-      <header className="mb-4 flex flex-col gap-0.5">
-        <Text as="h3" className="text3 text-ehs-darker">
-          Heatmap by department
-        </Text>
-        <Text as="p" className="text8 text-ehs-muted-text">
-          Reports last 30 days
-        </Text>
+      <header className="mb-4 flex items-start justify-between gap-3">
+        <div className="flex min-w-0 flex-col gap-0.5">
+          <Text as="h3" className="text3 text-ehs-darker">
+            Heatmap by department
+          </Text>
+          <Text as="p" className="text8 text-ehs-muted-text">
+            Reports last 30 days
+          </Text>
+        </div>
+        <CardPager
+          page={currentPage}
+          pageCount={pageCount}
+          onPageChange={setPage}
+          label="departments"
+        />
       </header>
 
       {heatMapQuery.isPending && cells == null ? (
         <SkeletonHeatmapGrid />
-      ) : rows.length > 0 ? (
+      ) : pageRows.length > 0 ? (
         <div
           className="grid gap-1"
           style={{
@@ -188,7 +223,7 @@ export function NearMissHeatmapCard(props: NearMissHeatmapCardProps) {
           ))}
 
           {/* Data rows: location label + heat cells */}
-          {rows.map((row) => (
+          {pageRows.map((row) => (
             <Fragment key={row.key}>
               <Text
                 as="span"
