@@ -162,6 +162,11 @@ export const APP_NAV_GROUPS: readonly AppNavGroup[] = [
         capability: "Document.View",
         icon: "mdi:folder-outline",
         moduleCode: "POLICY_MAKER",
+        // Document control is the supervisory tier's screen. Worker holds Document.View in
+        // the preset grant matrix — it is what lets them read a document they have been
+        // asked to acknowledge — so the capability alone would put the whole library in
+        // their sidebar. The role list is what keeps it out.
+        allowedRoles: ["Ehs_Director", "Ehs_Lead", "Ehs_Manager", "Supervisor"],
       },
     ],
   },
@@ -260,6 +265,21 @@ function passesModuleLicenseGate(
   return true;
 }
 
+/**
+ * The role gate: an item naming `allowedRoles` is for those roles and no others.
+ *
+ * Exported because the sidebar filter and `RequireCapability` both have to apply it. A
+ * route whose menu entry is hidden but whose URL still renders is not restricted, it is
+ * merely inconvenient to find.
+ */
+export function passesRoleGate(item: AppNavItem, role: string | null): boolean {
+  if (!item.allowedRoles) {
+    return true;
+  }
+
+  return item.allowedRoles.some((allowed) => matchesRole(role, allowed));
+}
+
 function isNavItemVisible(
   item: AppNavItem,
   activatedModules: Set<string>,
@@ -275,10 +295,7 @@ function isNavItemVisible(
 
   // An allowedRoles list is a restriction, and a restriction any later rule can widen is
   // not one.
-  if (
-    item.allowedRoles &&
-    !item.allowedRoles.some((r) => matchesRole(role, r))
-  ) {
+  if (!passesRoleGate(item, role)) {
     return false;
   }
 

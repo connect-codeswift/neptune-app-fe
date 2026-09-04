@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { findNavItemForPath } from "@/lib/app-nav";
+import { findNavItemForPath, passesRoleGate } from "@/lib/app-nav";
 import { useCapabilities } from "@/lib/capabilities";
 import { NoAccessPanel } from "./NoAccessPanel";
 
@@ -46,7 +46,7 @@ export function RequireCapability(props: Readonly<RequireCapabilityProps>) {
   const { children, capability, pending = null } = props;
 
   const pathname = usePathname();
-  const { can, hasModule, isReady } = useCapabilities();
+  const { can, hasModule, role, isReady } = useCapabilities();
 
   const navItem = findNavItemForPath(pathname ?? "");
   const required = capability ?? navItem?.capability;
@@ -54,10 +54,6 @@ export function RequireCapability(props: Readonly<RequireCapabilityProps>) {
   // Waiting is not refusing. Showing the refusal first and the page a moment later is how
   // a correctly-permitted user gets told they have no access on every hard refresh.
   if (!isReady) return <>{pending}</>;
-
-  // A route with nothing behind it is open by construction: Chat, Dashboard, Settings and
-  // the profile pages have no module and no capability, and every user needs them.
-  if (!required) return <>{children}</>;
 
   // The licence is checked first so the message can say the true reason. "Your company has
   // not enabled this" is a different problem from "your role cannot see this", and sending
@@ -71,6 +67,25 @@ export function RequireCapability(props: Readonly<RequireCapabilityProps>) {
       />
     );
   }
+
+  // The role gate runs before the capability check and before the "nothing behind it"
+  // shortcut, for the same reason the sidebar filter puts it first: an allowedRoles list is
+  // a restriction, and a held capability must not be able to widen it. Policy Maker is the
+  // live case — Worker holds Document.View so the capability alone would let them type the
+  // URL into the document library.
+  if (navItem && !passesRoleGate(navItem, role)) {
+    return (
+      <NoAccessPanel
+        reason="permission"
+        title={`You do not have access to ${navItem.label}`}
+        description="Your role does not include this. An administrator can grant it in Roles & Rights."
+      />
+    );
+  }
+
+  // A route with nothing behind it is open by construction: Chat, Dashboard, Settings and
+  // the profile pages have no module and no capability, and every user needs them.
+  if (!required) return <>{children}</>;
 
   if (!can(required)) {
     return (

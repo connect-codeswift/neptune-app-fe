@@ -26,6 +26,15 @@ export type Capabilities = {
   /** Has the company licensed this module? */
   hasModule: (code: EhsModuleCode | string | undefined) => boolean;
   /**
+   * The signed-in user's role, exactly as the token spells it — `Ehs_Director`.
+   *
+   * Here for the handful of screens gated on the role itself rather than on a capability,
+   * where the restriction is "this is not that role's screen" and no capability says so.
+   * Compare it with `passesRoleGate`, never with `===`: older tokens have been seen
+   * spacing and casing it differently.
+   */
+  role: string | null;
+  /**
    * False while the session is still loading.
    *
    * Callers must not treat "not ready" as "denied" in a way the user can see: rendering a
@@ -49,7 +58,8 @@ export type Capabilities = {
  * The API still enforces the claims. This decides what to draw, not what is allowed.
  */
 export function useCapabilities(): Capabilities {
-  const { permissions, activatedModules, isUserReady } = useSessionBootstrap();
+  const { permissions, activatedModules, role, isUserReady } =
+    useSessionBootstrap();
 
   const can = (capability: string | undefined) =>
     capability !== undefined && permissions.has(capability);
@@ -60,6 +70,7 @@ export function useCapabilities(): Capabilities {
     canAny: (capabilities) => capabilities.some((entry) => can(entry)),
     hasModule: (code) =>
       code !== undefined && activatedModules.has(code.toUpperCase()),
+    role,
     isReady: isUserReady,
   };
 }

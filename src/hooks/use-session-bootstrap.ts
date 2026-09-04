@@ -169,6 +169,9 @@ export function useSessionBootstrap() {
     isUserReady,
     isError: sessionQuery.isError,
     sites: session?.sites ?? [],
+    /** As the token spells it, null when unknown — the value the nav and route gates take.
+     *  `user.role` below is the display form and defaults to "User", which no gate can use. */
+    role,
     user: {
       displayName,
       initials: getUserInitials(displayName),
