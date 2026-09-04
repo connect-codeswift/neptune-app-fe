@@ -22,6 +22,7 @@ import { useHazardDetailQuery } from "@/hooks/use-hazard-queries";
 import { useUserDropdownQuery } from "@/hooks/use-user-queries";
 import {
   canCloseHazard,
+  canConvertHazardToIncident,
   canEditHazard,
   getCurrentUser,
 } from "@/lib/current-user";
@@ -61,10 +62,12 @@ export function HazardDetailContent(props: HazardDetailContentProps) {
 
   const [canEdit, setCanEdit] = useState(false);
   const [canClose, setCanClose] = useState(false);
+  const [canConvert, setCanConvert] = useState(false);
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time role read from localStorage token
     setCanEdit(canEditHazard());
     setCanClose(canCloseHazard());
+    setCanConvert(canConvertHazardToIncident());
   }, []);
 
   const closeMutation = useCloseHazardMutation();
@@ -174,33 +177,56 @@ export function HazardDetailContent(props: HazardDetailContentProps) {
             canEdit={canEdit && !isClosed}
             editHref={`${HAZARD_LIST_ROUTE}/${encodeURIComponent(record.id)}/edit`}
             action={
-              canClose ? (
-                <Button
-                  type="button"
-                  variant="primary"
-                  disabled={isClosed || hasOpenCapas || closeMutation.isPending}
-                  onClick={handleClose}
-                  className="text4 rounded-2.5 gap-2 px-4 py-2.5 font-semibold"
-                >
-                  <Icon
-                    icon={
-                      closeMutation.isPending
-                        ? "mdi:loading"
-                        : "mdi:check-circle-outline"
-                    }
-                    className={[
-                      "size-4 shrink-0",
-                      closeMutation.isPending ? "animate-spin" : "",
-                    ]
-                      .filter(Boolean)
-                      .join(" ")}
-                    aria-hidden="true"
-                  />
-                  <Text as="span" className="text4 whitespace-nowrap">
-                    {isClosed ? "Closed" : "Close Hazard"}
-                  </Text>
-                </Button>
-              ) : null
+              <>
+                {canClose ? (
+                  <Button
+                    type="button"
+                    variant="primary"
+                    disabled={isClosed || hasOpenCapas || closeMutation.isPending}
+                    onClick={handleClose}
+                    className="text4 rounded-2.5 gap-2 px-4 py-2.5 font-semibold"
+                  >
+                    <Icon
+                      icon={
+                        closeMutation.isPending
+                          ? "mdi:loading"
+                          : "mdi:check-circle-outline"
+                      }
+                      className={[
+                        "size-4 shrink-0",
+                        closeMutation.isPending ? "animate-spin" : "",
+                      ]
+                        .filter(Boolean)
+                        .join(" ")}
+                      aria-hidden="true"
+                    />
+                    <Text as="span" className="text4 whitespace-nowrap">
+                      {isClosed ? "Closed" : "Close Hazard"}
+                    </Text>
+                  </Button>
+                ) : null}
+                {canConvert && !isClosed && !record.incidentId ? (
+                  <Button
+                    type="button"
+                    variant="danger"
+                    onClick={() => {
+                      router.push(
+                        `${HAZARD_LIST_ROUTE}/${encodeURIComponent(record.id)}/convert`,
+                      );
+                    }}
+                    className="text4 rounded-2.5 gap-2 px-4 py-2.5 font-semibold"
+                  >
+                    <Icon
+                      icon="mdi:plus"
+                      className="size-4 shrink-0"
+                      aria-hidden="true"
+                    />
+                    <Text as="span" className="text4 whitespace-nowrap">
+                      Convert to Incident
+                    </Text>
+                  </Button>
+                ) : null}
+              </>
             }
           />
           {hasOpenCapas && !isClosed ? (

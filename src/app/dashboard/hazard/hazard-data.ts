@@ -38,6 +38,8 @@ export type HazardRecord = Readonly<{
   description: string;
   dateReported: string;
   location: string;
+  /** Set once the hazard has been escalated; the convert action hides after that. */
+  incidentId?: number | null;
   /** First of {@link attachments}; kept for callers that predate multiple photos. */
   image?: string;
   /** Every attached photo. Falls back to `[image]` for rows written before the list existed. */

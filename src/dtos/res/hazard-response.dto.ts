@@ -10,6 +10,8 @@ export type HazardDto = CreateHazardRequestDto & {
   status: string;
   createdDate: string;
   updatedAt: string | null;
+  /** The incident this hazard was escalated into. Null until it is converted. */
+  incidentId: number | null;
   /** Who closed it and when; both null while it is open. */
   closedById: number | null;
   closedAt: string | null;

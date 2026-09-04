@@ -54,6 +54,25 @@ export async function getAllHazard(payload: GetAllHazardRequestDto) {
   return data;
 }
 
+/**
+ * POST /api/v1/hazards/{id}/convert-to-incident - links a hazard to the incident it became.
+ *
+ * The incident is created first by the report wizard; this only writes the back-link, which is
+ * what the "Converted to incidents" tile counts and what hides the convert action afterwards.
+ */
+export async function convertHazardToIncident(
+  hazardId: string | number,
+  incidentId: number,
+) {
+  const { data } = await http.post(
+    `${HAZARD_PATH}/${encodeURIComponent(String(hazardId))}/convert-to-incident`,
+    {},
+    { params: { incidentId } },
+  );
+
+  return data;
+}
+
 export async function getHazardKpiCount() {
   const { data } = await http.get<GetHazardKpiResponseDto>(HAZARD_KPI_COUNT_PATH);
 

@@ -194,6 +194,16 @@ export function canConvertNearMissToIncident(): boolean {
   return holds("NearMiss.Update");
 }
 
+/**
+ * True when the signed-in user may escalate a hazard into an incident.
+ *
+ * Hazard.Update, which is what POST /api/v1/hazards/{id}/convert-to-incident enforces - the
+ * same pairing near miss uses above.
+ */
+export function canConvertHazardToIncident(): boolean {
+  return holds("Hazard.Update");
+}
+
 /** True when the signed-in user may close a near miss — `POST {id}/close`. */
 export function canCloseNearMiss(): boolean {
   return holds("NearMiss.Update");
@@ -223,7 +233,7 @@ export function canCloseHazard(): boolean {
  * near misses at all — separating them needs a `NearMiss.Insights.View` on the backend.
  */
 export function canViewNearMissInsights(): boolean {
-  return holds("NearMiss.View");
+  return holds("NearMiss.Dashboard.View");
 }
 
 /**

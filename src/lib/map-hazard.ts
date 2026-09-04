@@ -151,6 +151,7 @@ export function mapHazardDtoToRecord(dto: HazardDto): HazardRecord {
   const status = toStatus(dto.status);
   const type = labelFor(HAZARD_TYPE_OPTIONS, dto.type);
   const location = labelFor(LOCATION_OPTIONS, dto.location);
+  const incidentId = dto.incidentId ?? null;
 
   return {
     id: formatHazardDisplayId(dto.id),
@@ -168,6 +169,7 @@ export function mapHazardDtoToRecord(dto: HazardDto): HazardRecord {
     description: dto.description,
     dateReported: dto.createdDate.slice(0, 10),
     location,
+    incidentId,
     image: dto.image,
     // The API sends the list; an older row only has the single column, so it stands in.
     attachments: dto.attachments?.length
