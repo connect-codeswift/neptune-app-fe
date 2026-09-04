@@ -178,27 +178,6 @@ export function HazardDetailContent(props: HazardDetailContentProps) {
             editHref={`${HAZARD_LIST_ROUTE}/${encodeURIComponent(record.id)}/edit`}
             action={
               <>
-                {canConvert && !isClosed && !record.incidentId ? (
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    onClick={() => {
-                      router.push(
-                        `${HAZARD_LIST_ROUTE}/${encodeURIComponent(record.id)}/convert`,
-                      );
-                    }}
-                    className="text4 rounded-2.5 gap-2 px-4 py-2.5 font-semibold"
-                  >
-                    <Icon
-                      icon="mdi:swap-horizontal"
-                      className="size-4 shrink-0"
-                      aria-hidden="true"
-                    />
-                    <Text as="span" className="text4 whitespace-nowrap">
-                      Convert to Incident
-                    </Text>
-                  </Button>
-                ) : null}
                 {canClose ? (
                   <Button
                     type="button"
@@ -223,6 +202,27 @@ export function HazardDetailContent(props: HazardDetailContentProps) {
                     />
                     <Text as="span" className="text4 whitespace-nowrap">
                       {isClosed ? "Closed" : "Close Hazard"}
+                    </Text>
+                  </Button>
+                ) : null}
+                {canConvert && !isClosed && !record.incidentId ? (
+                  <Button
+                    type="button"
+                    variant="danger"
+                    onClick={() => {
+                      router.push(
+                        `${HAZARD_LIST_ROUTE}/${encodeURIComponent(record.id)}/convert`,
+                      );
+                    }}
+                    className="text4 rounded-2.5 gap-2 px-4 py-2.5 font-semibold"
+                  >
+                    <Icon
+                      icon="mdi:plus"
+                      className="size-4 shrink-0"
+                      aria-hidden="true"
+                    />
+                    <Text as="span" className="text4 whitespace-nowrap">
+                      Convert to Incident
                     </Text>
                   </Button>
                 ) : null}
