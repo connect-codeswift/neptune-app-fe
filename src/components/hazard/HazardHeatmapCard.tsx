@@ -58,7 +58,10 @@ function cellStyle(value: number | null, max: number) {
     };
   }
   const ratio = max > 1 ? (value - 1) / (max - 1) : 0;
-  const percent = ((0.22 + ratio * 0.58) * 100).toFixed(1);
+  // Floor at 36%, not 22%. The lightest tint was near enough invisible against the card,
+  // so a cell holding 1 read as empty - the difference between "nothing here" and "one report"
+  // is the one a heat map most needs to carry. Top of the ramp is unchanged.
+  const percent = ((0.36 + ratio * 0.44) * 100).toFixed(1);
   return {
     backgroundColor: `color-mix(in oklab, var(--ehs-normal-blue) ${percent}%, transparent)`,
   };
