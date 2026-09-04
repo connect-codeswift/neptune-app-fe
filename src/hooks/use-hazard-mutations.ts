@@ -3,6 +3,7 @@ import type { SaveHazardRequestDto } from "@/dtos/req/hazard-request.dto";
 import {
   closeHazard,
   createHazard,
+  convertHazardToIncident,
   dropHazard,
 } from "@/services/hazard.service";
 
@@ -43,6 +44,24 @@ export function useCloseHazardMutation() {
 
   return useMutation({
     mutationFn: (id: string) => closeHazard(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["hazard"] });
+    },
+  });
+}
+
+/** Links a hazard to an incident via POST /api/v1/hazards/{id}/convert-to-incident. */
+export function useConvertHazardToIncidentMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      hazardId,
+      incidentId,
+    }: {
+      hazardId: string | number;
+      incidentId: number;
+    }) => convertHazardToIncident(hazardId, incidentId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["hazard"] });
     },
