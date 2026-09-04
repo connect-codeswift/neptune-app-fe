@@ -223,7 +223,7 @@ export function canCloseHazard(): boolean {
  * near misses at all — separating them needs a `NearMiss.Insights.View` on the backend.
  */
 export function canViewNearMissInsights(): boolean {
-  return holds("NearMiss.View");
+  return holds("NearMiss.Dashboard.View");
 }
 
 /**
